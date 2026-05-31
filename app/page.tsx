@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Desktop from '@/components/window-manager/Desktop'
-import Taskbar from '@/components/window-manager/Taskbar'
+import TerminalBar from '@/components/terminal/TerminalBar'
 import { WindowProvider, useWindowStore } from '@/components/window-manager/useWindows'
 import Welcome from '@/components/windows/Welcome'
 import CustomCursor from '@/components/ui/CustomCursor'
@@ -12,13 +12,13 @@ function AppContent() {
 
   useEffect(() => {
     // Auto-open welcome window on load
-    openWindow('welcome', 'Welcome', Welcome)
+    openWindow('welcome' as any)
   }, [openWindow])
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black">
       <Desktop />
-      <Taskbar />
+      <TerminalBar />
       <CustomCursor />
     </div>
   )
