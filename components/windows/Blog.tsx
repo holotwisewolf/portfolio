@@ -35,7 +35,7 @@ export default function Blog() {
 
   return (
     <div className="h-full flex flex-col">
-      <h2 className="text-2xl font-bold mb-6 border-b border-white pb-2">BLOG</h2>
+      <h2 className="crt-text text-2xl font-bold mb-6 border-b border-white pb-2">BLOG</h2>
       <div className="text-sm mb-4 opacity-70">Book Reviews & Thoughts</div>
       <div className="flex-1 overflow-auto space-y-4">
         {posts.length === 0 ? (

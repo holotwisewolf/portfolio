@@ -16,7 +16,7 @@ interface ProjectDetailProps {
 export default function ProjectDetail({ project }: ProjectDetailProps) {
   return (
     <div className="h-full flex flex-col">
-      <h2 className="text-2xl font-bold mb-2">{project.title}</h2>
+      <h2 className="crt-text text-2xl font-bold mb-2">{project.title}</h2>
       <p className="mb-4 opacity-80">{project.description}</p>
 
       <div className="flex gap-2 mb-4">

@@ -51,7 +51,7 @@ export default function Admin() {
     return (
       <div className="h-full flex items-center justify-center">
         <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4">
-          <h2 className="text-xl font-bold">Admin Login</h2>
+          <h2 className="crt-text text-xl font-bold">Admin Login</h2>
           <input
             type="password"
             value={password}
@@ -73,7 +73,7 @@ export default function Admin() {
 
   return (
     <div className="h-full flex flex-col">
-      <h2 className="text-2xl font-bold mb-6 border-b border-white pb-2">ADMIN</h2>
+      <h2 className="crt-text text-2xl font-bold mb-6 border-b border-white pb-2">ADMIN</h2>
 
       <form onSubmit={handlePublish} className="space-y-4 flex-1 flex flex-col">
         <div>

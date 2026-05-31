@@ -38,7 +38,7 @@ export default function Projects() {
 
   return (
     <div className="h-full">
-      <h2 className="text-2xl font-bold mb-6 border-b border-white pb-2">PROJECTS</h2>
+      <h2 className="crt-text text-2xl font-bold mb-6 border-b border-white pb-2">PROJECTS</h2>
       <div className="grid grid-cols-1 gap-4">
         {projects.map((project) => (
           <button

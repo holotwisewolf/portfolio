@@ -40,7 +40,7 @@ Kahneman divides thinking into two systems: System 1 (fast, intuitive) and Syste
   return (
     <div className="h-full overflow-auto">
       <div className="mb-6 pb-4 border-b border-white">
-        <h2 className="text-2xl font-bold mb-2">{frontmatter?.title}</h2>
+        <h2 className="crt-text text-2xl font-bold mb-2">{frontmatter?.title}</h2>
         <p className="opacity-70 mb-2">by {frontmatter?.author}</p>
         <div className="text-yellow-500">{stars}</div>
       </div>

@@ -1,7 +1,7 @@
 export default function About() {
   return (
     <div className="h-full flex flex-col">
-      <h2 className="text-2xl font-bold mb-6 border-b border-white pb-2">ABOUT</h2>
+      <h2 className="crt-text text-2xl font-bold mb-6 border-b border-white pb-2">ABOUT</h2>
 
       <div className="space-y-6">
         <div>

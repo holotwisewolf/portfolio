@@ -21,7 +21,7 @@ export default function Welcome() {
 
   return (
     <div className="h-full flex flex-col justify-center items-center gap-8">
-      <h1 className="text-4xl font-bold">PORTFOLIO</h1>
+      <h1 className="crt-text text-4xl font-bold">PORTFOLIO</h1>
       <div className="text-lg font-mono">{text}</div>
       <div className="text-sm opacity-70">
         Double-click desktop icons to open windows
