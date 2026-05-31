@@ -1,6 +1,7 @@
 'use client'
 
-import { useWindowStore } from './useWindows'
+import { useEffect } from 'react'
+import { useWindowStore, registerWindowContent } from './useWindows'
 import Welcome from '../windows/Welcome'
 import Projects from '../windows/Projects'
 import Blog from '../windows/Blog'
@@ -24,15 +25,20 @@ const icons: DesktopIcon[] = [
 
 export default function Desktop() {
   const openWindow = useWindowStore((s) => s.openWindow)
-  const windows = useWindowStore((s) => s.windows)
+
+  useEffect(() => {
+    // Register all window contents on mount
+    icons.forEach((icon) => {
+      registerWindowContent(icon.id as any, icon.component)
+    })
+  }, [])
 
   const handleIconClick = (icon: DesktopIcon) => {
-    openWindow(icon.id as any, icon.label, icon.component)
+    openWindow(icon.id as any)
   }
 
   return (
     <div className="relative h-full w-full">
-      {/* Desktop Icons */}
       {icons.map((icon) => (
         <button
           key={icon.id}
@@ -46,20 +52,6 @@ export default function Desktop() {
           <span className="text-xs">{icon.label}</span>
         </button>
       ))}
-
-      {/* Render all open windows */}
-      {Object.values(windows).map((window) => {
-        if (window.isOpen) {
-          return (
-            <div key={window.id} className="absolute">
-              <div className="pointer-events-none">
-                {/* We'll render windows via a different mechanism */}
-              </div>
-            </div>
-          )
-        }
-        return null
-      })}
     </div>
   )
 }
