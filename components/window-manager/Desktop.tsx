@@ -40,18 +40,17 @@ export default function Desktop() {
     <div className="relative h-full w-full">
       {icons.map((icon) => (
         <button
-            key={icon.id}
-            onClick={() => handleIconClick(icon)}
-            className="icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors"
-            style={{ left: icon.position.x, top: icon.position.y }}
-          >
-            <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">
-              {icon.label[0]}
-            </div>
-            <span className="text-xs">{icon.label}</span>
-          </button>
-        )
-      })}
+          key={icon.id}
+          onClick={() => handleIconClick(icon)}
+          className="icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors"
+          style={{ left: icon.position.x, top: icon.position.y }}
+        >
+          <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">
+            {icon.label[0]}
+          </div>
+          <span className="text-xs">{icon.label}</span>
+        </button>
+      ))}
     </div>
   )
 }
