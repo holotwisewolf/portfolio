@@ -1,12 +1,23 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+
 interface ActivityGridProps {
   dots?: number
   pattern?: ('high' | 'mid' | 'low')[]
 }
 
 export default function ActivityGrid({ dots = 35, pattern }: ActivityGridProps) {
-  const activityPattern = pattern || generateActivityPattern(dots)
+  const [activityPattern, setActivityPattern] = useState<('high' | 'mid' | 'low')[]>(
+    pattern || generateActivityPattern(dots)
+  )
+
+  // Regenerate pattern on client after hydration (for consistent SSR)
+  useEffect(() => {
+    if (!pattern) {
+      setActivityPattern(generateActivityPattern(dots))
+    }
+  }, [dots, pattern])
 
   return (
     <div className="flex flex-wrap gap-[2px]">

@@ -43,15 +43,26 @@ export default function Window({ windowId }: WindowProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [loadProgress, setLoadProgress] = useState(0)
   const [isDraggingOrResizing, setIsDraggingOrResizing] = useState(false)
+  // Track when we're in the middle of a user interaction to prevent useEffect overrides
+  const isInteractingRef = useRef(false)
 
-  // Update local position when window state changes (but not during drag)
+  // Initialize local state from window state on mount
   useEffect(() => {
-    if (windowState && !dragStateRef.current.isDragging && !resizeStateRef.current.isResizing) {
+    if (windowState) {
       setLocalPosition(windowState.position)
       setLocalSize(windowState.size)
       localSizeRef.current = windowState.size
     }
-  }, [windowState?.position, windowState?.size])
+  }, [windowId])
+
+  // Update local position when window state changes (but not during interaction)
+  useEffect(() => {
+    if (!isInteractingRef.current && windowState && !dragStateRef.current.isDragging && !resizeStateRef.current.isResizing) {
+      setLocalPosition(windowState.position)
+      setLocalSize(windowState.size)
+      localSizeRef.current = windowState.size
+    }
+  }, [windowState?.position, windowState?.size, windowState?.zIndex])
 
   // Trigger boot animation on mount
   useEffect(() => {
@@ -84,6 +95,7 @@ export default function Window({ windowId }: WindowProps) {
     }
   }, [windowState?.isLoading])
 
+  // Early return if window shouldn't render (must be after all hooks)
   if (!windowState || !windowState.isOpen || windowState.isMinimized) {
     return null
   }
@@ -104,6 +116,7 @@ export default function Window({ windowId }: WindowProps) {
       initialTop: localPosition.y
     }
     setIsDraggingOrResizing(true)
+    isInteractingRef.current = true
   }, [setActiveWindow, windowId, localPosition])
 
   const handleClick = useCallback(() => {
@@ -143,6 +156,7 @@ export default function Window({ windowId }: WindowProps) {
       initialTop: localPosition.y
     }
     setIsDraggingOrResizing(true)
+    isInteractingRef.current = true
   }, [setActiveWindow, windowId, localSize, localPosition, isMaximized])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -178,10 +192,12 @@ export default function Window({ windowId }: WindowProps) {
         newTop = resizeStateRef.current.initialTop + dy
       }
 
-      setLocalSize({ width: Math.max(400, newWidth), height: Math.max(300, newHeight) })
+      const finalSize = { width: Math.max(400, newWidth), height: Math.max(300, newHeight) }
+      setLocalSize(finalSize)
+      localSizeRef.current = finalSize
       setLocalPosition({ x: newLeft, y: newTop })
     }
-  }, [localPosition, localSize])
+  }, [])
 
   const handleMouseUp = useCallback((e: MouseEvent) => {
     if (dragStateRef.current.isDragging) {
@@ -192,17 +208,21 @@ export default function Window({ windowId }: WindowProps) {
       const newTop = dragStateRef.current.initialTop + dy
 
       dragStateRef.current.isDragging = false
-      setIsDraggingOrResizing(false)
       setLocalPosition({ x: newLeft, y: newTop })
       updateWindowPosition(windowId, { x: newLeft, y: newTop })
     }
 
     if (resizeStateRef.current.isResizing) {
       resizeStateRef.current.isResizing = false
-      setIsDraggingOrResizing(false)
       updateWindowSize(windowId, localSizeRef.current)
       updateWindowPosition(windowId, localPosition)
     }
+
+    // Clear interaction flag AFTER updating store
+    setIsDraggingOrResizing(false)
+    setTimeout(() => {
+      isInteractingRef.current = false
+    }, 0)
   }, [updateWindowPosition, updateWindowSize, windowId, localPosition])
 
   // Set up global mouse event listeners for drag and resize

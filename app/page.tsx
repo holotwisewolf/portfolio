@@ -32,12 +32,12 @@ function AppContent() {
       <StatusBar />
       <div className="h-[calc(100vh-24px)] flex">
         {/* Left Panel - Profile */}
-        <div className="w-[280px] flex-shrink-0 border-r border-white">
+        <div className="w-[280px] h-full flex-shrink-0 border-r border-white">
           <ProfilePanel />
         </div>
 
         {/* Center Panel - Desktop with Windows */}
-        <div className="flex-1 relative">
+        <div className="flex-1 h-full relative">
           <Desktop />
           {openWindows.map((window) => (
             <Window key={`${window.id}-${window.zIndex}`} windowId={window.id as any} />
@@ -45,7 +45,7 @@ function AppContent() {
         </div>
 
         {/* Right Panel - Market+Dev */}
-        <div className="w-[320px] flex-shrink-0 border-l border-white">
+        <div className="w-[320px] h-full flex-shrink-0 border-l border-white">
           <StockCharts />
         </div>
       </div>
