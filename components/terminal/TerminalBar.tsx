@@ -10,7 +10,11 @@ interface CommandEntry {
   timestamp: Date
 }
 
-export default function TerminalBar() {
+interface TerminalBarProps {
+  onPathChange?: (path: string) => void
+}
+
+export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   const [commandHistory, setCommandHistory] = useState<CommandEntry[]>([
     { input: '', output: 'TERMINAL READY. TYPE "help" FOR COMMANDS.', timestamp: new Date() }
   ])
@@ -32,6 +36,11 @@ export default function TerminalBar() {
   useEffect(() => {
     outputRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [commandHistory])
+
+  // Notify parent of path changes
+  useEffect(() => {
+    onPathChange?.(currentPath)
+  }, [currentPath, onPathChange])
 
   const executeCommand = async (cmd: string) => {
     const trimmed = cmd.trim()
