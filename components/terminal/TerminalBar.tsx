@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useWindowStore } from '../window-manager/useWindows'
-import Window from '../window-manager/Window'
 
 interface CommandEntry {
   input: string
@@ -221,11 +220,6 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
   return (
     <>
-      {/* Render open windows */}
-      {openWindows.map((window) => (
-        <Window key={window.id} windowId={window.id as any} />
-      ))}
-
       {/* Terminal Bar */}
       <div
         className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white bottom-0 left-0 right-0 ${
