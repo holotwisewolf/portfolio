@@ -6,6 +6,7 @@ import TerminalBar from '@/components/terminal/TerminalBar'
 import { WindowProvider, useWindowStore } from '@/components/window-manager/useWindows'
 import Welcome from '@/components/windows/Welcome'
 import CustomCursor from '@/components/ui/CustomCursor'
+import StatusBar from '@/components/ui/StatusBar'
 
 function AppContent() {
   const openWindow = useWindowStore((s) => s.openWindow)
@@ -17,9 +18,12 @@ function AppContent() {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black">
-      <Desktop />
-      <TerminalBar />
-      <CustomCursor />
+      <StatusBar />
+      <div className="h-[calc(100%-24px)]">
+        <Desktop />
+        <TerminalBar />
+        <CustomCursor />
+      </div>
     </div>
   )
 }
