@@ -208,7 +208,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
           <div className="px-2 py-1">
             {isExpanded ? (
               // Show all history when expanded
-              <div className="max-h-48 overflow-y-auto space-y-1">
+              <div className="max-h-48 overflow-y-auto">
                 {commandHistory.map((entry, i) => (
                   <div key={i}>
                     {entry.input && (
@@ -224,13 +224,13 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 <div ref={outputRef} />
               </div>
             ) : (
-              // Show only last line when collapsed
-              <>
-                <div className="text-gray-300">
+              // Show only last line when collapsed - SAME structure as expanded
+              <div>
+                <div className="text-gray-300 whitespace-pre-wrap">
                   {commandHistory[commandHistory.length - 1]?.output.split('\n').slice(-1)[0] || 'TERMINAL READY'}
                 </div>
                 <div ref={outputRef} />
-              </>
+              </div>
             )}
           </div>
         )}
