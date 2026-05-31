@@ -205,7 +205,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
       >
         {/* Output area - full when expanded, single line when collapsed */}
         {!isMinimized && (
-          <div className={isExpanded ? "max-h-48 overflow-y-auto p-2 space-y-1" : "px-2 py-1"}>
+          <div className={isExpanded ? "max-h-48 overflow-y-auto px-2 py-1 space-y-1" : "px-2 py-1"}>
             {isExpanded ? (
               // Show all history when expanded
               commandHistory.map((entry, i) => (
