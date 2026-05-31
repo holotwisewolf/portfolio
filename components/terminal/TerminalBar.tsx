@@ -205,28 +205,33 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
       >
         {/* Output area - full when expanded, single line when collapsed */}
         {!isMinimized && (
-          <div className={isExpanded ? "max-h-48 overflow-y-auto px-2 py-1 space-y-1" : "px-2 py-1"}>
+          <div className="px-2 py-1">
             {isExpanded ? (
               // Show all history when expanded
-              commandHistory.map((entry, i) => (
-                <div key={i}>
-                  {entry.input && (
-                    <div className="text-green-400">
-                      <span className="text-white">$</span>
-                      <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
-                      <span className="text-white">&gt;</span> {entry.input}
-                    </div>
-                  )}
-                  <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
-                </div>
-              ))
+              <div className="max-h-48 overflow-y-auto space-y-1">
+                {commandHistory.map((entry, i) => (
+                  <div key={i}>
+                    {entry.input && (
+                      <div className="text-green-400">
+                        <span className="text-white">$</span>
+                        <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
+                        <span className="text-white">&gt;</span> {entry.input}
+                      </div>
+                    )}
+                    <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
+                  </div>
+                ))}
+                <div ref={outputRef} />
+              </div>
             ) : (
               // Show only last line when collapsed
-              <div className="text-gray-300">
-                {commandHistory[commandHistory.length - 1]?.output.split('\n').slice(-1)[0] || 'TERMINAL READY'}
-              </div>
+              <>
+                <div className="text-gray-300">
+                  {commandHistory[commandHistory.length - 1]?.output.split('\n').slice(-1)[0] || 'TERMINAL READY'}
+                </div>
+                <div ref={outputRef} />
+              </>
             )}
-            <div ref={outputRef} />
           </div>
         )}
 
