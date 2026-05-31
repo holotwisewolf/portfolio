@@ -1,6 +1,6 @@
 'use client'
 
-import create from 'zustand'
+import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { WindowManagerState, WindowId } from '@/lib/window-state'
 
