@@ -203,21 +203,29 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
         }`}
         style={{ zIndex: 10000 }}
       >
-        {/* Output area - hidden when not expanded */}
-        {isExpanded && !isMinimized && (
-          <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-            {commandHistory.map((entry, i) => (
-              <div key={i}>
-                {entry.input && (
-                  <div className="text-green-400">
-                    <span className="text-white">$</span>
-                    <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
-                    <span className="text-white">&gt;</span> {entry.input}
-                  </div>
-                )}
-                <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
+        {/* Output area - full when expanded, single line when collapsed */}
+        {!isMinimized && (
+          <div className={isExpanded ? "max-h-48 overflow-y-auto p-2 space-y-1" : "px-2 py-1"}>
+            {isExpanded ? (
+              // Show all history when expanded
+              commandHistory.map((entry, i) => (
+                <div key={i}>
+                  {entry.input && (
+                    <div className="text-green-400">
+                      <span className="text-white">$</span>
+                      <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
+                      <span className="text-white">&gt;</span> {entry.input}
+                    </div>
+                  )}
+                  <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
+                </div>
+              ))
+            ) : (
+              // Show only last line when collapsed
+              <div className="text-gray-400 text-xs">
+                {commandHistory[commandHistory.length - 1]?.output.split('\n').slice(-1)[0] || 'TERMINAL READY'}
               </div>
-            ))}
+            )}
             <div ref={outputRef} />
           </div>
         )}
