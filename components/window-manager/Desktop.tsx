@@ -35,7 +35,9 @@ const icons: DesktopIcon[] = [
 export default function Desktop() {
   const openWindow = useWindowStore((s) => s.openWindow)
 
-  const handleIconClick = (icon: DesktopIcon) => {
+  const handleIconClick = (e: React.MouseEvent, icon: DesktopIcon) => {
+    e.preventDefault()
+    e.stopPropagation()
     openWindow(icon.id as any)
   }
 
@@ -44,7 +46,7 @@ export default function Desktop() {
       {icons.map((icon) => (
         <button
           key={icon.id}
-          onClick={() => handleIconClick(icon)}
+          onMouseDown={(e) => handleIconClick(e, icon)}
           className="icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors"
           style={{ left: icon.position.x, top: icon.position.y }}
         >

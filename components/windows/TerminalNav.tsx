@@ -9,7 +9,9 @@ export default function TerminalNav() {
   const [activeNav, setActiveNav] = useState('Welcome')
   const openWindow = useWindowStore((s) => s.openWindow)
 
-  const handleNavClick = (item: string) => {
+  const handleNavClick = (e: React.MouseEvent, item: string) => {
+    e.preventDefault()
+    e.stopPropagation()
     setActiveNav(item)
     // Open corresponding window
     const windowId = item.toLowerCase() as any
@@ -49,7 +51,7 @@ export default function TerminalNav() {
         {navItems.map((item) => (
           <div
             key={item}
-            onClick={() => handleNavClick(item)}
+            onMouseDown={(e) => handleNavClick(e, item)}
             className={`py-1.5 border-b border-gray-900 cursor-pointer tracking-wider ${
               activeNav === item ? 'text-white' : 'text-gray-500'
             }`}

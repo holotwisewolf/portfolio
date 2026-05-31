@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import ProfilePanel from '@/components/panels/ProfilePanel'
 import StockCharts from '@/components/panels/StockCharts'
 import TerminalBar from '@/components/terminal/TerminalBar'
@@ -13,10 +13,14 @@ import PixelBackground from '@/components/ui/PixelBackground'
 
 function AppContent() {
   const openWindow = useWindowStore((s) => s.openWindow)
+  const hasOpenedTerminal = useRef(false)
 
-  // Auto-open Terminal window on load
+  // Auto-open Terminal window on load (only once)
   useEffect(() => {
-    openWindow('terminalnav')
+    if (!hasOpenedTerminal.current) {
+      openWindow('terminalnav')
+      hasOpenedTerminal.current = true
+    }
   }, [openWindow])
 
   const windows = useWindowStore((s) => s.windows)
@@ -36,7 +40,7 @@ function AppContent() {
         <div className="flex-1 relative">
           <Desktop />
           {openWindows.map((window) => (
-            <Window key={window.id} windowId={window.id as any} />
+            <Window key={`${window.id}-${window.zIndex}`} windowId={window.id as any} />
           ))}
         </div>
 
