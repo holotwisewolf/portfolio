@@ -5,6 +5,7 @@ import Desktop from '@/components/window-manager/Desktop'
 import Taskbar from '@/components/window-manager/Taskbar'
 import { WindowProvider, useWindowStore } from '@/components/window-manager/useWindows'
 import Welcome from '@/components/windows/Welcome'
+import CustomCursor from '@/components/ui/CustomCursor'
 
 function AppContent() {
   const openWindow = useWindowStore((s) => s.openWindow)
@@ -18,6 +19,7 @@ function AppContent() {
     <div className="h-screen w-screen overflow-hidden bg-black">
       <Desktop />
       <Taskbar />
+      <CustomCursor />
     </div>
   )
 }

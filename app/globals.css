@@ -6,6 +6,7 @@
   body {
     @apply bg-black text-white;
     font-family: 'Orbit', monospace;
+    cursor: none;
   }
 
   /* Scanline effect */
@@ -26,6 +27,30 @@
     pointer-events: none;
     z-index: 9999;
   }
+}
+
+/* Custom Brutalist Cursor */
+.custom-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s ease, width 0.1s, height 0.1s;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor.hover {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: none;
+}
+
+.custom-cursor.clicking {
+  transform: translate(-50%, -50%) scale(0.8);
 }
 
 /* Sharp edges everywhere - no rounded corners */
