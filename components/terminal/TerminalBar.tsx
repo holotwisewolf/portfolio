@@ -198,8 +198,8 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
       {/* Terminal Bar */}
       <div
-        className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white ${
-          isMinimized ? 'h-6' : ''
+        className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white bottom-0 left-0 right-0 ${
+          isMinimized ? 'h-6' : 'h-auto'
         }`}
         style={{ zIndex: 10000 }}
       >
