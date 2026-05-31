@@ -1,0 +1,94 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: transparent; }
+  .wrap { font-family: 'Courier New', monospace; padding: 1rem 0; }
+  .section-title { font-size: 11px; letter-spacing: 0.15em; color: #00ff9d; margin: 1.5rem 0 0.5rem; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { background: #0a0f0a; border: 0.5px solid #1a2e1a; border-radius: 4px; padding: 10px 12px; }
+  .card-title { font-size: 10px; letter-spacing: 0.12em; color: #00ff9d; text-transform: uppercase; margin-bottom: 8px; border-bottom: 0.5px solid #1a2e1a; padding-bottom: 6px; }
+  .row { display: flex; align-items: flex-start; gap: 8px; margin: 5px 0; font-size: 12px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .dot-done { background: #00ff9d; }
+  .dot-missing { background: #ff4040; }
+  .dot-partial { background: #ffaa00; }
+  .label { color: #c8c8c8; line-height: 1.4; }
+  .legend { display: flex; gap: 16px; margin: 1rem 0 0.5rem; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+  .sub { font-size: 10px; color: #666; margin-top: 2px; }
+  .header { font-size: 13px; color: #00ff9d; letter-spacing: 0.1em; margin-bottom: 0.25rem; text-transform: uppercase; }
+  .subheader { font-size: 11px; color: #555; margin-bottom: 1rem; }
+</style>
+<div class="wrap">
+  <div class="header">eDEX-UI → Your Build</div>
+  <div class="subheader">Feature parity checklist</div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="dot dot-done"></div> Done</div>
+    <div class="legend-item"><div class="dot dot-partial"></div> Partial</div>
+    <div class="legend-item"><div class="dot dot-missing"></div> Missing</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-title">Layout & Structure</div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Black / near-black background</div></div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Monospace font throughout</div></div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Top status bar with live data</div></div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Bottom terminal bar</div></div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Vertical panel dividers</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">3-panel layout (left stats · center terminal · right network)</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Panels labeled with ALL-CAPS titles (PANEL, SYSTEM, NETWORK…)</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Left Panel (Stats)</div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Date / uptime / OS / power block</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">CPU usage with live sparkline graph</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Temp / min / max / tasks row</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Memory usage with dot-matrix visualizer</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Top processes table (PID · NAME · CPU · MEM)</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Clipboard COPY / PASTE buttons</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Center Terminal</div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Terminal-style text output area</div></div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Green cursor / prompt</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">neofetch-style ASCII art logo on load</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Timestamp shown top-right of terminal</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Command response time shown (e.g. 860ms)</div></div>
+      <div class="row"><div class="dot dot-partial"></div><div class="label">On-screen keyboard below terminal</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Right Panel (Network)</div>
+      <div class="row"><div class="dot dot-partial"></div><div class="label">Right sidebar with charts</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Network status (STATE · IPv4 · PING)</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Rotating 3D globe / world map</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Network traffic graph (up/down lines)</div></div>
+      <div class="row"><div class="dot dot-partial"></div><div class="label">Mini line charts (stock/data) with labels</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Typography & Color</div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Green accent color (#00ff9d range)</div></div>
+      <div class="row"><div class="dot dot-partial"></div><div class="label">Dim white for secondary text</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Extremely small font sizes (10–12px) for data rows</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Letter-spacing on ALL-CAPS labels</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Thin 0.5px / 1px borders only — no thick lines</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Micro-details</div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Scanline / CRT subtle texture overlay</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Blinking cursor animation</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Filesystem breadcrumb bar</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Bottom disk usage bar (Mount … used X%)</div></div>
+      <div class="row"><div class="dot dot-missing"></div><div class="label">Particle / dot scatter in dark areas</div></div>
+      <div class="row"><div class="dot dot-done"></div><div class="label">Animated sparkle/star particles in bg</div></div>
+    </div>
+
+  </div>
+</div>

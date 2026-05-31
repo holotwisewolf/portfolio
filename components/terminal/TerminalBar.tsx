@@ -238,7 +238,8 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
           </span>
           <button
             onClick={toggleCollapse}
-            className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+            className="ml-2 px-3 py-1 text-xs border border-white hover:bg-white hover:text-black transition-colors bg-black"
+            title={isCollapsed ? 'Expand terminal' : 'Collapse terminal'}
           >
             {isCollapsed ? '□' : '▬'}
           </button>

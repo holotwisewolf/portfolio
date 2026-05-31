@@ -41,6 +41,7 @@ export default function Window({ windowId }: WindowProps) {
   const [isBooting, setIsBooting] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [loadProgress, setLoadProgress] = useState(0)
+  const [isDraggingOrResizing, setIsDraggingOrResizing] = useState(false)
 
   // Update local position when window state changes (but not during drag)
   useEffect(() => {
@@ -100,6 +101,7 @@ export default function Window({ windowId }: WindowProps) {
       initialLeft: localPosition.x,
       initialTop: localPosition.y
     }
+    setIsDraggingOrResizing(true)
   }, [setActiveWindow, windowId, localPosition])
 
   const handleClick = useCallback(() => {
@@ -138,6 +140,7 @@ export default function Window({ windowId }: WindowProps) {
       initialLeft: localPosition.x,
       initialTop: localPosition.y
     }
+    setIsDraggingOrResizing(true)
   }, [setActiveWindow, windowId, localSize, localPosition, isMaximized])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -187,12 +190,14 @@ export default function Window({ windowId }: WindowProps) {
       const newTop = dragStateRef.current.initialTop + dy
 
       dragStateRef.current.isDragging = false
+      setIsDraggingOrResizing(false)
       setLocalPosition({ x: newLeft, y: newTop })
       updateWindowPosition(windowId, { x: newLeft, y: newTop })
     }
 
     if (resizeStateRef.current.isResizing) {
       resizeStateRef.current.isResizing = false
+      setIsDraggingOrResizing(false)
       updateWindowSize(windowId, localSize)
       updateWindowPosition(windowId, localPosition)
     }
@@ -200,15 +205,24 @@ export default function Window({ windowId }: WindowProps) {
 
   // Set up global mouse event listeners for drag and resize
   useEffect(() => {
-    if (dragStateRef.current.isDragging || resizeStateRef.current.isResizing) {
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove)
-        window.removeEventListener('mouseup', handleMouseUp)
-      }
+    if (!isDraggingOrResizing) return
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      handleMouseMove(e)
     }
-  }, [dragStateRef.current.isDragging, resizeStateRef.current.isResizing, handleMouseMove, handleMouseUp])
+
+    const handleGlobalMouseUp = (e: MouseEvent) => {
+      handleMouseUp(e)
+    }
+
+    window.addEventListener('mousemove', handleGlobalMouseMove)
+    window.addEventListener('mouseup', handleGlobalMouseUp)
+
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove)
+      window.removeEventListener('mouseup', handleGlobalMouseUp)
+    }
+  }, [isDraggingOrResizing, handleMouseMove, handleMouseUp])
 
   if (isMaximized) {
     return (

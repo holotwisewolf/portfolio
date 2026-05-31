@@ -5,8 +5,13 @@ import { useState, useEffect } from 'react'
 export default function StatusBar() {
   const [isConnected, setIsConnected] = useState(true)
   const [latency, setLatency] = useState(42)
-  const [time, setTime] = useState(new Date().toLocaleTimeString())
+  const [time, setTime] = useState('')
   const [stocks, setStocks] = useState({ SPY: 0, QQQ: 0 })
+
+  // Set initial time on mount (client-side only)
+  useEffect(() => {
+    setTime(new Date().toLocaleTimeString())
+  }, [])
 
   useEffect(() => {
     // Simulate connection checks
@@ -64,7 +69,7 @@ export default function StatusBar() {
         <span className="text-gray-300">QQQ: ${stocks.QQQ?.toFixed(2) || '---'}</span>
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-gray-500">{time}</span>
+        <span className="text-gray-500">{time || '--:--:--'}</span>
       </div>
     </div>
   )

@@ -1,0 +1,147 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .wrap { font-family: 'Courier New', monospace; padding: 1rem 0; }
+  .top { font-size: 10px; letter-spacing: 0.15em; color: #00ff9d; text-transform: uppercase; margin-bottom: 1rem; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .panel { background: #060c06; border: 0.5px solid #1c2e1c; border-radius: 3px; padding: 10px; }
+  .panel-label { font-size: 9px; letter-spacing: 0.2em; color: #00ff9d; text-transform: uppercase; border-bottom: 0.5px solid #1c2e1c; padding-bottom: 6px; margin-bottom: 10px; }
+  .block { margin-bottom: 10px; }
+  .block-title { font-size: 9px; color: #555; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .item { font-size: 11px; color: #aaa; padding: 3px 0; border-bottom: 0.5px solid #111; line-height: 1.4; }
+  .item span { color: #00ff9d; float: right; font-size: 10px; }
+  .item.highlight { color: #ddd; }
+  .bar-wrap { margin: 4px 0; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-bottom: 3px; }
+  .bar-bg { background: #111; height: 3px; border-radius: 1px; }
+  .bar-fill { height: 3px; border-radius: 1px; background: #00ff9d; }
+  .tag { display: inline-block; border: 0.5px solid #1c3c1c; color: #00cc77; font-size: 9px; padding: 2px 6px; border-radius: 2px; margin: 2px 2px 0 0; }
+  .nav-item { font-size: 12px; color: #888; padding: 5px 0; border-bottom: 0.5px solid #0e1a0e; cursor: default; letter-spacing: 0.05em; }
+  .nav-item.active { color: #00ff9d; }
+  .nav-item::before { content: '> '; color: #1c3c1c; }
+  .nav-item.active::before { color: #00ff9d; }
+  .stat-row { display: flex; justify-content: space-between; font-size: 10px; padding: 3px 0; border-bottom: 0.5px solid #0e180e; }
+  .stat-row .k { color: #555; }
+  .stat-row .v { color: #ccc; }
+  .mini-chart { height: 32px; width: 100%; margin: 6px 0; position: relative; overflow: hidden; }
+  .mini-chart svg { width: 100%; height: 100%; }
+  .section-gap { margin-top: 12px; }
+  .dot-grid { display: flex; flex-wrap: wrap; gap: 3px; margin: 4px 0; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: #1a2e1a; }
+  .dot.on { background: #00cc77; }
+  .cursor { display: inline-block; width: 8px; height: 12px; background: #00ff9d; animation: blink 1s step-end infinite; vertical-align: middle; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+<div class="wrap">
+  <div class="top">Portfolio OS — Panel Layout Proposal</div>
+  <div class="cols">
+
+    <!-- LEFT PANEL -->
+    <div class="panel">
+      <div class="panel-label">Profile</div>
+
+      <div class="block">
+        <div class="block-title">Identity</div>
+        <div class="stat-row"><span class="k">NAME</span><span class="v">Your Name</span></div>
+        <div class="stat-row"><span class="k">ROLE</span><span class="v">Full-Stack Dev</span></div>
+        <div class="stat-row"><span class="k">LOCATION</span><span class="v">Kuala Lumpur, MY</span></div>
+        <div class="stat-row"><span class="k">STATUS</span><span class="v" style="color:#00ff9d">OPEN TO WORK</span></div>
+        <div class="stat-row"><span class="k">EXPERIENCE</span><span class="v">3 yrs</span></div>
+      </div>
+
+      <div class="block section-gap">
+        <div class="block-title">Skills proficiency</div>
+        <div class="bar-wrap"><div class="bar-label"><span>React</span><span>90%</span></div><div class="bar-bg"><div class="bar-fill" style="width:90%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>Node.js</span><span>80%</span></div><div class="bar-bg"><div class="bar-fill" style="width:80%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>Python</span><span>70%</span></div><div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>CSS/UI</span><span>85%</span></div><div class="bar-bg"><div class="bar-fill" style="width:85%"></div></div></div>
+      </div>
+
+      <div class="block section-gap">
+        <div class="block-title">Stack tags</div>
+        <span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Node</span>
+        <span class="tag">MongoDB</span><span class="tag">Figma</span><span class="tag">AWS</span>
+      </div>
+
+      <div class="block section-gap">
+        <div class="block-title">Activity (last 30d)</div>
+        <div class="dot-grid">
+          <!-- 35 dots, some lit -->
+          <div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div>
+          <div class="dot on"></div><div class="dot"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot on"></div><div class="dot on"></div>
+          <div class="dot"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot on"></div><div class="dot"></div>
+          <div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div>
+          <div class="dot"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot on"></div><div class="dot on"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER PANEL -->
+    <div class="panel">
+      <div class="panel-label">Terminal</div>
+      <div class="block">
+        <div class="block-title">Navigation</div>
+        <div class="nav-item active">Welcome</div>
+        <div class="nav-item">Projects</div>
+        <div class="nav-item">Blog</div>
+        <div class="nav-item">About</div>
+        <div class="nav-item">Contact</div>
+      </div>
+      <div class="block section-gap" style="font-size:11px; color:#666; line-height:1.8;">
+        <div style="color:#00ff9d; font-size:10px; letter-spacing:0.1em; margin-bottom:6px;">SYSTEM OUTPUT</div>
+        <div style="color:#444;">$ whoami</div>
+        <div style="color:#aaa;">→ developer, designer, builder</div>
+        <div style="color:#444; margin-top:4px;">$ ls projects/</div>
+        <div style="color:#aaa;">project_01/ project_02/ project_03/</div>
+        <div style="color:#444; margin-top:4px;">$ cat status.txt</div>
+        <div style="color:#00ff9d;">Currently building cool stuff.</div>
+        <div style="margin-top:8px; color:#444;">~/portfolio <span class="cursor"></span></div>
+      </div>
+      <div class="block section-gap">
+        <div class="block-title">Featured project</div>
+        <div class="item highlight">Project Alpha <span>2024</span></div>
+        <div class="item" style="font-size:10px; color:#555; padding-top:4px;">A fintech dashboard built with React + Node. 12k users.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+      <div class="panel-label">Stats</div>
+
+      <div class="block">
+        <div class="block-title">Project metrics</div>
+        <div class="stat-row"><span class="k">TOTAL PROJECTS</span><span class="v">12</span></div>
+        <div class="stat-row"><span class="k">GITHUB STARS</span><span class="v" style="color:#00ff9d;">847</span></div>
+        <div class="stat-row"><span class="k">COMMITS (30D)</span><span class="v">143</span></div>
+        <div class="stat-row"><span class="k">OPEN SOURCE</span><span class="v">5 repos</span></div>
+      </div>
+
+      <div class="block section-gap">
+        <div class="block-title">Commit activity</div>
+        <div class="mini-chart">
+          <svg viewBox="0 0 200 32" preserveAspectRatio="none">
+            <polyline points="0,28 20,20 40,24 60,14 80,18 100,8 120,12 140,6 160,10 180,4 200,8" fill="none" stroke="#00ff9d" stroke-width="1.5"/>
+            <polyline points="0,28 20,20 40,24 60,14 80,18 100,8 120,12 140,6 160,10 180,4 200,8 200,32 0,32" fill="#00ff9d" fill-opacity="0.07"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="block section-gap">
+        <div class="block-title">Top languages</div>
+        <div class="bar-wrap"><div class="bar-label"><span>JavaScript</span><span>48%</span></div><div class="bar-bg"><div class="bar-fill" style="width:48%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>TypeScript</span><span>28%</span></div><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>Python</span><span>16%</span></div><div class="bar-bg"><div class="bar-fill" style="width:16%"></div></div></div>
+        <div class="bar-wrap"><div class="bar-label"><span>Other</span><span>8%</span></div><div class="bar-bg"><div class="bar-fill" style="width:8%"></div></div></div>
+      </div>
+
+      <div class="block section-gap">
+        <div class="block-title">Contact links</div>
+        <div class="item">GitHub <span>↗</span></div>
+        <div class="item">LinkedIn <span>↗</span></div>
+        <div class="item">Email <span>↗</span></div>
+        <div class="item">Resume.pdf <span>↗</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
