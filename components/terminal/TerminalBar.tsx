@@ -16,6 +16,7 @@ export default function TerminalBar() {
   ])
   const [currentInput, setCurrentInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
+  const [currentPath, setCurrentPath] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
 
@@ -30,24 +31,83 @@ export default function TerminalBar() {
     outputRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [commandHistory])
 
-  const executeCommand = (cmd: string) => {
-    const trimmed = cmd.trim().toLowerCase()
+  const executeCommand = async (cmd: string) => {
+    const trimmed = cmd.trim()
+    const parts = trimmed.split(' ')
+    const command = parts[0].toLowerCase()
     let output = ''
 
-    if (trimmed === 'help') {
+    if (command === 'help') {
       output = `AVAILABLE COMMANDS:
-  open <name>  - Open a window (welcome, projects, blog, about, admin)
-  close        - Close active window
-  ls           - List available windows
-  clear        - Clear terminal
-  help         - Show this message`
-    } else if (trimmed === 'ls') {
-      output = availableWindows.join(' | ')
-    } else if (trimmed === 'clear') {
+  cd <dir>    - Change directory
+  ls          - List files in current directory
+  cat <file>  - View file contents
+  open <name> - Open a window (welcome, projects, blog, about, admin)
+  close       - Close active window
+  clear       - Clear terminal
+  help        - Show this message`
+    } else if (command === 'cd') {
+      const targetDir = parts[1]
+      if (!targetDir) {
+        output = 'Usage: cd <directory>'
+      } else if (targetDir === '..') {
+        const newPath = currentPath.split('/').filter(Boolean).slice(0, -1).join('/')
+        setCurrentPath(newPath)
+        output = `Changed to: ${newPath || '/'}`
+      } else if (targetDir === '/') {
+        setCurrentPath('')
+        output = 'Changed to: /'
+      } else {
+        const newPath = currentPath ? `${currentPath}/${targetDir}` : targetDir
+        try {
+          const res = await fetch(`/api/files?path=${encodeURIComponent(newPath)}&cmd=exists`)
+          const data = await res.json()
+          if (data.exists) {
+            setCurrentPath(newPath)
+            output = `Changed to: ${newPath}`
+          } else {
+            output = `Directory not found: ${targetDir}`
+          }
+        } catch {
+          output = `Error checking directory: ${targetDir}`
+        }
+      }
+    } else if (command === 'ls') {
+      try {
+        const res = await fetch(`/api/files?path=${encodeURIComponent(currentPath)}&cmd=list`)
+        const data = await res.json()
+        if (data.items) {
+          const dirs = data.items.filter((i: any) => i.isDirectory).map((i: any) => i.name + '/')
+          const files = data.items.filter((i: any) => !i.isDirectory).map((i: any) => i.name)
+          output = [...dirs, ...files].join('  ') || '(empty)'
+        } else {
+          output = 'Error listing directory'
+        }
+      } catch {
+        output = 'Error listing directory'
+      }
+    } else if (command === 'cat') {
+      const filename = parts[1]
+      if (!filename) {
+        output = 'Usage: cat <filename>'
+      } else {
+        try {
+          const res = await fetch(`/api/files?path=${encodeURIComponent(currentPath)}&cmd=read&file=${encodeURIComponent(filename)}`)
+          const data = await res.json()
+          if (data.error) {
+            output = `Error: ${data.error}`
+          } else {
+            output = data.content + (data.truncated ? '\n...(truncated)' : '')
+          }
+        } catch {
+          output = `Error reading file: ${filename}`
+        }
+      }
+    } else if (command === 'clear') {
       setCommandHistory([{ input: '', output: 'TERMINAL CLEARED.', timestamp: new Date() }])
       setCurrentInput('')
       return
-    } else if (trimmed === 'close') {
+    } else if (command === 'close') {
       const openWindows = Object.values(windows).filter(w => w.isOpen)
       if (openWindows.length > 0) {
         closeWindow(openWindows[openWindows.length - 1].id)
@@ -55,18 +115,18 @@ export default function TerminalBar() {
       } else {
         output = 'No windows open.'
       }
-    } else if (trimmed.startsWith('open ')) {
-      const target = trimmed.replace('open ', '').trim()
+    } else if (command.startsWith('open ')) {
+      const target = command.replace('open ', '').trim()
       if (availableWindows.includes(target)) {
         openWindow(target as any)
         output = `Opening: ${target.toUpperCase()}...`
       } else {
-        output = `Unknown window: ${target}. Type "ls" for available windows.`
+        output = `Unknown window: ${target}. Type "help" for available windows.`
       }
     } else if (trimmed === '') {
       return
     } else {
-      output = `Unknown command: ${trimmed}. Type "help" for available commands.`
+      output = `Unknown command: ${command}. Type "help" for available commands.`
     }
 
     setCommandHistory(prev => [...prev, { input: cmd, output, timestamp: new Date() }])
@@ -123,7 +183,9 @@ export default function TerminalBar() {
             <div key={i}>
               {entry.input && (
                 <div className="text-green-400">
-                  <span className="text-white">$</span> {entry.input}
+                  <span className="text-white">$</span>
+                  <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
+                  <span className="text-white">&gt;</span> {entry.input}
                 </div>
               )}
               <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
@@ -139,6 +201,8 @@ export default function TerminalBar() {
         >
           <span className="status-pulse mr-2" />
           <span className="text-green-400 mr-2">$</span>
+          <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+          <span className="text-white mr-2">&gt;</span>
           <input
             ref={inputRef}
             type="text"
