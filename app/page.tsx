@@ -17,9 +17,10 @@ function AppContent() {
   }, [openWindow])
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-black">
+    <div className="h-screen w-screen overflow-hidden bg-black relative">
+      <div className="pulsing-grid" />
       <StatusBar />
-      <div className="h-[calc(100%-24px)]">
+      <div className="h-[calc(100%-24px)] relative z-10">
         <Desktop />
         <TerminalBar />
         <CustomCursor />
