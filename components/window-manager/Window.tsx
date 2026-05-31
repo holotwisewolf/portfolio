@@ -132,7 +132,10 @@ export default function Window({ windowId }: WindowProps) {
           onMouseDown={handleMouseDown}
           className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move select-none"
         >
-          <span className="font-semibold">{windowState.title}</span>
+          <div className="flex items-center gap-2">
+            <span className="status-pulse" />
+            <span className="font-semibold">{windowState.title}</span>
+          </div>
           <div className="flex gap-2">
             <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
               –
@@ -170,7 +173,10 @@ export default function Window({ windowId }: WindowProps) {
         onMouseDown={handleMouseDown}
         className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move select-none"
       >
-        <span className="font-semibold">{windowState.title}</span>
+        <div className="flex items-center gap-2">
+          <span className="status-pulse" />
+          <span className="font-semibold">{windowState.title}</span>
+        </div>
         <div className="flex gap-2">
           <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
             –

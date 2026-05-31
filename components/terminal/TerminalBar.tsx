@@ -137,6 +137,7 @@ export default function TerminalBar() {
           className="flex items-center px-2 py-1 border-t border-gray-800 cursor-text"
           onClick={handleTerminalClick}
         >
+          <span className="status-pulse mr-2" />
           <span className="text-green-400 mr-2">$</span>
           <input
             ref={inputRef}
