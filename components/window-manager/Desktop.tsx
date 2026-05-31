@@ -8,30 +8,29 @@ import Blog from '../windows/Blog'
 import About from '../windows/About'
 import Admin from '../windows/Admin'
 
+// Register all window contents immediately when this module loads
+registerWindowContent('welcome', Welcome)
+registerWindowContent('projects', Projects)
+registerWindowContent('blog', Blog)
+registerWindowContent('about', About)
+registerWindowContent('admin', Admin)
+
 interface DesktopIcon {
   id: string
   label: string
-  component: React.ComponentType
   position: { x: number; y: number }
 }
 
 const icons: DesktopIcon[] = [
-  { id: 'welcome', label: 'Welcome', component: Welcome, position: { x: 50, y: 50 } },
-  { id: 'projects', label: 'Projects', component: Projects, position: { x: 50, y: 150 } },
-  { id: 'blog', label: 'Blog', component: Blog, position: { x: 50, y: 250 } },
-  { id: 'about', label: 'About', component: About, position: { x: 50, y: 350 } },
-  { id: 'admin', label: 'Admin', component: Admin, position: { x: 50, y: 450 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 50, y: 50 } },
+  { id: 'projects', label: 'Projects', position: { x: 50, y: 150 } },
+  { id: 'blog', label: 'Blog', position: { x: 50, y: 250 } },
+  { id: 'about', label: 'About', position: { x: 50, y: 350 } },
+  { id: 'admin', label: 'Admin', position: { x: 50, y: 450 } },
 ]
 
 export default function Desktop() {
   const openWindow = useWindowStore((s) => s.openWindow)
-
-  useEffect(() => {
-    // Register all window contents on mount
-    icons.forEach((icon) => {
-      registerWindowContent(icon.id as any, icon.component)
-    })
-  }, [])
 
   const handleIconClick = (icon: DesktopIcon) => {
     openWindow(icon.id as any)
