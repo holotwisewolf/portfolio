@@ -281,38 +281,38 @@ export default function Window({ windowId }: WindowProps) {
           )}
         </div>
 
-        {/* Resize handles */}
+        {/* Resize handles - smaller to avoid interfering with clicks */}
         <div
           onMouseDown={(e) => handleResizeStart(e, 'n')}
-          className="absolute top-0 left-0 right-0 h-1 cursor-n-resize z-10"
+          className="absolute top-0 left-0 right-0 h-0.5 cursor-n-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 's')}
-          className="absolute bottom-0 left-0 right-0 h-1 cursor-s-resize z-10"
+          className="absolute bottom-0 left-0 right-0 h-0.5 cursor-s-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'e')}
-          className="absolute top-0 right-0 bottom-0 w-1 cursor-e-resize z-10"
+          className="absolute top-0 right-0 bottom-0 w-0.5 cursor-e-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'w')}
-          className="absolute top-0 left-0 bottom-0 w-1 cursor-w-resize z-10"
+          className="absolute top-0 left-0 bottom-0 w-0.5 cursor-w-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'ne')}
-          className="absolute top-0 right-0 w-2 h-2 cursor-ne-resize z-10"
+          className="absolute top-0 right-0 w-3 h-3 cursor-ne-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'nw')}
-          className="absolute top-0 left-0 w-2 h-2 cursor-nw-resize z-10"
+          className="absolute top-0 left-0 w-3 h-3 cursor-nw-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'se')}
-          className="absolute bottom-0 right-0 w-2 h-2 cursor-se-resize z-10"
+          className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-10"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'sw')}
-          className="absolute bottom-0 left-0 w-2 h-2 cursor-sw-resize z-10"
+          className="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize z-10"
         />
       </div>
     )

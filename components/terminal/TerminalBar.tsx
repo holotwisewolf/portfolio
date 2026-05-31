@@ -23,6 +23,8 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   const [currentPath, setCurrentPath] = useState('')
   const [isExpanded, setIsExpanded] = useState(false) // Shows output area
   const [isMinimized, setIsMinimized] = useState(false) // Minimized to tiny bar
+  const [terminalHeight, setTerminalHeight] = useState(192) // 48 * 4 (max-h-48 in px)
+  const [isResizing, setIsResizing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
 
@@ -187,6 +189,34 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     inputRef.current?.focus()
   }
 
+  // Terminal resize handlers
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isResizing) {
+        const newHeight = window.innerHeight - e.clientY
+        setTerminalHeight(Math.max(48, Math.min(600, newHeight)))
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isResizing])
+
   const openWindows = Object.values(windows).filter(w => w.isOpen)
 
   return (
@@ -203,12 +233,21 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
         }`}
         style={{ zIndex: 10000 }}
       >
+        {/* Resize handle - visible at top when not minimized */}
+        {!isMinimized && (
+          <div
+            onMouseDown={handleResizeStart}
+            className="absolute top-0 left-0 right-0 h-1 cursor-ns-resize z-10 hover:bg-gray-800"
+            title="Drag to resize terminal"
+          />
+        )}
+
         {/* Output area - full when expanded, single line when collapsed */}
         {!isMinimized && (
           <div className="px-2 py-1">
             {isExpanded ? (
-              // Show all history when expanded
-              <div className="max-h-48 overflow-y-auto">
+              // Show all history when expanded - use dynamic height
+              <div className="overflow-y-auto" style={{ maxHeight: `${terminalHeight}px` }}>
                 {commandHistory.map((entry, i) => (
                   <div key={i}>
                     {entry.input && (
