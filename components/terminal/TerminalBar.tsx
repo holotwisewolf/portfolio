@@ -199,7 +199,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
       {/* Terminal Bar */}
       <div
         className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white bottom-0 left-0 right-0 ${
-          isMinimized ? 'h-6' : 'h-auto'
+          isMinimized ? 'h-10' : ''
         }`}
         style={{ zIndex: 10000 }}
       >
@@ -222,51 +222,62 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
           </div>
         )}
 
-        {/* Active line with block cursor */}
-        <div className="flex items-center px-2 py-1 text-white border-t border-gray-800">
-          {!isMinimized && !isExpanded && (
-            <>
-              <span className="text-green-400 mr-2">$</span>
-              <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
-              <span className="text-white mr-2">&gt;</span>
-            </>
-          )}
-          {isExpanded && !isMinimized && (
-            <>
-              <span className="text-green-400 mr-2">$</span>
-              <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
-              <span className="text-white mr-2">&gt;</span>
-            </>
-          )}
-          <span className="flex-1 relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="absolute inset-0 w-full h-full bg-transparent outline-none text-white opacity-0 cursor-text"
-              autoFocus
-            />
-            <span className="text-white">
-              {currentInput}<span className="block-cursor"></span>
+        {/* Active line with block cursor - always visible unless minimized */}
+        {!isMinimized && (
+          <div className="flex items-center px-2 py-1 text-white border-t border-gray-800">
+            <span className="text-green-400 mr-2">$</span>
+            <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+            <span className="text-white mr-2">&gt;</span>
+            <span className="flex-1 relative">
+              <input
+                ref={inputRef}
+                type="text"
+                value={currentInput}
+                onChange={(e) => setCurrentInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="absolute inset-0 w-full h-full bg-transparent outline-none text-white opacity-0 cursor-text"
+                autoFocus
+              />
+              <span className="text-white">
+                {currentInput}<span className="block-cursor"></span>
+              </span>
             </span>
-          </span>
-          <button
-            onClick={toggleExpand}
-            className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
-            title={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            {isExpanded ? '▼' : '▲'}
-          </button>
-          <button
-            onClick={toggleMinimize}
-            className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
-            title={isMinimized ? 'Restore' : 'Minimize'}
-          >
-            {isMinimized ? '□' : '▬'}
-          </button>
-        </div>
+            <button
+              onClick={toggleExpand}
+              className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+              title={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              {isExpanded ? '▼' : '▲'}
+            </button>
+            <button
+              onClick={toggleMinimize}
+              className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+              title={isMinimized ? 'Restore' : 'Minimize'}
+            >
+              {isMinimized ? '□' : '▬'}
+            </button>
+          </div>
+        )}
+
+        {/* Minimized bar - just buttons */}
+        {isMinimized && (
+          <div className="flex items-center justify-end px-2 py-1 text-white h-10">
+            <button
+              onClick={toggleExpand}
+              className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+              title={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              {isExpanded ? '▼' : '▲'}
+            </button>
+            <button
+              onClick={toggleMinimize}
+              className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+              title={isMinimized ? 'Restore' : 'Minimize'}
+            >
+              {isMinimized ? '□' : '▬'}
+            </button>
+          </div>
+        )}
 
         {/* Window indicators - hidden when minimized */}
         {!isMinimized && (
