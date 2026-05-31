@@ -254,19 +254,7 @@ body::before {
   animation: grid-pulse 4s ease-in-out infinite;
 }
 
-/* Glitch effect on hover */
-@keyframes glitch-skew {
-  0% { transform: skew(0deg); }
-  20% { transform: skew(-2deg); }
-  40% { transform: skew(2deg); }
-  60% { transform: skew(-1deg); }
-  80% { transform: skew(1deg); }
-  100% { transform: skew(0deg); }
-}
-
-.glitch-active {
-  animation: glitch-skew 0.3s ease-out;
-}
+/* Glitch effect on hover - DISABLED (too modern) */
 
 /* Loading Bar Styles */
 .loading-bar-container {
