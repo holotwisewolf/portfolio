@@ -1,21 +1,26 @@
 'use client'
 
+import { ProfilePanel as ProfilePanelType } from '@/lib/profile-data'
+import SkillBars from '@/components/ui/SkillBars'
+import ActivityGrid from '@/components/ui/ActivityGrid'
+import StatRow from '@/components/ui/StatRow'
+
 export default function ProfilePanel() {
-  // Profile data
-  const profile = {
-    name: 'Your Name',
-    role: 'Full-Stack Developer',
-    location: 'Kuala Lumpur, MY',
-    status: 'OPEN TO WORK',
-    experience: '3 yrs',
+  const profile: ProfilePanelType = {
+    identity: {
+      name: 'Your Name',
+      role: 'Full-Stack Developer',
+      location: 'Kuala Lumpur, MY',
+      status: 'OPEN TO WORK',
+      experience: '3 yrs'
+    },
     skills: [
       { name: 'React', level: 90 },
       { name: 'Node.js', level: 80 },
       { name: 'Python', level: 70 },
       { name: 'CSS/UI', level: 85 }
     ],
-    stack: ['React', 'Next.js', 'Node', 'MongoDB', 'Figma', 'AWS'],
-    activity: generateActivityPattern()
+    stack: ['React', 'Next.js', 'Node', 'MongoDB', 'Figma', 'AWS']
   }
 
   return (
@@ -28,30 +33,17 @@ export default function ProfilePanel() {
       {/* Identity Block */}
       <div className="mb-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Identity</div>
-        <StatRow label="NAME" value={profile.name} />
-        <StatRow label="ROLE" value={profile.role} />
-        <StatRow label="LOCATION" value={profile.location} />
-        <StatRow label="STATUS" value={profile.status} valueClass="text-white" />
-        <StatRow label="EXPERIENCE" value={profile.experience} />
+        <StatRow label="NAME" value={profile.identity.name} />
+        <StatRow label="ROLE" value={profile.identity.role} />
+        <StatRow label="LOCATION" value={profile.identity.location} />
+        <StatRow label="STATUS" value={profile.identity.status} valueClass="text-white" />
+        <StatRow label="EXPERIENCE" value={profile.identity.experience} />
       </div>
 
       {/* Skills Block */}
       <div className="mb-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Skills proficiency</div>
-        {profile.skills.map((skill) => (
-          <div key={skill.name} className="mb-2">
-            <div className="flex justify-between text-[9px] text-gray-500 mb-1">
-              <span>{skill.name}</span>
-              <span>{skill.level}%</span>
-            </div>
-            <div className="bg-gray-900 h-[2px]">
-              <div
-                className="bg-white h-[2px] transition-all"
-                style={{ width: `${skill.level}%` }}
-              />
-            </div>
-          </div>
-        ))}
+        <SkillBars skills={profile.skills} />
       </div>
 
       {/* Stack Tags Block */}
@@ -72,38 +64,8 @@ export default function ProfilePanel() {
       {/* Activity Block */}
       <div className="flex-1">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Activity (last 30d)</div>
-        <div className="flex flex-wrap gap-[2px]">
-          {profile.activity.map((active, i) => (
-            <div
-              key={i}
-              className={`w-[5px] h-[5px] ${
-                active === 'high' ? 'bg-white' : active === 'mid' ? 'bg-gray-600' : 'bg-gray-900'
-              }`}
-            />
-          ))}
-        </div>
+        <ActivityGrid dots={35} />
       </div>
     </div>
   )
-}
-
-function StatRow({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
-  return (
-    <div className="flex justify-between py-1.5 border-b border-gray-900">
-      <span className="text-gray-600">{label}</span>
-      <span className={`text-gray-300 ${valueClass || ''}`}>{value}</span>
-    </div>
-  )
-}
-
-// Generate activity pattern with three levels
-function generateActivityPattern(): ('high' | 'mid' | 'low')[] {
-  const pattern: ('high' | 'mid' | 'low')[] = []
-  for (let i = 0; i < 35; i++) {
-    const rand = Math.random()
-    if (rand > 0.6) pattern.push('high')
-    else if (rand > 0.3) pattern.push('mid')
-    else pattern.push('low')
-  }
-  return pattern
 }

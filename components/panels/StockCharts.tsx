@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import StatRow from '@/components/ui/StatRow'
+import ActivityGrid from '@/components/ui/ActivityGrid'
+import LanguageBars, { Language } from '@/components/ui/LanguageBars'
 
 interface StockData {
   time: string
@@ -24,6 +27,13 @@ export default function StockCharts() {
   const [loading, setLoading] = useState(true)
   const [marketOpen, setMarketOpen] = useState(true)
   const [vix, setVix] = useState(18.4)
+
+  const languages: Language[] = [
+    { name: 'JavaScript', percentage: 48 },
+    { name: 'TypeScript', percentage: 28 },
+    { name: 'Python', percentage: 16 },
+    { name: 'Other', percentage: 8 }
+  ]
 
   const fetchStockData = async () => {
     try {
@@ -165,36 +175,14 @@ export default function StockCharts() {
         <StatRow label="GITHUB STARS" value="847" valueClass="text-white" />
 
         {/* Activity Dots */}
-        <div className="flex flex-wrap gap-[2px] my-3">
-          {generateActivityDots().map((active, i) => (
-            <div
-              key={i}
-              className={`w-[5px] h-[5px] rounded-sm ${
-                active === 'high' ? 'bg-white' : active === 'mid' ? 'bg-gray-600' : 'bg-gray-900'
-              }`}
-            />
-          ))}
+        <div className="my-3">
+          <ActivityGrid dots={35} />
         </div>
 
         {/* Language Bars */}
         <div className="mb-3">
           <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages</div>
-          {[
-            { lang: 'JavaScript', pct: 48 },
-            { lang: 'TypeScript', pct: 28 },
-            { lang: 'Python', pct: 16 },
-            { lang: 'Other', pct: 8 }
-          ].map(({ lang, pct }) => (
-            <div key={lang} className="mb-1.5">
-              <div className="flex justify-between text-[9px] text-gray-500 mb-0.5">
-                <span>{lang}</span>
-                <span>{pct}%</span>
-              </div>
-              <div className="bg-gray-900 h-[2px]">
-                <div className="bg-white h-[2px]" style={{ width: `${pct}%` }} />
-              </div>
-            </div>
-          ))}
+          <LanguageBars languages={languages} />
         </div>
 
         {/* Contact Links */}
@@ -209,15 +197,6 @@ export default function StockCharts() {
   )
 }
 
-function StatRow({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
-  return (
-    <div className="flex justify-between py-1.5 border-b border-gray-900">
-      <span className="text-gray-600">{label}</span>
-      <span className={`text-gray-300 ${valueClass || ''}`}>{value}</span>
-    </div>
-  )
-}
-
 function ContactLink({ label }: { label: string }) {
   return (
     <div className="flex justify-between py-1 text-gray-400 border-b border-gray-900 hover:text-white cursor-pointer">
@@ -225,16 +204,4 @@ function ContactLink({ label }: { label: string }) {
       <span>↗</span>
     </div>
   )
-}
-
-// Generate activity pattern with three levels
-function generateActivityDots(): ('high' | 'mid' | 'low')[] {
-  const dots: ('high' | 'mid' | 'low')[] = []
-  for (let i = 0; i < 35; i++) {
-    const rand = Math.random()
-    if (rand > 0.6) dots.push('high')
-    else if (rand > 0.3) dots.push('mid')
-    else dots.push('low')
-  }
-  return dots
 }
