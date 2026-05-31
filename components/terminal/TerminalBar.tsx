@@ -222,7 +222,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
               ))
             ) : (
               // Show only last line when collapsed
-              <div className="text-gray-400 text-xs">
+              <div className="text-gray-300">
                 {commandHistory[commandHistory.length - 1]?.output.split('\n').slice(-1)[0] || 'TERMINAL READY'}
               </div>
             )}
