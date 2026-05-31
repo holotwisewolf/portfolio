@@ -21,7 +21,8 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   const [currentInput, setCurrentInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [currentPath, setCurrentPath] = useState('')
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false) // Shows output area
+  const [isMinimized, setIsMinimized] = useState(false) // Minimized to tiny bar
   const inputRef = useRef<HTMLInputElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
 
@@ -142,7 +143,8 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     setCommandHistory(prev => [...prev, { input: cmd, output, timestamp: new Date() }])
     setCurrentInput('')
     // Auto-expand terminal when command executes
-    setIsCollapsed(false)
+    setIsExpanded(true)
+    setIsMinimized(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -175,8 +177,13 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     inputRef.current?.focus()
   }
 
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed)
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded)
+    inputRef.current?.focus()
+  }
+
+  const toggleMinimize = () => {
+    setIsMinimized(!isMinimized)
     inputRef.current?.focus()
   }
 
@@ -191,11 +198,13 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
       {/* Terminal Bar */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-black text-white font-mono text-sm border-t-4 border-white"
+        className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white ${
+          isMinimized ? 'h-6' : ''
+        }`}
         style={{ zIndex: 10000 }}
       >
-        {/* Output area - hidden when collapsed */}
-        {!isCollapsed && (
+        {/* Output area - hidden when not expanded */}
+        {isExpanded && !isMinimized && (
           <div className="max-h-48 overflow-y-auto p-2 space-y-1">
             {commandHistory.map((entry, i) => (
               <div key={i}>
@@ -215,7 +224,14 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
         {/* Active line with block cursor */}
         <div className="flex items-center px-2 py-1 text-white border-t border-gray-800">
-          {!isCollapsed && (
+          {!isMinimized && !isExpanded && (
+            <>
+              <span className="text-green-400 mr-2">$</span>
+              <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+              <span className="text-white mr-2">&gt;</span>
+            </>
+          )}
+          {isExpanded && !isMinimized && (
             <>
               <span className="text-green-400 mr-2">$</span>
               <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
@@ -237,15 +253,23 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
             </span>
           </span>
           <button
-            onClick={toggleCollapse}
+            onClick={toggleExpand}
             className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+            title={isExpanded ? 'Collapse' : 'Expand'}
           >
-            {isCollapsed ? '▲' : '▬'}
+            {isExpanded ? '▼' : '▲'}
+          </button>
+          <button
+            onClick={toggleMinimize}
+            className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+            title={isMinimized ? 'Restore' : 'Minimize'}
+          >
+            {isMinimized ? '□' : '▬'}
           </button>
         </div>
 
-        {/* Window indicators - hidden when collapsed */}
-        {!isCollapsed && (
+        {/* Window indicators - hidden when minimized */}
+        {!isMinimized && (
           <div className="flex items-center gap-2 px-2 py-1 border-t border-gray-800 text-xs">
             <span className="text-gray-500">OPEN:</span>
             {openWindows.length === 0 ? (
