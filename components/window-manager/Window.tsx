@@ -26,6 +26,8 @@ export default function Window({ windowId }: WindowProps) {
 
   const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
   const [isBooting, setIsBooting] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadProgress, setLoadProgress] = useState(0)
 
   // Update local position when window state changes (but not during drag)
   useEffect(() => {
@@ -39,6 +41,31 @@ export default function Window({ windowId }: WindowProps) {
     const timer = setTimeout(() => setIsBooting(false), 300)
     return () => clearTimeout(timer)
   }, [])
+
+  // Simulate loading progress when window opens
+  useEffect(() => {
+    if (windowState?.isLoading) {
+      setIsLoading(true)
+      setLoadProgress(0)
+
+      const interval = setInterval(() => {
+        setLoadProgress((prev) => {
+          const next = prev + Math.random() * 15 + 5
+          if (next >= 100) {
+            clearInterval(interval)
+            setIsLoading(false)
+            return 100
+          }
+          return next
+        })
+      }, 200)
+
+      return () => clearInterval(interval)
+    } else {
+      setIsLoading(false)
+      setLoadProgress(100)
+    }
+  }, [windowState?.isLoading])
 
   if (!windowState || !windowState.isOpen || windowState.isMinimized) {
     return null
@@ -156,7 +183,25 @@ export default function Window({ windowId }: WindowProps) {
           </div>
         </div>
         <div className="flex-1 overflow-auto p-4">
-          {Content ? <Content /> : <div>Content not found</div>}
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="w-full max-w-xs">
+                <div className="loading-bar-container">
+                  <div
+                    className="loading-bar-fill"
+                    style={{ width: `${loadProgress}%` }}
+                  />
+                  <div className="loading-text">
+                    LOADING {Math.floor(loadProgress)}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : Content ? (
+            <Content />
+          ) : (
+            <div>Content not found</div>
+          )}
         </div>
       </div>
     )
@@ -197,7 +242,25 @@ export default function Window({ windowId }: WindowProps) {
         </div>
       </div>
       <div className="flex-1 overflow-auto p-4">
-        {Content ? <Content /> : <div>Content not found</div>}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-full max-w-xs">
+              <div className="loading-bar-container">
+                <div
+                  className="loading-bar-fill"
+                  style={{ width: `${loadProgress}%` }}
+                />
+                <div className="loading-text">
+                  LOADING {Math.floor(loadProgress)}%
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : Content ? (
+          <Content />
+        ) : (
+          <div>Content not found</div>
+        )}
       </div>
     </div>
   )

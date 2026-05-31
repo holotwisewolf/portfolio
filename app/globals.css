@@ -267,3 +267,30 @@ body::before {
 .glitch-active {
   animation: glitch-skew 0.3s ease-out;
 }
+
+/* Loading Bar Styles */
+.loading-bar-container {
+  width: 100%;
+  height: 20px;
+  background: #111;
+  border: 1px solid white;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  height: 100%;
+  background: white;
+  transition: width 0.1s linear;
+}
+
+.loading-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-family: monospace;
+  color: white;
+  text-shadow: 0 0 2px black;
+}

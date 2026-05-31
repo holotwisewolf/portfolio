@@ -22,6 +22,8 @@ interface WindowState {
   position: { x: number; y: number }
   size: { width: number; height: number }
   zIndex: number
+  isLoading: boolean
+  loadProgress: number
 }
 
 interface WindowStore {
@@ -34,6 +36,8 @@ interface WindowStore {
   restoreWindow: (id: WindowId) => void
   setActiveWindow: (id: WindowId) => void
   updateWindowPosition: (id: WindowId, position: { x: number; y: number }) => void
+  updateLoadProgress: (id: WindowId, progress: number) => void
+  setLoadingComplete: (id: WindowId) => void
 }
 
 export const useWindowStore = create<WindowStore>()(
@@ -59,6 +63,8 @@ export const useWindowStore = create<WindowStore>()(
                   isOpen: true,
                   isMinimized: false,
                   zIndex,
+                  isLoading: existing.isLoading ?? true,
+                  loadProgress: existing.loadProgress ?? 0,
                 },
               },
               activeWindow: id,
@@ -83,6 +89,8 @@ export const useWindowStore = create<WindowStore>()(
                 position,
                 size: { width: 800, height: 600 },
                 zIndex,
+                isLoading: true,
+                loadProgress: 0,
               },
             },
             activeWindow: id,
@@ -170,6 +178,31 @@ export const useWindowStore = create<WindowStore>()(
             [id]: {
               ...state.windows[id],
               position,
+            },
+          },
+        }))
+      },
+
+      updateLoadProgress: (id, progress) => {
+        set((state) => ({
+          windows: {
+            ...state.windows,
+            [id]: {
+              ...state.windows[id],
+              loadProgress: Math.min(100, Math.max(0, progress)),
+            },
+          },
+        }))
+      },
+
+      setLoadingComplete: (id) => {
+        set((state) => ({
+          windows: {
+            ...state.windows,
+            [id]: {
+              ...state.windows[id],
+              isLoading: false,
+              loadProgress: 100,
             },
           },
         }))
