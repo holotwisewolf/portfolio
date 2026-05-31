@@ -7,6 +7,7 @@ import Projects from '../windows/Projects'
 import Blog from '../windows/Blog'
 import About from '../windows/About'
 import Admin from '../windows/Admin'
+import TerminalNav from '../windows/TerminalNav'
 
 // Register all window contents immediately when this module loads
 registerWindowContent('welcome', Welcome)
@@ -14,6 +15,7 @@ registerWindowContent('projects', Projects)
 registerWindowContent('blog', Blog)
 registerWindowContent('about', About)
 registerWindowContent('admin', Admin)
+registerWindowContent('terminalnav', TerminalNav)
 
 interface DesktopIcon {
   id: string
@@ -22,11 +24,12 @@ interface DesktopIcon {
 }
 
 const icons: DesktopIcon[] = [
-  { id: 'welcome', label: 'Welcome', position: { x: 50, y: 50 } },
-  { id: 'projects', label: 'Projects', position: { x: 50, y: 150 } },
-  { id: 'blog', label: 'Blog', position: { x: 50, y: 250 } },
-  { id: 'about', label: 'About', position: { x: 50, y: 350 } },
-  { id: 'admin', label: 'Admin', position: { x: 50, y: 450 } },
+  { id: 'terminalnav', label: 'Terminal', position: { x: 50, y: 50 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 50, y: 150 } },
+  { id: 'projects', label: 'Projects', position: { x: 50, y: 250 } },
+  { id: 'blog', label: 'Blog', position: { x: 50, y: 350 } },
+  { id: 'about', label: 'About', position: { x: 50, y: 450 } },
+  { id: 'admin', label: 'Admin', position: { x: 50, y: 550 } },
 ]
 
 export default function Desktop() {

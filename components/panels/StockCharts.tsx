@@ -22,6 +22,8 @@ export default function StockCharts() {
     QQQ: { symbol: 'QQQ', data: [], currentPrice: 0, change: 0, changePercent: 0 }
   })
   const [loading, setLoading] = useState(true)
+  const [marketOpen, setMarketOpen] = useState(true)
+  const [vix, setVix] = useState(18.4)
 
   const fetchStockData = async () => {
     try {
@@ -62,6 +64,9 @@ export default function StockCharts() {
 
         setCharts(newCharts)
         setLoading(false)
+
+        // Update VIX randomly
+        setVix(15 + Math.random() * 10)
       }
     } catch (error) {
       console.error('Failed to fetch stock data:', error)
@@ -75,69 +80,161 @@ export default function StockCharts() {
     return () => clearInterval(interval)
   }, [])
 
-  return (
-    <div className="h-full bg-black border-l-2 border-white p-2 flex flex-col">
-      <h2 className="text-white text-sm font-bold mb-2 border-b border-white pb-1">
-        STOCK CHARTS
-      </h2>
+  // Check if market is open (9:30 AM - 4:00 PM ET, Mon-Fri)
+  useEffect(() => {
+    const now = new Date()
+    const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
+    const hour = et.getHours()
+    const minute = et.getMinutes()
+    const day = et.getDay()
+    const time = hour * 60 + minute
+    const marketStart = 9 * 60 + 30 // 9:30 AM
+    const marketEnd = 16 * 60 // 4:00 PM
+    setMarketOpen(day >= 1 && day <= 5 && time >= marketStart && time <= marketEnd)
+  }, [])
 
-      {loading ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
-          LOADING...
-        </div>
-      ) : !charts.SPY?.currentPrice && !charts.QQQ?.currentPrice ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
-          NO DATA
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
-          {Object.values(charts).map((chart) => (
-            <div key={chart.symbol} className="flex-1 min-h-0">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-white font-bold">{chart.symbol}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-white text-sm">${chart.currentPrice.toFixed(2)}</span>
-                  <span className={`text-xs ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
+  return (
+    <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3">
+      {/* Panel Label */}
+      <div className="text-[9px] tracking-widest text-white uppercase border-b border-gray-800 pb-2 mb-3">
+        Stats
+      </div>
+
+      {/* Market Watch Block */}
+      <div className="mb-4">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Market watch</div>
+
+        {loading ? (
+          <div className="text-gray-500 text-center py-8">Loading...</div>
+        ) : (
+          <>
+            {Object.values(charts).map((chart) => (
+              <div key={chart.symbol} className="mb-3">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-gray-300">{chart.symbol}</span>
+                  <span className="text-white text-sm">
+                    ${chart.currentPrice.toFixed(2)}{' '}
+                    <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-white' : 'text-gray-400'}`}>
+                      {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
+                    </span>
                   </span>
                 </div>
+                <ResponsiveContainer width="100%" height={40}>
+                  <LineChart data={chart.data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                    <XAxis
+                      dataKey="time"
+                      stroke="#444"
+                      tick={{ fill: '#444', fontSize: 8 }}
+                      tickFormatter={(value) => value === 'now' ? 'n' : value.replace('h', '')}
+                    />
+                    <YAxis hide={true} domain={[chart.data[0]?.price * 0.99, chart.data[chart.data.length - 1]?.price * 1.01]} />
+                    <Line
+                      type="monotone"
+                      dataKey="price"
+                      stroke="white"
+                      strokeWidth={1.5}
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
+            ))}
 
-              <ResponsiveContainer width="100%" height={100}>
-                <LineChart data={chart.data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-                  <CartesianGrid stroke="#333" strokeDasharray="2 2" />
-                  <XAxis
-                    dataKey="time"
-                    stroke="#666"
-                    tick={{ fill: '#666', fontSize: 8 }}
-                    tickFormatter={(value) => value === 'now' ? 'now' : value}
-                  />
-                  <YAxis
-                    stroke="#666"
-                    tick={{ fill: '#666', fontSize: 8 }}
-                    domain={[chart.data[0]?.price * 0.99, chart.data[chart.data.length - 1]?.price * 1.01]}
-                    tickFormatter={(value) => value.toFixed(0)}
-                  />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#000', border: '1px solid #fff', borderRadius: 0 }}
-                    itemStyle={{ color: '#fff' }}
-                    labelStyle={{ color: '#fff' }}
-                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke={chart.changePercent >= 0 ? '#4ade80' : '#f87171'}
-                    strokeWidth={2}
-                    dot={false}
-                    isAnimationActive={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <StatRow label="VIX" value={`${vix.toFixed(1)} ▲`} valueClass="text-white" />
+            <StatRow
+              label="MARKET"
+              value={marketOpen ? 'OPEN' : 'CLOSED'}
+              valueClass={marketOpen ? 'text-white' : 'text-gray-600'}
+            />
+
+            <div className="text-[9px] text-gray-700 italic mt-2">
+              wanna-be quant. paper trading only.
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="border-t border-gray-800 my-3" />
+
+      {/* Dev Activity Block */}
+      <div className="flex-1">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
+
+        <StatRow label="COMMITS (30D)" value="143" valueClass="text-white" />
+        <StatRow label="GITHUB STARS" value="847" valueClass="text-white" />
+
+        {/* Activity Dots */}
+        <div className="flex flex-wrap gap-[2px] my-3">
+          {generateActivityDots().map((active, i) => (
+            <div
+              key={i}
+              className={`w-[5px] h-[5px] rounded-sm ${
+                active === 'high' ? 'bg-white' : active === 'mid' ? 'bg-gray-600' : 'bg-gray-900'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Language Bars */}
+        <div className="mb-3">
+          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages</div>
+          {[
+            { lang: 'JavaScript', pct: 48 },
+            { lang: 'TypeScript', pct: 28 },
+            { lang: 'Python', pct: 16 },
+            { lang: 'Other', pct: 8 }
+          ].map(({ lang, pct }) => (
+            <div key={lang} className="mb-1.5">
+              <div className="flex justify-between text-[9px] text-gray-500 mb-0.5">
+                <span>{lang}</span>
+                <span>{pct}%</span>
+              </div>
+              <div className="bg-gray-900 h-[2px]">
+                <div className="bg-white h-[2px]" style={{ width: `${pct}%` }} />
+              </div>
             </div>
           ))}
         </div>
-      )}
+
+        {/* Contact Links */}
+        <div>
+          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Contact</div>
+          <ContactLink label="GitHub" />
+          <ContactLink label="LinkedIn" />
+          <ContactLink label="Email" />
+        </div>
+      </div>
     </div>
   )
+}
+
+function StatRow({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
+  return (
+    <div className="flex justify-between py-1.5 border-b border-gray-900">
+      <span className="text-gray-600">{label}</span>
+      <span className={`text-gray-300 ${valueClass || ''}`}>{value}</span>
+    </div>
+  )
+}
+
+function ContactLink({ label }: { label: string }) {
+  return (
+    <div className="flex justify-between py-1 text-gray-400 border-b border-gray-900 hover:text-white cursor-pointer">
+      <span>{label}</span>
+      <span>↗</span>
+    </div>
+  )
+}
+
+// Generate activity pattern with three levels
+function generateActivityDots(): ('high' | 'mid' | 'low')[] {
+  const dots: ('high' | 'mid' | 'low')[] = []
+  for (let i = 0; i < 35; i++) {
+    const rand = Math.random()
+    if (rand > 0.6) dots.push('high')
+    else if (rand > 0.3) dots.push('mid')
+    else dots.push('low')
+  }
+  return dots
 }

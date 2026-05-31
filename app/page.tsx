@@ -1,47 +1,54 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Desktop from '@/components/window-manager/Desktop'
+import { useEffect } from 'react'
+import ProfilePanel from '@/components/panels/ProfilePanel'
+import StockCharts from '@/components/panels/StockCharts'
 import TerminalBar from '@/components/terminal/TerminalBar'
+import Desktop from '@/components/window-manager/Desktop'
 import { WindowProvider, useWindowStore } from '@/components/window-manager/useWindows'
-import Welcome from '@/components/windows/Welcome'
+import Window from '@/components/window-manager/Window'
 import CustomCursor from '@/components/ui/CustomCursor'
 import StatusBar from '@/components/ui/StatusBar'
 import PixelBackground from '@/components/ui/PixelBackground'
-import StockCharts from '@/components/panels/StockCharts'
-import FileListing from '@/components/panels/FileListing'
 
 function AppContent() {
   const openWindow = useWindowStore((s) => s.openWindow)
-  const [terminalPath, setTerminalPath] = useState('')
 
+  // Auto-open Terminal window on load
   useEffect(() => {
-    // Auto-open welcome window on load
-    openWindow('welcome' as any)
+    openWindow('terminalnav')
   }, [openWindow])
+
+  const windows = useWindowStore((s) => s.windows)
+  const openWindows = Object.values(windows).filter(w => w.isOpen)
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black relative">
       <PixelBackground />
       <StatusBar />
-      <div className="h-[calc(100%-24px)] relative z-10 flex">
-        {/* Left Panel - File Listing */}
-        <div className="w-64 flex-shrink-0">
-          <FileListing currentPath={terminalPath} />
+      <div className="h-[calc(100vh-24px)] flex">
+        {/* Left Panel - Profile */}
+        <div className="w-[280px] flex-shrink-0 border-r border-white">
+          <ProfilePanel />
         </div>
 
-        {/* Main Area - Desktop with Windows */}
+        {/* Center Panel - Desktop with Windows */}
         <div className="flex-1 relative">
           <Desktop />
-          <TerminalBar onPathChange={setTerminalPath} />
-          <CustomCursor />
+          {openWindows.map((window) => (
+            <Window key={window.id} windowId={window.id as any} />
+          ))}
         </div>
 
-        {/* Right Panel - Stock Charts */}
-        <div className="w-80 flex-shrink-0">
+        {/* Right Panel - Market+Dev */}
+        <div className="w-[320px] flex-shrink-0 border-l border-white">
           <StockCharts />
         </div>
       </div>
+
+      {/* Terminal Bar - Full Width */}
+      <TerminalBar />
+      <CustomCursor />
     </div>
   )
 }
