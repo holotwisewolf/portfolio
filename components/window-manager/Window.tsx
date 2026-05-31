@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { DraggableCore } from 'react-draggable'
 import { useWindowStore, type WindowId, windowContentRegistry } from './useWindows'
 
 interface WindowProps {
@@ -17,19 +16,22 @@ export default function Window({ windowId }: WindowProps) {
   const setActiveWindow = useWindowStore((s) => s.setActiveWindow)
   const updateWindowPosition = useWindowStore((s) => s.updateWindowPosition)
 
-  const isMountedRef = useRef(true)
-  const dragStartPosRef = useRef({ x: 0, y: 0 })
+  const dragStateRef = useRef({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    initialLeft: 0,
+    initialTop: 0
+  })
 
   const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
 
   // Update local position when window state changes (but not during drag)
   useEffect(() => {
-    if (windowState && !isDraggingRef.current) {
+    if (windowState && !dragStateRef.current.isDragging) {
       setLocalPosition(windowState.position)
     }
   }, [windowState?.position])
-
-  const isDraggingRef = useRef(false)
 
   if (!windowState || !windowState.isOpen || windowState.isMinimized) {
     return null
@@ -39,36 +41,62 @@ export default function Window({ windowId }: WindowProps) {
   const Content = windowContentRegistry.get(windowId)
   const isMaximized = windowState.isMaximized
 
-  const handleStart = useCallback(() => {
-    if (!isMountedRef.current) return
-    isDraggingRef.current = true
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return // Only left click
     setActiveWindow(windowId)
-  }, [setActiveWindow, windowId])
 
-  const handleDrag = useCallback((e: any, data: { x: number; y: number }) => {
-    if (!isMountedRef.current || !isDraggingRef.current) return
-    setLocalPosition({ x: data.x, y: data.y })
+    dragStateRef.current = {
+      isDragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialLeft: localPosition.x,
+      initialTop: localPosition.y
+    }
+  }, [setActiveWindow, windowId, localPosition])
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!dragStateRef.current.isDragging) return
+
+    const dx = e.clientX - dragStateRef.current.startX
+    const dy = e.clientY - dragStateRef.current.startY
+
+    const newLeft = dragStateRef.current.initialLeft + dx
+    const newTop = dragStateRef.current.initialTop + dy
+
+    setLocalPosition({ x: newLeft, y: newTop })
   }, [])
 
-  const handleStop = useCallback((e: any, data: { x: number; y: number }) => {
-    if (!isMountedRef.current) return
-    isDraggingRef.current = false
-    setLocalPosition({ x: data.x, y: data.y })
-    updateWindowPosition(windowId, { x: data.x, y: data.y })
+  const handleMouseUp = useCallback((e: MouseEvent) => {
+    if (!dragStateRef.current.isDragging) return
+
+    const dx = e.clientX - dragStateRef.current.startX
+    const dy = e.clientY - dragStateRef.current.startY
+
+    const newLeft = dragStateRef.current.initialLeft + dx
+    const newTop = dragStateRef.current.initialTop + dy
+
+    dragStateRef.current.isDragging = false
+    setLocalPosition({ x: newLeft, y: newTop })
+    updateWindowPosition(windowId, { x: newLeft, y: newTop })
   }, [updateWindowPosition, windowId])
 
+  // Set up global mouse event listeners for drag
+  useEffect(() => {
+    if (dragStateRef.current.isDragging) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [dragStateRef.current.isDragging, handleMouseMove, handleMouseUp])
+
   const handleClick = useCallback(() => {
-    if (!isDraggingRef.current) {
+    if (!dragStateRef.current.isDragging) {
       setActiveWindow(windowId)
     }
   }, [setActiveWindow, windowId])
-
-  useEffect(() => {
-    isMountedRef.current = true
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
 
   const handleClose = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -100,7 +128,10 @@ export default function Window({ windowId }: WindowProps) {
           bottom: '48px'
         }}
       >
-        <div className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move">
+        <div
+          onMouseDown={handleMouseDown}
+          className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move select-none"
+        >
           <span className="font-semibold">{windowState.title}</span>
           <div className="flex gap-2">
             <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
@@ -135,26 +166,23 @@ export default function Window({ windowId }: WindowProps) {
         top: localPosition.y,
       }}
     >
-      <DraggableCore
-        onStart={handleStart}
-        onDrag={handleDrag}
-        onStop={handleStop}
+      <div
+        onMouseDown={handleMouseDown}
+        className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move select-none"
       >
-        <div className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move">
-          <span className="font-semibold">{windowState.title}</span>
-          <div className="flex gap-2">
-            <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
-              –
-            </button>
-            <button onClick={handleMaximize} className="hover:bg-gray-300 px-2 py-0.5">
-              □
-            </button>
-            <button onClick={handleClose} className="hover:bg-red-600 hover:text-white px-2 py-0.5">
-              ×
-            </button>
-          </div>
+        <span className="font-semibold">{windowState.title}</span>
+        <div className="flex gap-2">
+          <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
+            –
+          </button>
+          <button onClick={handleMaximize} className="hover:bg-gray-300 px-2 py-0.5">
+            □
+          </button>
+          <button onClick={handleClose} className="hover:bg-red-600 hover:text-white px-2 py-0.5">
+            ×
+          </button>
         </div>
-      </DraggableCore>
+      </div>
       <div className="flex-1 overflow-auto p-4">
         {Content ? <Content /> : <div>Content not found</div>}
       </div>
