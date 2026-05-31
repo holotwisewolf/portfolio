@@ -15,6 +15,7 @@ export default function Window({ windowId }: WindowProps) {
   const maximizeWindow = useWindowStore((s) => s.maximizeWindow)
   const setActiveWindow = useWindowStore((s) => s.setActiveWindow)
   const updateWindowPosition = useWindowStore((s) => s.updateWindowPosition)
+  const updateWindowSize = useWindowStore((s) => s.updateWindowSize)
 
   const dragStateRef = useRef({
     isDragging: false,
@@ -24,17 +25,30 @@ export default function Window({ windowId }: WindowProps) {
     initialTop: 0
   })
 
+  const resizeStateRef = useRef({
+    isResizing: false,
+    edge: '' as 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | '',
+    startX: 0,
+    startY: 0,
+    initialWidth: 0,
+    initialHeight: 0,
+    initialLeft: 0,
+    initialTop: 0
+  })
+
   const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
+  const [localSize, setLocalSize] = useState({ width: 800, height: 600 })
   const [isBooting, setIsBooting] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [loadProgress, setLoadProgress] = useState(0)
 
   // Update local position when window state changes (but not during drag)
   useEffect(() => {
-    if (windowState && !dragStateRef.current.isDragging) {
+    if (windowState && !dragStateRef.current.isDragging && !resizeStateRef.current.isResizing) {
       setLocalPosition(windowState.position)
+      setLocalSize(windowState.size)
     }
-  }, [windowState?.position])
+  }, [windowState?.position, windowState?.size])
 
   // Trigger boot animation on mount
   useEffect(() => {
@@ -88,44 +102,6 @@ export default function Window({ windowId }: WindowProps) {
     }
   }, [setActiveWindow, windowId, localPosition])
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!dragStateRef.current.isDragging) return
-
-    const dx = e.clientX - dragStateRef.current.startX
-    const dy = e.clientY - dragStateRef.current.startY
-
-    const newLeft = dragStateRef.current.initialLeft + dx
-    const newTop = dragStateRef.current.initialTop + dy
-
-    setLocalPosition({ x: newLeft, y: newTop })
-  }, [])
-
-  const handleMouseUp = useCallback((e: MouseEvent) => {
-    if (!dragStateRef.current.isDragging) return
-
-    const dx = e.clientX - dragStateRef.current.startX
-    const dy = e.clientY - dragStateRef.current.startY
-
-    const newLeft = dragStateRef.current.initialLeft + dx
-    const newTop = dragStateRef.current.initialTop + dy
-
-    dragStateRef.current.isDragging = false
-    setLocalPosition({ x: newLeft, y: newTop })
-    updateWindowPosition(windowId, { x: newLeft, y: newTop })
-  }, [updateWindowPosition, windowId])
-
-  // Set up global mouse event listeners for drag
-  useEffect(() => {
-    if (dragStateRef.current.isDragging) {
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove)
-        window.removeEventListener('mouseup', handleMouseUp)
-      }
-    }
-  }, [dragStateRef.current.isDragging, handleMouseMove, handleMouseUp])
-
   const handleClick = useCallback(() => {
     if (!dragStateRef.current.isDragging) {
       setActiveWindow(windowId)
@@ -146,6 +122,93 @@ export default function Window({ windowId }: WindowProps) {
     e.stopPropagation()
     maximizeWindow(windowId)
   }, [maximizeWindow, windowId])
+
+  const handleResizeStart = useCallback((e: React.MouseEvent, edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw') => {
+    if (e.button !== 0 || isMaximized) return
+    e.stopPropagation()
+    setActiveWindow(windowId)
+
+    resizeStateRef.current = {
+      isResizing: true,
+      edge,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialWidth: localSize.width,
+      initialHeight: localSize.height,
+      initialLeft: localPosition.x,
+      initialTop: localPosition.y
+    }
+  }, [setActiveWindow, windowId, localSize, localPosition, isMaximized])
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (dragStateRef.current.isDragging) {
+      const dx = e.clientX - dragStateRef.current.startX
+      const dy = e.clientY - dragStateRef.current.startY
+
+      const newLeft = dragStateRef.current.initialLeft + dx
+      const newTop = dragStateRef.current.initialTop + dy
+
+      setLocalPosition({ x: newLeft, y: newTop })
+    }
+
+    if (resizeStateRef.current.isResizing) {
+      const dx = e.clientX - resizeStateRef.current.startX
+      const dy = e.clientY - resizeStateRef.current.startY
+
+      let newWidth = resizeStateRef.current.initialWidth
+      let newHeight = resizeStateRef.current.initialHeight
+      let newLeft = resizeStateRef.current.initialLeft
+      let newTop = resizeStateRef.current.initialTop
+
+      const edge = resizeStateRef.current.edge
+
+      if (edge.includes('e')) newWidth = resizeStateRef.current.initialWidth + dx
+      if (edge.includes('w')) {
+        newWidth = resizeStateRef.current.initialWidth - dx
+        newLeft = resizeStateRef.current.initialLeft + dx
+      }
+      if (edge.includes('s')) newHeight = resizeStateRef.current.initialHeight + dy
+      if (edge.includes('n')) {
+        newHeight = resizeStateRef.current.initialHeight - dy
+        newTop = resizeStateRef.current.initialTop + dy
+      }
+
+      setLocalSize({ width: Math.max(400, newWidth), height: Math.max(300, newHeight) })
+      setLocalPosition({ x: newLeft, y: newTop })
+    }
+  }, [localPosition, localSize])
+
+  const handleMouseUp = useCallback((e: MouseEvent) => {
+    if (dragStateRef.current.isDragging) {
+      const dx = e.clientX - dragStateRef.current.startX
+      const dy = e.clientY - dragStateRef.current.startY
+
+      const newLeft = dragStateRef.current.initialLeft + dx
+      const newTop = dragStateRef.current.initialTop + dy
+
+      dragStateRef.current.isDragging = false
+      setLocalPosition({ x: newLeft, y: newTop })
+      updateWindowPosition(windowId, { x: newLeft, y: newTop })
+    }
+
+    if (resizeStateRef.current.isResizing) {
+      resizeStateRef.current.isResizing = false
+      updateWindowSize(windowId, localSize)
+      updateWindowPosition(windowId, localPosition)
+    }
+  }, [updateWindowPosition, updateWindowSize, windowId, localSize, localPosition])
+
+  // Set up global mouse event listeners for drag and resize
+  useEffect(() => {
+    if (dragStateRef.current.isDragging || resizeStateRef.current.isResizing) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [dragStateRef.current.isDragging, resizeStateRef.current.isResizing, handleMouseMove, handleMouseUp])
 
   if (isMaximized) {
     return (
@@ -203,6 +266,40 @@ export default function Window({ windowId }: WindowProps) {
             <div>Content not found</div>
           )}
         </div>
+
+        {/* Resize handles */}
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'n')}
+          className="absolute top-0 left-0 right-0 h-1 cursor-n-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 's')}
+          className="absolute bottom-0 left-0 right-0 h-1 cursor-s-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'e')}
+          className="absolute top-0 right-0 bottom-0 w-1 cursor-e-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'w')}
+          className="absolute top-0 left-0 bottom-0 w-1 cursor-w-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'ne')}
+          className="absolute top-0 right-0 w-2 h-2 cursor-ne-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'nw')}
+          className="absolute top-0 left-0 w-2 h-2 cursor-nw-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'se')}
+          className="absolute bottom-0 right-0 w-2 h-2 cursor-se-resize z-10"
+        />
+        <div
+          onMouseDown={(e) => handleResizeStart(e, 'sw')}
+          className="absolute bottom-0 left-0 w-2 h-2 cursor-sw-resize z-10"
+        />
       </div>
     )
   }
@@ -214,8 +311,8 @@ export default function Window({ windowId }: WindowProps) {
         isActive ? 'border-white z-[9999]' : 'border-gray-600'
       } ${isBooting ? 'window-booting' : ''} bg-black`}
       style={{
-        width: windowState.size.width,
-        height: windowState.size.height,
+        width: localSize.width,
+        height: localSize.height,
         zIndex: windowState.zIndex,
         left: localPosition.x,
         top: localPosition.y,

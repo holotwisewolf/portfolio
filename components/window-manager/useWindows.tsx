@@ -36,6 +36,7 @@ interface WindowStore {
   restoreWindow: (id: WindowId) => void
   setActiveWindow: (id: WindowId) => void
   updateWindowPosition: (id: WindowId, position: { x: number; y: number }) => void
+  updateWindowSize: (id: WindowId, size: { width: number; height: number }) => void
   updateLoadProgress: (id: WindowId, progress: number) => void
   setLoadingComplete: (id: WindowId) => void
 }
@@ -178,6 +179,21 @@ export const useWindowStore = create<WindowStore>()(
             [id]: {
               ...state.windows[id],
               position,
+            },
+          },
+        }))
+      },
+
+      updateWindowSize: (id, size) => {
+        set((state) => ({
+          windows: {
+            ...state.windows,
+            [id]: {
+              ...state.windows[id],
+              size: {
+                width: Math.max(400, size.width),
+                height: Math.max(300, size.height),
+              },
             },
           },
         }))
