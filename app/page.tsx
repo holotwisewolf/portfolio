@@ -7,6 +7,7 @@ import { WindowProvider, useWindowStore } from '@/components/window-manager/useW
 import Welcome from '@/components/windows/Welcome'
 import CustomCursor from '@/components/ui/CustomCursor'
 import StatusBar from '@/components/ui/StatusBar'
+import PixelBackground from '@/components/ui/PixelBackground'
 
 function AppContent() {
   const openWindow = useWindowStore((s) => s.openWindow)
@@ -18,7 +19,7 @@ function AppContent() {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black relative">
-      <div className="pulsing-grid" />
+      <PixelBackground />
       <StatusBar />
       <div className="h-[calc(100%-24px)] relative z-10">
         <Desktop />
