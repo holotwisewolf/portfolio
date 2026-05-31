@@ -2,45 +2,53 @@
 
 import create from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { WindowManagerState, WindowId, WindowState } from '@/lib/window-state'
+import type { WindowManagerState, WindowId } from '@/lib/window-state'
 
-const initialWindows: Record<string, WindowState> = {
-  welcome: {
-    id: 'welcome',
-    title: 'Welcome',
-    isOpen: false,
-    isMinimized: false,
-    isMaximized: false,
-    position: { x: 200, y: 100 },
-    size: { width: 600, height: 400 },
-    zIndex: 100,
-    content: null as any,
-  },
+// Window content registry - stores the component for each window ID
+const windowContentRegistry = new Map<WindowId, React.ComponentType>()
+
+export function registerWindowContent(id: WindowId, component: React.ComponentType) {
+  windowContentRegistry.set(id, component)
 }
 
-interface WindowStore extends Omit<WindowManagerState, 'windows'> {
+export { windowContentRegistry }
+
+interface WindowState {
+  id: WindowId
+  title: string
+  isOpen: boolean
+  isMinimized: boolean
+  isMaximized: boolean
+  position: { x: number; y: number }
+  size: { width: number; height: number }
+  zIndex: number
+}
+
+interface WindowStore {
   windows: Record<string, WindowState>
-  _nextZIndex: number
-  _getNextZIndex: () => number
+  activeWindow: WindowId | null
+  openWindow: (id: WindowId) => void
+  closeWindow: (id: WindowId) => void
+  minimizeWindow: (id: WindowId) => void
+  maximizeWindow: (id: WindowId) => void
+  restoreWindow: (id: WindowId) => void
+  setActiveWindow: (id: WindowId) => void
+  updateWindowPosition: (id: WindowId, position: { x: number; y: number }) => void
 }
 
 export const useWindowStore = create<WindowStore>()(
   persist(
     (set, get) => ({
-      windows: initialWindows,
+      windows: {},
       activeWindow: null,
-      _nextZIndex: 100,
 
-      _getNextZIndex: () => {
-        const current = get()._nextZIndex
-        set({ _nextZIndex: current + 1 })
-        return current
-      },
+      openWindow: (id) => {
+        const content = windowContentRegistry.get(id)
+        if (!content) return
 
-      openWindow: (id, title, content) => {
         set((state) => {
           const existing = state.windows[id]
-          const zIndex = state._getNextZIndex()
+          const zIndex = (Object.keys(state.windows).length + 1) * 100
 
           if (existing) {
             return {
@@ -57,7 +65,6 @@ export const useWindowStore = create<WindowStore>()(
             }
           }
 
-          // Calculate staggered position for new windows
           const windowCount = Object.keys(state.windows).length
           const position = {
             x: 100 + (windowCount * 30) % 300,
@@ -69,14 +76,13 @@ export const useWindowStore = create<WindowStore>()(
               ...state.windows,
               [id]: {
                 id,
-                title,
+                title: id.charAt(0).toUpperCase() + id.slice(1),
                 isOpen: true,
                 isMinimized: false,
                 isMaximized: false,
                 position,
                 size: { width: 800, height: 600 },
                 zIndex,
-                content: content as any,
               },
             },
             activeWindow: id,
@@ -118,7 +124,7 @@ export const useWindowStore = create<WindowStore>()(
             ...state.windows,
             [id]: {
               ...state.windows[id],
-              isMaximized: !state.windows[id].isMaximized,
+              isMaximized: !state.windows[id]?.isMaximized,
             },
           },
         }))
@@ -126,7 +132,7 @@ export const useWindowStore = create<WindowStore>()(
 
       restoreWindow: (id) => {
         set((state) => {
-          const zIndex = state._getNextZIndex()
+          const zIndex = (Object.keys(state.windows).length + 1) * 100
           return {
             windows: {
               ...state.windows,
@@ -143,7 +149,7 @@ export const useWindowStore = create<WindowStore>()(
 
       setActiveWindow: (id) => {
         set((state) => {
-          const zIndex = state._getNextZIndex()
+          const zIndex = (Object.keys(state.windows).length + 1) * 100
           return {
             windows: {
               ...state.windows,
@@ -168,25 +174,9 @@ export const useWindowStore = create<WindowStore>()(
           },
         }))
       },
-
-      updateWindowSize: (id, size) => {
-        set((state) => ({
-          windows: {
-            ...state.windows,
-            [id]: {
-              ...state.windows[id],
-              size,
-            },
-          },
-        }))
-      },
     }),
     {
       name: 'window-state',
-      partialize: (state) => ({
-        windows: state.windows,
-        // Don't persist content functions or active state
-      }),
     }
   )
 )
