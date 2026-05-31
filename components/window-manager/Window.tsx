@@ -1,8 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
 import Draggable from 'react-draggable'
-import { useWindowStore, type WindowId } from './useWindows'
+import { useWindowStore, type WindowId, windowContentRegistry } from './useWindows'
 
 interface WindowProps {
   windowId: WindowId
@@ -17,14 +16,12 @@ export default function Window({ windowId }: WindowProps) {
   const setActiveWindow = useWindowStore((s) => s.setActiveWindow)
   const updateWindowPosition = useWindowStore((s) => s.updateWindowPosition)
 
-  const windowRef = useRef<HTMLDivElement>(null)
-
   if (!windowState || !windowState.isOpen || windowState.isMinimized) {
     return null
   }
 
   const isActive = activeWindow === windowId
-  const Content = windowState.content as React.ComponentType | null
+  const Content = windowContentRegistry.get(windowId)
 
   const handleStop = (_e: any, data: { x: number; y: number }) => {
     updateWindowPosition(windowId, { x: data.x, y: data.y })
@@ -45,7 +42,6 @@ export default function Window({ windowId }: WindowProps) {
       bounds="parent"
     >
       <div
-        ref={windowRef}
         onClick={handleClick}
         className={`absolute flex flex-col border ${
           isActive ? 'border-white z-[9999]' : 'border-gray-600'
@@ -58,7 +54,6 @@ export default function Window({ windowId }: WindowProps) {
           top: isMaximized ? 0 : windowState.position.y,
         }}
       >
-        {/* Title Bar */}
         <div className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move">
           <span className="font-semibold">{windowState.title}</span>
           <div className="flex gap-2">
@@ -95,9 +90,8 @@ export default function Window({ windowId }: WindowProps) {
           </div>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-auto p-4">
-          {Content && <Content />}
+          {Content ? <Content /> : <div>Content not found</div>}
         </div>
       </div>
     </Draggable>
