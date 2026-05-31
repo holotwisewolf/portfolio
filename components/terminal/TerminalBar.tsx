@@ -194,7 +194,15 @@ export default function TerminalBar() {
           <div ref={outputRef} />
         </div>
 
-        {/* Input area */}
+        {/* Active line with block cursor */}
+        <div className="flex items-center px-2 pt-1 pb-0 text-white">
+          <span className="text-green-400">$</span>
+          <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
+          <span className="text-white mr-1">&gt;</span>
+          <span className="flex-1">{currentInput}<span className="block-cursor"></span></span>
+        </div>
+
+        {/* Input area with block cursor */}
         <div
           className="flex items-center px-2 py-1 border-t border-gray-800 cursor-text"
           onClick={handleTerminalClick}
@@ -203,16 +211,18 @@ export default function TerminalBar() {
           <span className="text-green-400 mr-2">$</span>
           <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
           <span className="text-white mr-2">&gt;</span>
-          <input
-            ref={inputRef}
-            type="text"
-            value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none text-white"
-            autoFocus
-          />
-          <span className="animate-pulse">_</span>
+          <span className="flex-1 relative">
+            <input
+              ref={inputRef}
+              type="text"
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="absolute inset-0 w-full h-full bg-transparent outline-none text-white opacity-0 cursor-text"
+              autoFocus
+            />
+            <span className="text-white">{currentInput}<span className="block-cursor"></span></span>
+          </span>
         </div>
 
         {/* Window indicators */}
