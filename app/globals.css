@@ -208,3 +208,27 @@ body::before {
 .crt-text {
   animation: rgb-shift 3s ease-in-out infinite;
 }
+
+/* Window boot animation - BIOS-style white flash */
+@keyframes window-boot {
+  0% {
+    background: white;
+    opacity: 1;
+  }
+  10% {
+    background: white;
+    opacity: 1;
+  }
+  15% {
+    background: black;
+    opacity: 1;
+  }
+  100% {
+    background: black;
+    opacity: 1;
+  }
+}
+
+.window-booting {
+  animation: window-boot 0.3s ease-out;
+}

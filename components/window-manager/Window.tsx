@@ -25,6 +25,7 @@ export default function Window({ windowId }: WindowProps) {
   })
 
   const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
+  const [isBooting, setIsBooting] = useState(true)
 
   // Update local position when window state changes (but not during drag)
   useEffect(() => {
@@ -32,6 +33,12 @@ export default function Window({ windowId }: WindowProps) {
       setLocalPosition(windowState.position)
     }
   }, [windowState?.position])
+
+  // Trigger boot animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsBooting(false), 300)
+    return () => clearTimeout(timer)
+  }, [])
 
   if (!windowState || !windowState.isOpen || windowState.isMinimized) {
     return null
@@ -119,7 +126,7 @@ export default function Window({ windowId }: WindowProps) {
         onClick={handleClick}
         className={`fixed flex flex-col border ${
           isActive ? 'border-white z-[9999]' : 'border-gray-600'
-        } bg-black`}
+        } ${isBooting ? 'window-booting' : ''} bg-black`}
         style={{
           zIndex: windowState.zIndex,
           top: 0,
@@ -160,7 +167,7 @@ export default function Window({ windowId }: WindowProps) {
       onClick={handleClick}
       className={`absolute flex flex-col border ${
         isActive ? 'border-white z-[9999]' : 'border-gray-600'
-      } bg-black`}
+      } ${isBooting ? 'window-booting' : ''} bg-black`}
       style={{
         width: windowState.size.width,
         height: windowState.size.height,
