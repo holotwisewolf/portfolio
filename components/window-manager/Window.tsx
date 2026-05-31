@@ -38,6 +38,7 @@ export default function Window({ windowId }: WindowProps) {
 
   const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
   const [localSize, setLocalSize] = useState({ width: 800, height: 600 })
+  const localSizeRef = useRef({ width: 800, height: 600 })
   const [isBooting, setIsBooting] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [loadProgress, setLoadProgress] = useState(0)
@@ -48,6 +49,7 @@ export default function Window({ windowId }: WindowProps) {
     if (windowState && !dragStateRef.current.isDragging && !resizeStateRef.current.isResizing) {
       setLocalPosition(windowState.position)
       setLocalSize(windowState.size)
+      localSizeRef.current = windowState.size
     }
   }, [windowState?.position, windowState?.size])
 
@@ -198,10 +200,10 @@ export default function Window({ windowId }: WindowProps) {
     if (resizeStateRef.current.isResizing) {
       resizeStateRef.current.isResizing = false
       setIsDraggingOrResizing(false)
-      updateWindowSize(windowId, localSize)
+      updateWindowSize(windowId, localSizeRef.current)
       updateWindowPosition(windowId, localPosition)
     }
-  }, [updateWindowPosition, updateWindowSize, windowId, localSize, localPosition])
+  }, [updateWindowPosition, updateWindowSize, windowId, localPosition])
 
   // Set up global mouse event listeners for drag and resize
   useEffect(() => {
@@ -281,38 +283,38 @@ export default function Window({ windowId }: WindowProps) {
           )}
         </div>
 
-        {/* Resize handles - smaller to avoid interfering with clicks */}
+        {/* Resize handles */}
         <div
           onMouseDown={(e) => handleResizeStart(e, 'n')}
-          className="absolute top-0 left-0 right-0 h-0.5 cursor-n-resize z-10"
+          className="absolute top-0 left-0 right-0 h-2 cursor-n-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 's')}
-          className="absolute bottom-0 left-0 right-0 h-0.5 cursor-s-resize z-10"
+          className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'e')}
-          className="absolute top-0 right-0 bottom-0 w-0.5 cursor-e-resize z-10"
+          className="absolute top-0 right-0 bottom-0 w-2 cursor-e-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'w')}
-          className="absolute top-0 left-0 bottom-0 w-0.5 cursor-w-resize z-10"
+          className="absolute top-0 left-0 bottom-0 w-2 cursor-w-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'ne')}
-          className="absolute top-0 right-0 w-3 h-3 cursor-ne-resize z-10"
+          className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'nw')}
-          className="absolute top-0 left-0 w-3 h-3 cursor-nw-resize z-10"
+          className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'se')}
-          className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-10"
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 hover:bg-gray-800/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'sw')}
-          className="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize z-10"
+          className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10 hover:bg-gray-800/50"
         />
       </div>
     )
@@ -373,6 +375,40 @@ export default function Window({ windowId }: WindowProps) {
           <div>Content not found</div>
         )}
       </div>
+
+      {/* Resize handles */}
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'n')}
+        className="absolute top-0 left-0 right-0 h-2 cursor-n-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 's')}
+        className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'e')}
+        className="absolute top-0 right-0 bottom-0 w-2 cursor-e-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'w')}
+        className="absolute top-0 left-0 bottom-0 w-2 cursor-w-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'ne')}
+        className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'nw')}
+        className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'se')}
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 hover:bg-gray-800/50"
+      />
+      <div
+        onMouseDown={(e) => handleResizeStart(e, 'sw')}
+        className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10 hover:bg-gray-800/50"
+      />
     </div>
   )
 }
