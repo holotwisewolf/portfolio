@@ -84,6 +84,10 @@ export default function StockCharts() {
         <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
           LOADING...
         </div>
+      ) : !charts.SPY?.currentPrice && !charts.QQQ?.currentPrice ? (
+        <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
+          NO DATA
+        </div>
       ) : (
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
           {Object.values(charts).map((chart) => (
