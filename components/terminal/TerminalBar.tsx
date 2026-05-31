@@ -21,6 +21,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   const [currentInput, setCurrentInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [currentPath, setCurrentPath] = useState('')
+  const [isExpanded, setIsExpanded] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
@@ -175,6 +176,11 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     inputRef.current?.focus()
   }
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded)
+    inputRef.current?.focus()
+  }
+
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed)
     inputRef.current?.focus()
@@ -191,8 +197,10 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
       {/* Terminal Bar */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-black text-white font-mono text-sm border-t-4 border-white"
-        style={{ zIndex: 10000 }}
+        className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white ${
+          isExpanded ? 'inset-0 z-[10002] border-t-0' : 'bottom-0 left-0 right-0'
+        }`}
+        style={{ zIndex: isExpanded ? 10002 : 10000 }}
       >
         {/* Output area - hidden when collapsed */}
         {!isCollapsed && (
@@ -222,6 +230,13 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
               <span className="text-white mr-2">&gt;</span>
             </>
           )}
+          {isExpanded && (
+            <>
+              <span className="text-green-400 mr-2">$</span>
+              <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+              <span className="text-white mr-2">&gt;</span>
+            </>
+          )}
           <span className="flex-1 relative">
             <input
               ref={inputRef}
@@ -237,12 +252,19 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
             </span>
           </span>
           <button
-            onClick={toggleCollapse}
-            className="ml-2 px-3 py-1 text-xs border border-white hover:bg-white hover:text-black transition-colors bg-black"
-            title={isCollapsed ? 'Expand terminal' : 'Collapse terminal'}
+            onClick={toggleExpand}
+            className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
           >
-            {isCollapsed ? '□' : '▬'}
+            {isExpanded ? '▼' : '▲'}
           </button>
+          {!isExpanded && (
+            <button
+              onClick={toggleCollapse}
+              className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+            >
+              {isCollapsed ? '□' : '▬'}
+            </button>
+          )}
         </div>
 
         {/* Window indicators - hidden when collapsed */}

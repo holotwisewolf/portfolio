@@ -233,7 +233,7 @@ export default function Window({ windowId }: WindowProps) {
         } ${isBooting ? 'window-booting' : ''} bg-black`}
         style={{
           zIndex: windowState.zIndex,
-          top: 0,
+          top: '24px', // Below StatusBar
           left: 0,
           right: 0,
           bottom: '48px'
