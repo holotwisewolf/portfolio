@@ -17,6 +17,8 @@ export default function TerminalBar() {
   const [currentInput, setCurrentInput] = useState('')
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [currentPath, setCurrentPath] = useState('')
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
 
@@ -163,6 +165,16 @@ export default function TerminalBar() {
     inputRef.current?.focus()
   }
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded)
+    inputRef.current?.focus()
+  }
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed)
+    inputRef.current?.focus()
+  }
+
   const openWindows = Object.values(windows).filter(w => w.isOpen)
 
   return (
@@ -174,43 +186,46 @@ export default function TerminalBar() {
 
       {/* Terminal Bar */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-black text-white font-mono text-sm border-t-4 border-white"
-        style={{ zIndex: 10000 }}
+        className={`fixed bg-black text-white font-mono text-sm border-t-4 border-white ${
+          isExpanded ? 'inset-0 z-[10002] border-t-0' : 'bottom-0 left-0 right-0'
+        }`}
+        style={{ zIndex: isExpanded ? 10002 : 10000 }}
       >
-        {/* Output area */}
-        <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-          {commandHistory.map((entry, i) => (
-            <div key={i}>
-              {entry.input && (
-                <div className="text-green-400">
-                  <span className="text-white">$</span>
-                  <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
-                  <span className="text-white">&gt;</span> {entry.input}
-                </div>
-              )}
-              <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
-            </div>
-          ))}
-          <div ref={outputRef} />
-        </div>
+        {/* Output area - hidden when collapsed */}
+        {!isCollapsed && (
+          <div className="max-h-48 overflow-y-auto p-2 space-y-1">
+            {commandHistory.map((entry, i) => (
+              <div key={i}>
+                {entry.input && (
+                  <div className="text-green-400">
+                    <span className="text-white">$</span>
+                    <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
+                    <span className="text-white">&gt;</span> {entry.input}
+                  </div>
+                )}
+                <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
+              </div>
+            ))}
+            <div ref={outputRef} />
+          </div>
+        )}
 
         {/* Active line with block cursor */}
-        <div className="flex items-center px-2 pt-1 pb-0 text-white">
-          <span className="text-green-400">$</span>
-          <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
-          <span className="text-white mr-1">&gt;</span>
-          <span className="flex-1">{currentInput}<span className="block-cursor"></span></span>
-        </div>
-
-        {/* Input area with block cursor */}
-        <div
-          className="flex items-center px-2 py-1 border-t border-gray-800 cursor-text"
-          onClick={handleTerminalClick}
-        >
-          <span className="status-pulse mr-2" />
-          <span className="text-green-400 mr-2">$</span>
-          <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
-          <span className="text-white mr-2">&gt;</span>
+        <div className="flex items-center px-2 py-1 text-white border-t border-gray-800">
+          {!isCollapsed && !isExpanded && (
+            <>
+              <span className="text-green-400 mr-2">$</span>
+              <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+              <span className="text-white mr-2">&gt;</span>
+            </>
+          )}
+          {isExpanded && (
+            <>
+              <span className="text-green-400 mr-2">$</span>
+              <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+              <span className="text-white mr-2">&gt;</span>
+            </>
+          )}
           <span className="flex-1 relative">
             <input
               ref={inputRef}
@@ -221,21 +236,39 @@ export default function TerminalBar() {
               className="absolute inset-0 w-full h-full bg-transparent outline-none text-white opacity-0 cursor-text"
               autoFocus
             />
-            <span className="text-white">{currentInput}<span className="block-cursor"></span></span>
+            <span className="text-white">
+              {currentInput}<span className="block-cursor"></span>
+            </span>
           </span>
-        </div>
-
-        {/* Window indicators */}
-        <div className="flex items-center gap-2 px-2 py-1 border-t border-gray-800 text-xs">
-          <span className="text-gray-500">OPEN:</span>
-          {openWindows.length === 0 ? (
-            <span className="text-gray-600">NONE</span>
-          ) : (
-            openWindows.map((w) => (
-              <span key={w.id} className="icon-triple-hover text-green-400 px-1 cursor-pointer">{w.title}</span>
-            )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null
+          <button
+            onClick={toggleExpand}
+            className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+          >
+            {isExpanded ? '▼' : '▲'}
+          </button>
+          {!isExpanded && (
+            <button
+              onClick={toggleCollapse}
+              className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+            >
+              {isCollapsed ? '□' : '▬'}
+            </button>
           )}
         </div>
+
+        {/* Window indicators - hidden when collapsed */}
+        {!isCollapsed && (
+          <div className="flex items-center gap-2 px-2 py-1 border-t border-gray-800 text-xs">
+            <span className="text-gray-500">OPEN:</span>
+            {openWindows.length === 0 ? (
+              <span className="text-gray-600">NONE</span>
+            ) : (
+              openWindows.map((w) => (
+                <span key={w.id} className="icon-triple-hover text-green-400 px-1 cursor-pointer">{w.title}</span>
+              )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null
+            )}
+          </div>
+        )}
       </div>
     </>
   )
