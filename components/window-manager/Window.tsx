@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { DraggableCore } from 'react-draggable'
 import { useWindowStore, type WindowId, windowContentRegistry } from './useWindows'
 
@@ -17,9 +17,19 @@ export default function Window({ windowId }: WindowProps) {
   const setActiveWindow = useWindowStore((s) => s.setActiveWindow)
   const updateWindowPosition = useWindowStore((s) => s.updateWindowPosition)
 
-  const [localPosition, setLocalPosition] = useState(
-    windowState?.position || { x: 100, y: 100 }
-  )
+  const isMountedRef = useRef(true)
+  const dragStartPosRef = useRef({ x: 0, y: 0 })
+
+  const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
+
+  // Update local position when window state changes (but not during drag)
+  useEffect(() => {
+    if (windowState && !isDraggingRef.current) {
+      setLocalPosition(windowState.position)
+    }
+  }, [windowState?.position])
+
+  const isDraggingRef = useRef(false)
 
   if (!windowState || !windowState.isOpen || windowState.isMinimized) {
     return null
@@ -30,21 +40,35 @@ export default function Window({ windowId }: WindowProps) {
   const isMaximized = windowState.isMaximized
 
   const handleStart = useCallback(() => {
+    if (!isMountedRef.current) return
+    isDraggingRef.current = true
     setActiveWindow(windowId)
   }, [setActiveWindow, windowId])
 
   const handleDrag = useCallback((e: any, data: { x: number; y: number }) => {
+    if (!isMountedRef.current || !isDraggingRef.current) return
     setLocalPosition({ x: data.x, y: data.y })
   }, [])
 
   const handleStop = useCallback((e: any, data: { x: number; y: number }) => {
+    if (!isMountedRef.current) return
+    isDraggingRef.current = false
     setLocalPosition({ x: data.x, y: data.y })
     updateWindowPosition(windowId, { x: data.x, y: data.y })
   }, [updateWindowPosition, windowId])
 
   const handleClick = useCallback(() => {
-    setActiveWindow(windowId)
+    if (!isDraggingRef.current) {
+      setActiveWindow(windowId)
+    }
   }, [setActiveWindow, windowId])
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const handleClose = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -65,10 +89,16 @@ export default function Window({ windowId }: WindowProps) {
     return (
       <div
         onClick={handleClick}
-        className={`fixed inset-0 flex flex-col border ${
+        className={`fixed flex flex-col border ${
           isActive ? 'border-white z-[9999]' : 'border-gray-600'
         } bg-black`}
-        style={{ zIndex: windowState.zIndex, top: 0, left: 0, bottom: 48 }}
+        style={{
+          zIndex: windowState.zIndex,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: '48px'
+        }}
       >
         <div className="window-titlebar flex items-center justify-between bg-white text-black px-2 py-1 cursor-move">
           <span className="font-semibold">{windowState.title}</span>
