@@ -37,18 +37,19 @@ export default function StockCharts() {
           const change = quote.change || 0
           const changePercent = quote.changePercent || 0
 
-          // Generate mock historical data (since we only have current price)
+          // Generate mock historical data with 30-min intervals
           const historicalData: StockData[] = []
           let basePrice = price * 0.98
-          for (let i = 20; i >= 0; i--) {
+          const intervals = [4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0]
+          for (const hours of intervals) {
             const variation = (Math.random() - 0.5) * (price * 0.01)
             basePrice += variation
+            const timeLabel = hours === 0 ? 'now' : `${hours}h`
             historicalData.push({
-              time: `${i}m`,
+              time: timeLabel,
               price: parseFloat(basePrice.toFixed(2))
             })
           }
-          historicalData.push({ time: 'now', price })
 
           newCharts[symbol] = {
             symbol,
