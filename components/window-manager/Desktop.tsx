@@ -42,7 +42,7 @@ export default function Desktop() {
         <button
           key={icon.id}
           onClick={() => handleIconClick(icon)}
-          className="absolute flex flex-col items-center gap-1 p-2 hover:bg-white hover:text-black transition-colors"
+          className="icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-all"
           style={{ left: icon.position.x, top: icon.position.y }}
         >
           <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">

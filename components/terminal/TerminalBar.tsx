@@ -157,7 +157,7 @@ export default function TerminalBar() {
             <span className="text-gray-600">NONE</span>
           ) : (
             openWindows.map((w) => (
-              <span key={w.id} className="text-green-400">{w.title}</span>
+              <span key={w.id} className="icon-triple-hover text-green-400 px-1 cursor-pointer">{w.title}</span>
             )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null
           )}
         </div>
