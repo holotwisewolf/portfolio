@@ -41,7 +41,7 @@ function AppContent() {
           <div className="flex-1 relative bg-black">
             <Desktop />
             {openWindows.map((window) => (
-              <Window key={`${window.id}-${window.zIndex}`} windowId={window.id as any} />
+              <Window key={window.id} windowId={window.id as any} />
             ))}
           </div>
 

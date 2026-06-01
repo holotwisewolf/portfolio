@@ -39,6 +39,7 @@ export default function Window({ windowId }: WindowProps) {
   const [localPosition, setLocalPosition] = useState({ x: 0, y: 0 })
   const [localSize, setLocalSize] = useState({ width: 800, height: 600 })
   const localSizeRef = useRef({ width: 800, height: 600 })
+  const localPositionRef = useRef({ x: 0, y: 0 }) // Add ref for position
   const [isBooting, setIsBooting] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [loadProgress, setLoadProgress] = useState(0)
@@ -52,6 +53,7 @@ export default function Window({ windowId }: WindowProps) {
       setLocalPosition(windowState.position)
       setLocalSize(windowState.size)
       localSizeRef.current = windowState.size
+      localPositionRef.current = windowState.position
     }
   }, [windowId])
 
@@ -61,8 +63,14 @@ export default function Window({ windowId }: WindowProps) {
       setLocalPosition(windowState.position)
       setLocalSize(windowState.size)
       localSizeRef.current = windowState.size
+      localPositionRef.current = windowState.position
     }
   }, [windowState?.position, windowState?.size])
+
+  // Keep position ref in sync with state
+  useEffect(() => {
+    localPositionRef.current = localPosition
+  }, [localPosition])
 
   // Trigger boot animation on mount
   useEffect(() => {
@@ -106,36 +114,47 @@ export default function Window({ windowId }: WindowProps) {
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button !== 0) return // Only left click
-    setActiveWindow(windowId)
+
+    // Don't start drag if clicking on a button
+    const target = e.target as HTMLElement
+    if (target.tagName === 'BUTTON' || target.closest('button')) {
+      setActiveWindow(windowId)
+      return
+    }
 
     dragStateRef.current = {
       isDragging: true,
       startX: e.clientX,
       startY: e.clientY,
-      initialLeft: localPosition.x,
-      initialTop: localPosition.y
+      initialLeft: localPositionRef.current.x,
+      initialTop: localPositionRef.current.y
     }
     setIsDraggingOrResizing(true)
     isInteractingRef.current = true
-  }, [setActiveWindow, windowId, localPosition])
+    setActiveWindow(windowId)
+  }, [windowId, setActiveWindow])
 
   const handleClick = useCallback(() => {
-    if (!dragStateRef.current.isDragging) {
+    // Only set active if not already active and not interacting
+    if (!dragStateRef.current.isDragging && !resizeStateRef.current.isResizing && activeWindow !== windowId) {
       setActiveWindow(windowId)
     }
-  }, [setActiveWindow, windowId])
+  }, [setActiveWindow, windowId, activeWindow])
 
   const handleClose = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     closeWindow(windowId)
   }, [closeWindow, windowId])
 
   const handleMinimize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     minimizeWindow(windowId)
   }, [minimizeWindow, windowId])
 
   const handleMaximize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     maximizeWindow(windowId)
   }, [maximizeWindow, windowId])
@@ -150,14 +169,14 @@ export default function Window({ windowId }: WindowProps) {
       edge,
       startX: e.clientX,
       startY: e.clientY,
-      initialWidth: localSize.width,
-      initialHeight: localSize.height,
-      initialLeft: localPosition.x,
-      initialTop: localPosition.y
+      initialWidth: localSizeRef.current.width,
+      initialHeight: localSizeRef.current.height,
+      initialLeft: localPositionRef.current.x,
+      initialTop: localPositionRef.current.y
     }
     setIsDraggingOrResizing(true)
     isInteractingRef.current = true
-  }, [setActiveWindow, windowId, localSize, localPosition, isMaximized])
+  }, [setActiveWindow, windowId, isMaximized])
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (dragStateRef.current.isDragging) {
@@ -215,7 +234,7 @@ export default function Window({ windowId }: WindowProps) {
     if (resizeStateRef.current.isResizing) {
       resizeStateRef.current.isResizing = false
       updateWindowSize(windowId, localSizeRef.current)
-      updateWindowPosition(windowId, localPosition)
+      updateWindowPosition(windowId, localPositionRef.current)
     }
 
     // Clear interaction flag AFTER updating store
@@ -227,18 +246,28 @@ export default function Window({ windowId }: WindowProps) {
       if (dragStateRef.current.isDragging) dragStateRef.current.isDragging = false
       if (resizeStateRef.current.isResizing) resizeStateRef.current.isResizing = false
     }, 100)
-  }, [updateWindowPosition, updateWindowSize, windowId, localPosition])
+  }, [updateWindowPosition, updateWindowSize, windowId])
+
+  // Store callbacks in refs to avoid recreating the useEffect
+  const handleMouseMoveRef = useRef(handleMouseMove)
+  const handleMouseUpRef = useRef(handleMouseUp)
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    handleMouseMoveRef.current = handleMouseMove
+    handleMouseUpRef.current = handleMouseUp
+  }, [handleMouseMove, handleMouseUp])
 
   // Set up global mouse event listeners for drag and resize
   useEffect(() => {
     if (!isDraggingOrResizing) return
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
-      handleMouseMove(e)
+      handleMouseMoveRef.current(e)
     }
 
     const handleGlobalMouseUp = (e: MouseEvent) => {
-      handleMouseUp(e)
+      handleMouseUpRef.current(e)
     }
 
     window.addEventListener('mousemove', handleGlobalMouseMove)
@@ -248,7 +277,7 @@ export default function Window({ windowId }: WindowProps) {
       window.removeEventListener('mousemove', handleGlobalMouseMove)
       window.removeEventListener('mouseup', handleGlobalMouseUp)
     }
-  }, [isDraggingOrResizing, handleMouseMove, handleMouseUp])
+  }, [isDraggingOrResizing])
 
   // Safety net: add document-level mouseup when interaction starts
   useEffect(() => {
