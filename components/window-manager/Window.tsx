@@ -62,7 +62,7 @@ export default function Window({ windowId }: WindowProps) {
       setLocalSize(windowState.size)
       localSizeRef.current = windowState.size
     }
-  }, [windowState?.position, windowState?.size, windowState?.zIndex])
+  }, [windowState?.position, windowState?.size])
 
   // Trigger boot animation on mount
   useEffect(() => {
