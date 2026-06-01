@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatRow from '@/components/ui/StatRow'
 import ActivityGrid from '@/components/ui/ActivityGrid'
-import LanguageBars, { Language } from '@/components/ui/LanguageBars'
 
 interface StockData {
   time: string
@@ -28,13 +27,6 @@ export default function StockCharts() {
   const [marketOpen, setMarketOpen] = useState(true)
   const [vix, setVix] = useState(18.4)
   const [githubStats, setGithubStats] = useState({ repos: 0, followers: 0 })
-
-  const languages: Language[] = [
-    { name: 'JavaScript', percentage: 48 },
-    { name: 'TypeScript', percentage: 28 },
-    { name: 'Python', percentage: 16 },
-    { name: 'Other', percentage: 8 }
-  ]
 
   const fetchStockData = async () => {
     try {
@@ -178,8 +170,6 @@ export default function StockCharts() {
         )}
       </div>
 
-      <div className="border-t border-gray-800 my-3" />
-
       {/* Dev Activity Block */}
       <div className="flex-1">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
@@ -190,12 +180,6 @@ export default function StockCharts() {
         {/* Activity Dots */}
         <div className="my-3">
           <ActivityGrid dots={35} />
-        </div>
-
-        {/* Language Bars */}
-        <div className="mb-3">
-          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages</div>
-          <LanguageBars languages={languages} />
         </div>
 
         {/* Stack Tags */}

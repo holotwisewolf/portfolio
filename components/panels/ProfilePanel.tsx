@@ -4,6 +4,7 @@ import { ProfilePanel as ProfilePanelType } from '@/lib/profile-data'
 import SkillBars from '@/components/ui/SkillBars'
 import ActivityGrid from '@/components/ui/ActivityGrid'
 import StatRow from '@/components/ui/StatRow'
+import LanguageBars, { Language } from '@/components/ui/LanguageBars'
 
 export default function ProfilePanel() {
   const profile: ProfilePanelType = {
@@ -22,6 +23,13 @@ export default function ProfilePanel() {
     ],
     stack: ['React', 'Next.js', 'Node', 'MongoDB', 'Figma', 'AWS']
   }
+
+  const languages: Language[] = [
+    { name: 'JavaScript', percentage: 48 },
+    { name: 'TypeScript', percentage: 28 },
+    { name: 'Python', percentage: 16 },
+    { name: 'Other', percentage: 8 }
+  ]
 
   return (
     <div className="h-full bg-black font-mono text-xs flex flex-col p-3">
@@ -44,6 +52,12 @@ export default function ProfilePanel() {
       <div className="mb-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Skills proficiency</div>
         <SkillBars skills={profile.skills} />
+      </div>
+
+      {/* Language Bars */}
+      <div className="mb-4">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages</div>
+        <LanguageBars languages={languages} />
       </div>
 
       {/* Contact Block - at bottom */}
