@@ -209,10 +209,3 @@ export default function StockCharts() {
     </div>
   )
 }
-  return (
-    <div className="flex justify-between py-1 text-gray-400 border-b border-gray-900 hover:text-white cursor-pointer">
-      <span>{label}</span>
-      <span>↗</span>
-    </div>
-  )
-}
