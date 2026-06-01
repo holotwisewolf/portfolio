@@ -142,13 +142,12 @@ export default function StockCharts() {
         ) : (
           <>
             {Object.values(charts).map((chart) => {
-              // Validate all data before rendering
-              const hasValidPrice = chart.currentPrice != null && !isNaN(chart.currentPrice) && chart.currentPrice > 0
-              const hasValidChange = chart.changePercent != null && !isNaN(chart.changePercent)
-              const hasValidData = chart.data && chart.data.length > 0 &&
-                chart.data.every((d: any) => d != null && d.price != null && !isNaN(d.price))
+              // Sanitize data - filter out any invalid entries
+              const sanitizedData = (chart.data || []).filter((d: any) => d && d.price != null && !isNaN(d.price) && d.price > 0)
+              const isValidPrice = chart.currentPrice != null && !isNaN(chart.currentPrice) && chart.currentPrice > 0
+              const isValidChange = chart.changePercent != null && !isNaN(chart.changePercent)
 
-              if (!hasValidPrice || !hasValidData) {
+              if (!isValidPrice || sanitizedData.length === 0) {
                 return (
                   <div key={chart.symbol} className="mb-3">
                     <div className="flex justify-between items-baseline mb-1">
@@ -165,7 +164,7 @@ export default function StockCharts() {
                   <span className="text-gray-300">{chart.symbol}</span>
                   <span className="text-white text-sm">
                     ${chart.currentPrice.toFixed(2)}{' '}
-                    {hasValidChange && (
+                    {isValidChange && (
                       <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
                       </span>
@@ -173,7 +172,7 @@ export default function StockCharts() {
                   </span>
                 </div>
                 <ResponsiveContainer width="100%" height={40}>
-                  <LineChart data={chart.data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                  <LineChart data={sanitizedData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <XAxis
                       dataKey="time"
                       stroke="#444"
