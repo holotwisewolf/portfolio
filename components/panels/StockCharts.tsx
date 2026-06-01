@@ -161,6 +161,7 @@ export default function StockCharts() {
                       tickFormatter={(value) => value === 'now' ? 'n' : value.replace('h', '')}
                     />
                     <YAxis hide={true} domain={[({ data }) => {
+                      if (!data || data.length === 0) return [0, 100]
                       const prices = data.map((d: any) => d.price).filter((p: number) => p != null && !isNaN(p))
                       if (prices.length === 0) return [0, 100]
                       const min = Math.min(...prices)
