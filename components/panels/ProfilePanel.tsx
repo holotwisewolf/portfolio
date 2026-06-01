@@ -30,14 +30,6 @@ export default function ProfilePanel() {
         Profile
       </div>
 
-      {/* Contact Block */}
-      <div className="mb-4">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Contact</div>
-        <ContactLink label="GitHub" href="https://github.com" />
-        <ContactLink label="LinkedIn" href="https://linkedin.com" />
-        <ContactLink label="Email" href="mailto:hello@example.com" />
-      </div>
-
       {/* Identity Block */}
       <div className="mb-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Identity</div>
@@ -54,25 +46,12 @@ export default function ProfilePanel() {
         <SkillBars skills={profile.skills} />
       </div>
 
-      {/* Stack Tags Block */}
-      <div className="mb-4">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Stack tags</div>
-        <div className="flex flex-wrap gap-1">
-          {profile.stack.map((tag) => (
-            <span
-              key={tag}
-              className="border border-gray-700 text-gray-300 text-[9px] px-2 py-0.5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Activity Block */}
-      <div className="flex-1">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Activity (last 30d)</div>
-        <ActivityGrid dots={35} />
+      {/* Contact Block - at bottom */}
+      <div className="mt-auto">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Contact</div>
+        <ContactLink label="GitHub" href="https://github.com/holotwisewolf" />
+        <ContactLink label="LinkedIn" href="https://linkedin.com" />
+        <ContactLink label="Email" href="mailto:hello@example.com" />
       </div>
     </div>
   )

@@ -197,6 +197,21 @@ export default function StockCharts() {
           <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages</div>
           <LanguageBars languages={languages} />
         </div>
+
+        {/* Stack Tags */}
+        <div className="mb-3">
+          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Stack</div>
+          <div className="flex flex-wrap gap-1">
+            {['React', 'Next.js', 'Node', 'MongoDB', 'Figma', 'AWS'].map((tag) => (
+              <span
+                key={tag}
+                className="border border-gray-700 text-gray-300 text-[9px] px-2 py-0.5"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
