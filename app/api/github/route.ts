@@ -3,14 +3,20 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   try {
     // Replace with your actual GitHub username
-    const username = 'your-username' // TODO: Set your GitHub username
+    const username = process.env.GITHUB_USERNAME || 'your-username'
+
+    const headers: Record<string, string> = {
+      'User-Agent': 'Portfolio-Stats',
+      'X-GitHub-Api-Version': '2022-11-28',
+    }
+
+    // Add token if available (for higher rate limits)
+    if (process.env.GITHUB_TOKEN) {
+      headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`
+    }
 
     const response = await fetch(`https://api.github.com/users/${username}`, {
-      headers: {
-        'User-Agent': 'Portfolio-Stats',
-        // Optional: Add a GitHub personal access token for higher rate limits
-        // 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
-      },
+      headers,
     })
 
     if (!response.ok) {
@@ -22,8 +28,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       publicRepos: data.public_repos || 0,
       followers: data.followers || 0,
-      // Note: GitHub doesn't provide total commits or stars via user API
-      // Those would require additional API calls to repositories
+      following: data.following || 0,
+      bio: data.bio || '',
     })
   } catch (error) {
     return NextResponse.json(
