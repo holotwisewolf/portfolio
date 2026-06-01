@@ -111,7 +111,7 @@ export default function StockCharts() {
   return (
     <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3">
       {/* Panel Label */}
-      <div className="text-[9px] tracking-widest text-white uppercase border-b border-gray-800 pb-2 mb-3">
+      <div className="text-[9px] tracking-widest text-white uppercase pb-2 mb-3">
         Stats
       </div>
 
@@ -129,7 +129,7 @@ export default function StockCharts() {
                   <span className="text-gray-300">{chart.symbol}</span>
                   <span className="text-white text-sm">
                     ${chart.currentPrice.toFixed(2)}{' '}
-                    <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-white' : 'text-gray-400'}`}>
+                    <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                       {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
                     </span>
                   </span>
@@ -156,7 +156,7 @@ export default function StockCharts() {
               </div>
             ))}
 
-            <StatRow label="VIX" value={`${vix.toFixed(1)} ▲`} valueClass="text-white" />
+            <StatRow label="VIX" value={`${vix.toFixed(1)} ▲`} valueClass={vix > 20 ? 'text-red-400' : 'text-green-400'} />
             <StatRow
               label="MARKET"
               value={marketOpen ? 'OPEN' : 'CLOSED'}

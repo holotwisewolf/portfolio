@@ -198,10 +198,10 @@ export default function Desktop() {
         <div
           className="absolute bg-white/10 border border-white/50 pointer-events-none"
           style={{
-            left: snapPosition.x,
-            top: snapPosition.y,
-            width: 64,
-            height: 64,
+            left: snapPosition.x - 4,
+            top: snapPosition.y - 4,
+            width: 72,
+            height: 80,
           }}
         />
       )}
