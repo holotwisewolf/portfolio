@@ -27,17 +27,17 @@ function AppContent() {
   const openWindows = Object.values(windows).filter(w => w.isOpen && !w.isMinimized)
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-black relative">
+    <div className="h-screen w-screen overflow-hidden bg-black relative flex flex-col">
       <PixelBackground />
       <StatusBar />
-      <div className="h-[calc(100vh-24px)] flex min-h-0">
+      <div className="flex-1 flex min-h-0">
         {/* Left Panel - Profile */}
-        <div className="w-[280px] h-full flex-shrink-0 border-r border-white bg-black">
+        <div className="w-[280px] flex-shrink-0 border-r border-white bg-black">
           <ProfilePanel />
         </div>
 
         {/* Center Panel - Desktop with Windows */}
-        <div className="flex-1 h-full relative bg-black">
+        <div className="flex-1 relative bg-black">
           <Desktop />
           {openWindows.map((window) => (
             <Window key={`${window.id}-${window.zIndex}`} windowId={window.id as any} />
@@ -45,7 +45,7 @@ function AppContent() {
         </div>
 
         {/* Right Panel - Market+Dev */}
-        <div className="w-[320px] h-full flex-shrink-0 border-l border-white bg-black">
+        <div className="w-[320px] flex-shrink-0 border-l border-white bg-black">
           <StockCharts />
         </div>
       </div>
