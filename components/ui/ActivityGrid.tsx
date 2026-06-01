@@ -21,7 +21,7 @@ export default function ActivityGrid({ dots = 35, pattern }: ActivityGridProps) 
   }, [dots, pattern])
 
   return (
-    <div className="flex flex-wrap gap-[2px]">
+    <div className="flex flex-wrap gap-[2px]" suppressHydrationWarning>
       {activityPattern.map((active, i) => (
         <div
           key={i}
