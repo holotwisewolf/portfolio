@@ -28,12 +28,12 @@ interface DesktopIcon {
 }
 
 const initialIcons: DesktopIcon[] = [
-  { id: 'terminalnav', label: 'Terminal', position: { x: 30, y: 30 } },
-  { id: 'welcome', label: 'Welcome', position: { x: 30, y: 130 } },
-  { id: 'projects', label: 'Projects', position: { x: 140, y: 30 } },
-  { id: 'blog', label: 'Blog', position: { x: 140, y: 130 } },
-  { id: 'about', label: 'About', position: { x: 250, y: 30 } },
-  { id: 'admin', label: 'Admin', position: { x: 250, y: 130 } },
+  { id: 'terminalnav', label: 'Terminal', position: { x: 0, y: 0 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 0, y: 80 } },
+  { id: 'projects', label: 'Projects', position: { x: 80, y: 0 } },
+  { id: 'blog', label: 'Blog', position: { x: 80, y: 80 } },
+  { id: 'about', label: 'About', position: { x: 160, y: 0 } },
+  { id: 'admin', label: 'Admin', position: { x: 160, y: 80 } },
 ]
 
 export default function Desktop() {
@@ -132,11 +132,28 @@ export default function Desktop() {
     const finalPosition = showSnapHighlight && snapPosition ? snapPosition : currentPosition
 
     if (finalPosition) {
-      setIcons(prev => prev.map(icon =>
-        icon.id === draggingIcon
-          ? { ...icon, position: finalPosition }
-          : icon
-      ))
+      setIcons(prev => {
+        // Check if another icon is at the target position
+        const targetIcon = prev.find(icon =>
+          icon.id !== draggingIcon &&
+          Math.abs(icon.position.x - finalPosition.x) < 5 &&
+          Math.abs(icon.position.y - finalPosition.y) < 5
+        )
+
+        const draggedIcon = prev.find(icon => icon.id === draggingIcon)
+        const originalPosition = draggedIcon?.position
+
+        return prev.map(icon => {
+          if (icon.id === draggingIcon) {
+            return { ...icon, position: finalPosition }
+          }
+          if (targetIcon && icon.id === targetIcon.id && originalPosition) {
+            // Swap positions
+            return { ...icon, position: originalPosition }
+          }
+          return icon
+        })
+      })
     }
 
     setDraggingIcon(null)
@@ -196,12 +213,12 @@ export default function Desktop() {
       {/* Snap highlight */}
       {showSnapHighlight && snapPosition && (
         <div
-          className="absolute bg-white/10 border border-white/50 pointer-events-none"
+          className="absolute bg-white/10 border border-white/50 pointer-events-none rounded"
           style={{
-            left: snapPosition.x - 4,
-            top: snapPosition.y - 4,
-            width: 72,
-            height: 80,
+            left: snapPosition.x,
+            top: snapPosition.y,
+            width: 64,
+            height: 72,
           }}
         />
       )}

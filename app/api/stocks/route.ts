@@ -72,6 +72,29 @@ export async function GET(request: NextRequest) {
             })
           }
 
+          // If we have less than 3 data points (market closed or limited data), generate mock historical
+          if (historical.length < 3 && currentPrice) {
+            const mockHistorical: HistoricalPoint[] = []
+            let basePrice = currentPrice * 0.98
+            const intervals = [4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0]
+            for (const hours of intervals) {
+              const variation = (Math.random() - 0.5) * (currentPrice * 0.01)
+              basePrice += variation
+              const timeLabel = hours === 0 ? 'now' : `${hours}h`
+              mockHistorical.push({
+                time: timeLabel,
+                price: parseFloat(basePrice.toFixed(2))
+              })
+            }
+            return {
+              symbol: symbol.trim().toUpperCase(),
+              price: currentPrice,
+              change: currentPrice - meta.previousClose,
+              changePercent: ((currentPrice - meta.previousClose) / meta.previousClose) * 100,
+              historical: mockHistorical
+            }
+          }
+
           return {
             symbol: symbol.trim().toUpperCase(),
             price: currentPrice,
