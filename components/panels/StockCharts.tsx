@@ -142,13 +142,18 @@ export default function StockCharts() {
         ) : (
           <>
             {Object.values(charts).map((chart) => {
-              // Skip if no valid data
-              if (!chart.currentPrice || isNaN(chart.currentPrice) || !chart.data || chart.data.length === 0) {
+              // Validate all data before rendering
+              const hasValidPrice = chart.currentPrice != null && !isNaN(chart.currentPrice) && chart.currentPrice > 0
+              const hasValidChange = chart.changePercent != null && !isNaN(chart.changePercent)
+              const hasValidData = chart.data && chart.data.length > 0 &&
+                chart.data.every((d: any) => d != null && d.price != null && !isNaN(d.price))
+
+              if (!hasValidPrice || !hasValidData) {
                 return (
                   <div key={chart.symbol} className="mb-3">
                     <div className="flex justify-between items-baseline mb-1">
                       <span className="text-gray-300">{chart.symbol}</span>
-                      <span className="text-gray-500 text-sm">No data</span>
+                      <span className="text-gray-500 text-sm">Loading...</span>
                     </div>
                   </div>
                 )
@@ -160,9 +165,11 @@ export default function StockCharts() {
                   <span className="text-gray-300">{chart.symbol}</span>
                   <span className="text-white text-sm">
                     ${chart.currentPrice.toFixed(2)}{' '}
-                    <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
-                    </span>
+                    {hasValidChange && (
+                      <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
+                      </span>
+                    )}
                   </span>
                 </div>
                 <ResponsiveContainer width="100%" height={40}>

@@ -236,6 +236,11 @@ export const useWindowStore = create<WindowStore>()(
     }),
     {
       name: 'window-state',
+      partialize: (state) => ({
+        windows: state.windows,
+        activeWindow: state.activeWindow,
+        // Don't persist maxZIndex - recalculate on each session
+      }),
     }
   )
 )
