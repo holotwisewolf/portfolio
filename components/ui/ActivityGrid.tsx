@@ -8,12 +8,13 @@ interface ActivityGridProps {
 }
 
 export default function ActivityGrid({ dots = 35, pattern }: ActivityGridProps) {
+  const [isMounted, setIsMounted] = useState(false)
   const [activityPattern, setActivityPattern] = useState<('high' | 'mid' | 'low')[]>(
-    pattern || generateActivityPattern(dots)
+    pattern || Array(dots).fill('low') as ('high' | 'mid' | 'low')[]
   )
 
-  // Regenerate pattern on client after hydration (for consistent SSR)
   useEffect(() => {
+    setIsMounted(true)
     if (!pattern) {
       setActivityPattern(generateActivityPattern(dots))
     }
