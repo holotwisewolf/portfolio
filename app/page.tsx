@@ -24,7 +24,7 @@ function AppContent() {
   }, [openWindow])
 
   const windows = useWindowStore((s) => s.windows)
-  const openWindows = Object.values(windows).filter(w => w.isOpen)
+  const openWindows = Object.values(windows).filter(w => w.isOpen && !w.isMinimized)
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black relative">
