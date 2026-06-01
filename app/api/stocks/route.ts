@@ -95,6 +95,14 @@ export async function GET(request: NextRequest) {
             }
           }
 
+          // Ensure "now" point has the actual currentPrice (replace or add)
+          const nowIndex = historical.findIndex(h => h.time === 'now')
+          if (nowIndex >= 0) {
+            historical[nowIndex] = { time: 'now', price: parseFloat(currentPrice.toFixed(2)) }
+          } else {
+            historical.push({ time: 'now', price: parseFloat(currentPrice.toFixed(2)) })
+          }
+
           return {
             symbol: symbol.trim().toUpperCase(),
             price: currentPrice,

@@ -73,7 +73,8 @@ export default function Desktop() {
       if (newCount === 2) {
         clearTimeout(timer)
         setClickCount(0)
-        openWindow(icon.id as any)
+        // Defer to next tick to avoid React render cycle issues
+        setTimeout(() => openWindow(icon.id as any), 0)
       }
 
       return newCount
@@ -218,7 +219,7 @@ export default function Desktop() {
             left: snapPosition.x,
             top: snapPosition.y,
             width: 64,
-            height: 72,
+            height: 88,
           }}
         />
       )}

@@ -15,10 +15,9 @@ export default function ProfilePanel() {
       experience: '3 yrs'
     },
     skills: [
-      { name: 'React', level: 90 },
-      { name: 'Node.js', level: 80 },
-      { name: 'Python', level: 70 },
-      { name: 'CSS/UI', level: 85 }
+      { name: 'English', level: 90 },
+      { name: 'Chinese', level: 70 },
+      { name: 'Malay', level: 60 }
     ],
     stack: ['React', 'Next.js', 'Node', 'Supabase', 'Figma']
   }
@@ -40,14 +39,14 @@ export default function ProfilePanel() {
         <StatRow label="EXPERIENCE" value={profile.identity.experience} />
       </div>
 
-      {/* Skills Block */}
+      {/* Language Proficiency Block */}
       <div className="mb-4">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Skills proficiency</div>
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Language proficiency</div>
         <SkillBars skills={profile.skills} />
       </div>
 
-      {/* Contact Block - at bottom */}
-      <div className="mt-auto">
+      {/* Contact Block */}
+      <div className="mb-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Contact</div>
         <ContactLink label="GitHub" href="https://github.com/holotwisewolf" />
         <ContactLink label="LinkedIn" href="https://linkedin.com" />

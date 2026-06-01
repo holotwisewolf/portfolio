@@ -70,7 +70,7 @@ export default function StatusBar() {
         <span className="text-white font-bold">&gt; PORTFOLIO</span>
         <span className="text-gray-500">|</span>
         <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
-          SERVER_ONLINE
+          {isConnected ? 'SERVER_ONLINE' : 'SERVER_OFFLINE'}
         </span>
         <span className="text-gray-500">LATENCY: {latency}ms</span>
         <span className="text-gray-400">|</span>

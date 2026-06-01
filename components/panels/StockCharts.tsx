@@ -116,6 +116,16 @@ export default function StockCharts() {
     setMarketOpen(day >= 1 && day <= 5 && time >= marketStart && time <= marketEnd)
   }, [])
 
+  // Update VIX every 10 minutes (independent of stock data)
+  useEffect(() => {
+    const updateVix = () => {
+      setVix(15 + Math.random() * 10)
+    }
+    updateVix()
+    const interval = setInterval(updateVix, 10 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3">
       {/* Panel Label */}
@@ -150,7 +160,7 @@ export default function StockCharts() {
                       tick={{ fill: '#444', fontSize: 8 }}
                       tickFormatter={(value) => value === 'now' ? 'n' : value.replace('h', '')}
                     />
-                    <YAxis hide={true} domain={[chart.data[0]?.price * 0.99, chart.data[chart.data.length - 1]?.price * 1.01]} />
+                    <YAxis hide={true} domain={['dataMin - 0.5', 'dataMax + 0.5']} />
                     <Line
                       type="monotone"
                       dataKey="price"
@@ -182,13 +192,14 @@ export default function StockCharts() {
       <div className="flex-1">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
 
-        <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
-        <StatRow label="FOLLOWERS" value={githubStats.followers.toString()} valueClass="text-white" />
-
-        {/* Activity Dots */}
-        <div className="my-3">
+        {/* Activity Dots - right under header */}
+        <div className="mb-3">
+          <div className="text-[9px] text-gray-700 mb-1">Commit activity (35 days)</div>
           <ActivityGrid dots={35} />
         </div>
+
+        <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
+        <StatRow label="FOLLOWERS" value={githubStats.followers.toString()} valueClass="text-white" />
 
         {/* Language Bars */}
         <div className="mb-3">

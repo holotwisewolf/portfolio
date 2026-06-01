@@ -220,9 +220,13 @@ export default function Window({ windowId }: WindowProps) {
 
     // Clear interaction flag AFTER updating store
     setIsDraggingOrResizing(false)
+    isInteractingRef.current = false
+
+    // Force clear refs if something went wrong
     setTimeout(() => {
-      isInteractingRef.current = false
-    }, 0)
+      if (dragStateRef.current.isDragging) dragStateRef.current.isDragging = false
+      if (resizeStateRef.current.isResizing) resizeStateRef.current.isResizing = false
+    }, 100)
   }, [updateWindowPosition, updateWindowSize, windowId, localPosition])
 
   // Set up global mouse event listeners for drag and resize
@@ -245,6 +249,25 @@ export default function Window({ windowId }: WindowProps) {
       window.removeEventListener('mouseup', handleGlobalMouseUp)
     }
   }, [isDraggingOrResizing, handleMouseMove, handleMouseUp])
+
+  // Safety net: add document-level mouseup when interaction starts
+  useEffect(() => {
+    if (!isDraggingOrResizing) return
+
+    const handleSafetyMouseUp = () => {
+      setTimeout(() => {
+        if (dragStateRef.current.isDragging || resizeStateRef.current.isResizing) {
+          dragStateRef.current.isDragging = false
+          resizeStateRef.current.isResizing = false
+          setIsDraggingOrResizing(false)
+          isInteractingRef.current = false
+        }
+      }, 50)
+    }
+
+    document.addEventListener('mouseup', handleSafetyMouseUp)
+    return () => document.removeEventListener('mouseup', handleSafetyMouseUp)
+  }, [isDraggingOrResizing])
 
   if (isMaximized) {
     return (
