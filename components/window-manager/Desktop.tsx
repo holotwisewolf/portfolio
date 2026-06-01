@@ -24,12 +24,12 @@ interface DesktopIcon {
 }
 
 const icons: DesktopIcon[] = [
-  { id: 'terminalnav', label: 'Terminal', position: { x: 50, y: 50 } },
-  { id: 'welcome', label: 'Welcome', position: { x: 50, y: 150 } },
-  { id: 'projects', label: 'Projects', position: { x: 50, y: 250 } },
-  { id: 'blog', label: 'Blog', position: { x: 50, y: 350 } },
-  { id: 'about', label: 'About', position: { x: 50, y: 450 } },
-  { id: 'admin', label: 'Admin', position: { x: 50, y: 550 } },
+  { id: 'terminalnav', label: 'Terminal', position: { x: 30, y: 30 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 30, y: 130 } },
+  { id: 'projects', label: 'Projects', position: { x: 140, y: 30 } },
+  { id: 'blog', label: 'Blog', position: { x: 140, y: 130 } },
+  { id: 'about', label: 'About', position: { x: 250, y: 30 } },
+  { id: 'admin', label: 'Admin', position: { x: 250, y: 130 } },
 ]
 
 export default function Desktop() {
