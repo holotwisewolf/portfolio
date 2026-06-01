@@ -129,13 +129,13 @@ export default function StockCharts() {
   return (
     <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3">
       {/* Panel Label */}
-      <div className="text-[9px] tracking-widest text-white uppercase pb-2 mb-3">
+      <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Stats
       </div>
 
       {/* Market Watch Block */}
-      <div className="mb-4">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Market watch</div>
+      <div className="mb-3">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-1">Market watch</div>
 
         {loading ? (
           <div className="text-gray-500 text-center py-8">Loading...</div>
@@ -160,7 +160,16 @@ export default function StockCharts() {
                       tick={{ fill: '#444', fontSize: 8 }}
                       tickFormatter={(value) => value === 'now' ? 'n' : value.replace('h', '')}
                     />
-                    <YAxis hide={true} domain={['dataMin - 0.5', 'dataMax + 0.5']} />
+                    <YAxis hide={true} domain={[({ data }) => {
+                      const prices = data.map((d: any) => d.price).filter((p: number) => p != null && !isNaN(p))
+                      if (prices.length === 0) return [0, 100]
+                      const min = Math.min(...prices)
+                      const max = Math.max(...prices)
+                      const range = max - min
+                      // Add some padding so the line doesn't touch edges
+                      const padding = range === 0 ? 1 : range * 0.02
+                      return [min - padding, max + padding]
+                    }]} />
                     <Line
                       type="monotone"
                       dataKey="price"

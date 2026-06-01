@@ -30,6 +30,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   const windows = useWindowStore((s) => s.windows)
   const openWindow = useWindowStore((s) => s.openWindow)
   const closeWindow = useWindowStore((s) => s.closeWindow)
+  const restoreWindow = useWindowStore((s) => s.restoreWindow)
 
   const availableWindows = ['welcome', 'projects', 'blog', 'about', 'admin']
 
@@ -216,7 +217,17 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     }
   }, [isResizing])
 
-  const openWindows = Object.values(windows).filter(w => w.isOpen)
+  const openWindows = Object.values(windows).filter(w => w.isOpen && !w.isMinimized)
+  const minimizedWindows = Object.values(windows).filter(w => w.isOpen && w.isMinimized)
+
+  const handleRestoreWindow = (id: string) => {
+    restoreWindow(id as any)
+  }
+
+  const handleFocusWindow = (id: string) => {
+    // Window will be focused by click in the Window component itself
+    // This is just a visual indicator
+  }
 
   return (
     <>
@@ -336,6 +347,22 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 <span key={w.id} className="icon-triple-hover text-green-400 px-1 cursor-pointer">{w.title}</span>
               )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null
             )}
+          </div>
+        )}
+
+        {/* Minimized windows - always visible */}
+        {minimizedWindows.length > 0 && (
+          <div className={`flex items-center gap-2 px-2 py-1 border-t border-gray-800 text-xs ${isMinimized ? 'border-t-0' : ''}`}>
+            <span className="text-gray-500">MINIMIZED:</span>
+            {minimizedWindows.map((w) => (
+              <button
+                key={w.id}
+                onClick={() => handleRestoreWindow(w.id)}
+                className="icon-triple-hover text-gray-400 px-1 hover:text-white transition-colors text-xs"
+              >
+                {w.title}
+              </button>
+            )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null}
           </div>
         )}
       </div>

@@ -25,13 +25,13 @@ export default function ProfilePanel() {
   return (
     <div className="h-full bg-black font-mono text-xs flex flex-col p-3">
       {/* Panel Label */}
-      <div className="text-[9px] tracking-widest text-white uppercase pb-2 mb-3">
+      <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Profile
       </div>
 
       {/* Identity Block */}
       <div className="mb-4">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Identity</div>
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-1">Identity</div>
         <StatRow label="NAME" value={profile.identity.name} />
         <StatRow label="ROLE" value={profile.identity.role} />
         <StatRow label="LOCATION" value={profile.identity.location} />

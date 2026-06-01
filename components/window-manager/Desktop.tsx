@@ -18,8 +18,8 @@ registerWindowContent('about', About)
 registerWindowContent('admin', Admin)
 registerWindowContent('terminalnav', TerminalNav)
 
-const GRID_SIZE = 80 // Grid cell size for icon snap
-const SNAP_THRESHOLD = 40 // Distance to show snap highlight
+const GRID_SIZE = 88 // Grid cell size for icon snap (matches icon height)
+const SNAP_THRESHOLD = 44 // Distance to show snap highlight
 
 interface DesktopIcon {
   id: string
@@ -29,11 +29,11 @@ interface DesktopIcon {
 
 const initialIcons: DesktopIcon[] = [
   { id: 'terminalnav', label: 'Terminal', position: { x: 0, y: 0 } },
-  { id: 'welcome', label: 'Welcome', position: { x: 0, y: 80 } },
-  { id: 'projects', label: 'Projects', position: { x: 80, y: 0 } },
-  { id: 'blog', label: 'Blog', position: { x: 80, y: 80 } },
-  { id: 'about', label: 'About', position: { x: 160, y: 0 } },
-  { id: 'admin', label: 'Admin', position: { x: 160, y: 80 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 0, y: 88 } },
+  { id: 'projects', label: 'Projects', position: { x: 72, y: 0 } },
+  { id: 'blog', label: 'Blog', position: { x: 72, y: 88 } },
+  { id: 'about', label: 'About', position: { x: 144, y: 0 } },
+  { id: 'admin', label: 'Admin', position: { x: 144, y: 88 } },
 ]
 
 export default function Desktop() {

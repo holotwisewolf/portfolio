@@ -29,6 +29,7 @@ interface WindowState {
 interface WindowStore {
   windows: Record<string, WindowState>
   activeWindow: WindowId | null
+  maxZIndex: number
   openWindow: (id: WindowId) => void
   closeWindow: (id: WindowId) => void
   minimizeWindow: (id: WindowId) => void
@@ -46,6 +47,7 @@ export const useWindowStore = create<WindowStore>()(
     (set, get) => ({
       windows: {},
       activeWindow: null,
+      maxZIndex: 100,
 
       openWindow: (id) => {
         const content = windowContentRegistry.get(id)
@@ -53,7 +55,7 @@ export const useWindowStore = create<WindowStore>()(
 
         set((state) => {
           const existing = state.windows[id]
-          const zIndex = (Object.keys(state.windows).length + 1) * 100
+          const newZIndex = state.maxZIndex + 100
 
           if (existing) {
             return {
@@ -63,12 +65,13 @@ export const useWindowStore = create<WindowStore>()(
                   ...existing,
                   isOpen: true,
                   isMinimized: false,
-                  zIndex,
+                  zIndex: newZIndex,
                   isLoading: existing.isLoading ?? true,
                   loadProgress: existing.loadProgress ?? 0,
                 },
               },
               activeWindow: id,
+              maxZIndex: newZIndex,
             }
           }
 
@@ -93,12 +96,13 @@ export const useWindowStore = create<WindowStore>()(
                 isMaximized: false,
                 position,
                 size: customSize,
-                zIndex,
+                zIndex: newZIndex,
                 isLoading: true,
                 loadProgress: 0,
               },
             },
             activeWindow: id,
+            maxZIndex: newZIndex,
           }
         })
       },
@@ -145,33 +149,35 @@ export const useWindowStore = create<WindowStore>()(
 
       restoreWindow: (id) => {
         set((state) => {
-          const zIndex = (Object.keys(state.windows).length + 1) * 100
+          const newZIndex = state.maxZIndex + 100
           return {
             windows: {
               ...state.windows,
               [id]: {
                 ...state.windows[id],
                 isMinimized: false,
-                zIndex,
+                zIndex: newZIndex,
               },
             },
             activeWindow: id,
+            maxZIndex: newZIndex,
           }
         })
       },
 
       setActiveWindow: (id) => {
         set((state) => {
-          const zIndex = (Object.keys(state.windows).length + 1) * 100
+          const newZIndex = state.maxZIndex + 100
           return {
             windows: {
               ...state.windows,
               [id]: {
                 ...state.windows[id],
-                zIndex,
+                zIndex: newZIndex,
               },
             },
             activeWindow: id,
+            maxZIndex: newZIndex,
           }
         })
       },
