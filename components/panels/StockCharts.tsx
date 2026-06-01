@@ -27,6 +27,7 @@ export default function StockCharts() {
   const [loading, setLoading] = useState(true)
   const [marketOpen, setMarketOpen] = useState(true)
   const [vix, setVix] = useState(18.4)
+  const [githubStats, setGithubStats] = useState({ repos: 0, followers: 0 })
 
   const languages: Language[] = [
     { name: 'JavaScript', percentage: 48 },
@@ -89,6 +90,25 @@ export default function StockCharts() {
     // Poll every 5 minutes instead of 30 seconds
     const interval = setInterval(fetchStockData, 5 * 60 * 1000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Fetch GitHub stats
+  useEffect(() => {
+    const fetchGitHubStats = async () => {
+      try {
+        const res = await fetch('/api/github')
+        const data = await res.json()
+        if (data && !data.error) {
+          setGithubStats({
+            repos: data.publicRepos || 0,
+            followers: data.followers || 0
+          })
+        }
+      } catch (error) {
+        console.error('Failed to fetch GitHub stats:', error)
+      }
+    }
+    fetchGitHubStats()
   }, [])
 
   // Check if market is open (9:30 AM - 4:00 PM ET, Mon-Fri)
@@ -172,8 +192,8 @@ export default function StockCharts() {
       <div className="flex-1">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
 
-        <StatRow label="COMMITS (30D)" value="143" valueClass="text-white" />
-        <StatRow label="GITHUB STARS" value="847" valueClass="text-white" />
+        <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
+        <StatRow label="FOLLOWERS" value={githubStats.followers.toString()} valueClass="text-white" />
 
         {/* Activity Dots */}
         <div className="my-3">
