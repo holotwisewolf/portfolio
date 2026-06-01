@@ -19,14 +19,11 @@ interface ChartData {
   changePercent: number
 }
 
-// Initial mock prices
-const INITIAL_PRICES = {
-  SPY: 530,
-  QQQ: 460
-}
-
 export default function StockCharts() {
-  const [charts, setCharts] = useState<{ [key: string]: ChartData }>({})
+  const [charts, setCharts] = useState<{ [key: string]: ChartData }>({
+    SPY: { symbol: 'SPY', data: [], currentPrice: 0, change: 0, changePercent: 0 },
+    QQQ: { symbol: 'QQQ', data: [], currentPrice: 0, change: 0, changePercent: 0 }
+  })
   const [loading, setLoading] = useState(true)
   const [marketOpen, setMarketOpen] = useState(true)
   const [vix, setVix] = useState(18.4)
@@ -38,61 +35,59 @@ export default function StockCharts() {
     { name: 'Other', percentage: 8 }
   ]
 
-  // Generate mock historical data
-  const generateChartData = (symbol: string, basePrice: number): ChartData => {
-    const data: StockData[] = []
-    let price = basePrice * 0.97
-    const intervals = [4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0]
-    for (const hours of intervals) {
-      const change = (Math.random() - 0.45) * (basePrice * 0.015)
-      price += change
-      const timeLabel = hours === 0 ? 'now' : `${hours}h`
-      data.push({
-        time: timeLabel,
-        price: parseFloat(price.toFixed(2))
-      })
-    }
+  const fetchStockData = async () => {
+    try {
+      const res = await fetch('/api/stocks?symbols=SPY,QQQ')
+      const data = await res.json()
 
-    const currentPrice = data[data.length - 1].price
-    const openPrice = data[0].price
-    const change = currentPrice - openPrice
-    const changePercent = (change / openPrice) * 100
+      if (data.quotes) {
+        const newCharts: { [key: string]: ChartData } = {}
 
-    return {
-      symbol,
-      data,
-      currentPrice,
-      change,
-      changePercent
+        for (const quote of data.quotes) {
+          const symbol = quote.symbol
+          const price = quote.price || 0
+          const change = quote.change || 0
+          const changePercent = quote.changePercent || 0
+
+          // Generate mock historical data with 30-min intervals
+          const historicalData: StockData[] = []
+          let basePrice = price * 0.98
+          const intervals = [4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0]
+          for (const hours of intervals) {
+            const variation = (Math.random() - 0.5) * (price * 0.01)
+            basePrice += variation
+            const timeLabel = hours === 0 ? 'now' : `${hours}h`
+            historicalData.push({
+              time: timeLabel,
+              price: parseFloat(basePrice.toFixed(2))
+            })
+          }
+
+          newCharts[symbol] = {
+            symbol,
+            data: historicalData,
+            currentPrice: price,
+            change,
+            changePercent
+          }
+        }
+
+        setCharts(newCharts)
+        setLoading(false)
+
+        // Update VIX randomly
+        setVix(15 + Math.random() * 10)
+      }
+    } catch (error) {
+      console.error('Failed to fetch stock data:', error)
+      // Keep showing previous data on error, don't clear it
     }
   }
 
-  // Initialize and periodically update prices
   useEffect(() => {
-    const initializeCharts = () => {
-      const newCharts: { [key: string]: ChartData } = {}
-      for (const [symbol, basePrice] of Object.entries(INITIAL_PRICES)) {
-        newCharts[symbol] = generateChartData(symbol, basePrice + (Math.random() - 0.5) * 10)
-      }
-      setCharts(newCharts)
-      setLoading(false)
-    }
-
-    initializeCharts()
-
-    // Update every 5 minutes with small price variations
-    const interval = setInterval(() => {
-      setCharts(prev => {
-        const updated: { [key: string]: ChartData } = {}
-        for (const [symbol, chart] of Object.entries(prev)) {
-          const newBasePrice = chart.currentPrice + (Math.random() - 0.5) * 5
-          updated[symbol] = generateChartData(symbol, newBasePrice)
-        }
-        return updated
-      })
-      setVix(15 + Math.random() * 10)
-    }, 5 * 60 * 1000) // 5 minutes
-
+    fetchStockData()
+    // Poll every 5 minutes instead of 30 seconds
+    const interval = setInterval(fetchStockData, 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
 
