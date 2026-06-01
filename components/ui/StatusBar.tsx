@@ -4,9 +4,29 @@ import { useState, useEffect } from 'react'
 
 export default function StatusBar() {
   const [isConnected, setIsConnected] = useState(true)
-  const [latency, setLatency] = useState(42)
+  const [latency, setLatency] = useState(0)
   const [time, setTime] = useState('')
   const [stocks, setStocks] = useState({ SPY: 0, QQQ: 0 })
+
+  // Measure actual network latency
+  useEffect(() => {
+    const measureLatency = async () => {
+      const start = performance.now()
+      try {
+        await fetch('/api/health', { method: 'HEAD' })
+        const end = performance.now()
+        setLatency(Math.round(end - start))
+        setIsConnected(true)
+      } catch {
+        setIsConnected(false)
+        setLatency(0)
+      }
+    }
+
+    measureLatency()
+    const interval = setInterval(measureLatency, 2000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Set initial time on mount (client-side only)
   useEffect(() => {
@@ -14,20 +34,10 @@ export default function StatusBar() {
   }, [])
 
   useEffect(() => {
-    // Simulate connection checks
-    const interval = setInterval(() => {
-      setLatency(Math.floor(Math.random() * 30) + 20)
-    }, 2000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
     // Update time every second
     const interval = setInterval(() => {
       setTime(new Date().toLocaleTimeString())
     }, 1000)
-
     return () => clearInterval(interval)
   }, [])
 
@@ -51,7 +61,6 @@ export default function StatusBar() {
 
     fetchStocks()
     const interval = setInterval(fetchStocks, 30000) // Every 30s
-
     return () => clearInterval(interval)
   }, [])
 

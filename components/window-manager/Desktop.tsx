@@ -19,6 +19,7 @@ registerWindowContent('admin', Admin)
 registerWindowContent('terminalnav', TerminalNav)
 
 const GRID_SIZE = 80 // Grid cell size for icon snap
+const SNAP_THRESHOLD = 40 // Distance to show snap highlight
 
 interface DesktopIcon {
   id: string
@@ -40,16 +41,43 @@ export default function Desktop() {
   const [icons, setIcons] = useState<DesktopIcon[]>(initialIcons)
   const [draggingIcon, setDraggingIcon] = useState<string | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [currentPosition, setCurrentPosition] = useState<{ x: number; y: number } | null>(null)
   const [snapPosition, setSnapPosition] = useState<{ x: number; y: number } | null>(null)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+  const [showSnapHighlight, setShowSnapHighlight] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; iconId?: string } | null>(null)
+  const [clickCount, setClickCount] = useState(0)
+  const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null)
 
   const desktopRef = useRef<HTMLDivElement>(null)
 
-  // Handle icon click
+  // Handle double-click to open
   const handleIconClick = (e: React.MouseEvent, icon: DesktopIcon) => {
     e.preventDefault()
     e.stopPropagation()
-    openWindow(icon.id as any)
+
+    setClickCount(prev => {
+      const newCount = prev + 1
+
+      // Clear existing timer
+      if (clickTimer) {
+        clearTimeout(clickTimer)
+      }
+
+      // Set new timer
+      const timer = setTimeout(() => {
+        setClickCount(0)
+      }, 300) // 300ms for double-click detection
+      setClickTimer(timer)
+
+      // Check for double click
+      if (newCount === 2) {
+        clearTimeout(timer)
+        setClickCount(0)
+        openWindow(icon.id as any)
+      }
+
+      return newCount
+    })
   }
 
   // Handle icon drag start
@@ -59,12 +87,15 @@ export default function Desktop() {
     e.preventDefault()
     e.stopPropagation()
 
-    const rect = (e.target as HTMLElement).getBoundingClientRect()
+    const rect = (e.target as HTMLElement).closest('button')?.getBoundingClientRect()
+    if (!rect) return
+
     setDragOffset({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     })
     setDraggingIcon(icon.id)
+    setCurrentPosition(icon.position)
   }
 
   // Handle mouse move during drag
@@ -75,26 +106,44 @@ export default function Desktop() {
     const x = e.clientX - desktopRect.left - dragOffset.x
     const y = e.clientY - desktopRect.top - dragOffset.y
 
+    setCurrentPosition({ x, y })
+
     // Calculate snap grid position
     const snapX = Math.round(x / GRID_SIZE) * GRID_SIZE
     const snapY = Math.round(y / GRID_SIZE) * GRID_SIZE
 
-    setSnapPosition({ x: snapX, y: snapY })
+    // Check if near snap position
+    const distance = Math.sqrt(Math.pow(x - snapX, 2) + Math.pow(y - snapY, 2))
+    const isNearSnap = distance < SNAP_THRESHOLD
+
+    if (isNearSnap) {
+      setSnapPosition({ x: snapX, y: snapY })
+      setShowSnapHighlight(true)
+    } else {
+      setShowSnapHighlight(false)
+    }
   }, [draggingIcon, dragOffset])
 
   // Handle mouse up to end drag
   const handleMouseUp = useCallback(() => {
-    if (!draggingIcon || !snapPosition) return
+    if (!draggingIcon) return
 
-    setIcons(prev => prev.map(icon =>
-      icon.id === draggingIcon
-        ? { ...icon, position: snapPosition }
-        : icon
-    ))
+    // Use snap position if near grid, otherwise use current position
+    const finalPosition = showSnapHighlight && snapPosition ? snapPosition : currentPosition
+
+    if (finalPosition) {
+      setIcons(prev => prev.map(icon =>
+        icon.id === draggingIcon
+          ? { ...icon, position: finalPosition }
+          : icon
+      ))
+    }
 
     setDraggingIcon(null)
+    setCurrentPosition(null)
     setSnapPosition(null)
-  }, [draggingIcon, snapPosition])
+    setShowSnapHighlight(false)
+  }, [draggingIcon, snapPosition, currentPosition, showSnapHighlight])
 
   // Set up global mouse event listeners
   useEffect(() => {
@@ -110,31 +159,44 @@ export default function Desktop() {
   }, [draggingIcon, handleMouseMove, handleMouseUp])
 
   // Handle right-click context menu
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (e: React.MouseEvent, iconId?: string) => {
     e.preventDefault()
-    setContextMenu({ x: e.clientX, y: e.clientY })
+    e.stopPropagation()
+    setContextMenu({ x: e.clientX, y: e.clientY, iconId })
   }
 
   const closeContextMenu = () => setContextMenu(null)
 
   // Handle context menu actions
   const handleMenuAction = (action: string) => {
-    console.log('Context menu action:', action)
-    // TODO: Implement actions (create folder, etc.)
+    if (action === 'open' && contextMenu?.iconId) {
+      openWindow(contextMenu.iconId as any)
+    } else {
+      console.log('Context menu action:', action)
+    }
     closeContextMenu()
   }
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (clickTimer) {
+        clearTimeout(clickTimer)
+      }
+    }
+  }, [clickTimer])
 
   return (
     <div
       ref={desktopRef}
       className="relative h-full w-full"
-      onContextMenu={handleContextMenu}
+      onContextMenu={(e) => handleContextMenu(e)}
       onClick={closeContextMenu}
     >
-      {/* Snap preview */}
-      {snapPosition && (
+      {/* Snap highlight */}
+      {showSnapHighlight && snapPosition && (
         <div
-          className="absolute bg-white/10 border border-white pointer-events-none"
+          className="absolute bg-white/10 border border-white/50 pointer-events-none"
           style={{
             left: snapPosition.x,
             top: snapPosition.y,
@@ -147,8 +209,8 @@ export default function Desktop() {
       {/* Icons */}
       {icons.map((icon) => {
         const isDragging = icon.id === draggingIcon
-        const displayPosition = isDragging && snapPosition
-          ? snapPosition
+        const displayPosition = isDragging && currentPosition
+          ? currentPosition
           : icon.position
 
         return (
@@ -156,6 +218,7 @@ export default function Desktop() {
             key={icon.id}
             onMouseDown={(e) => handleIconMouseDown(e, icon)}
             onClick={(e) => handleIconClick(e, icon)}
+            onContextMenu={(e) => handleContextMenu(e, icon.id)}
             className={`icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors ${
               isDragging ? 'cursor-grabbing z-50' : 'cursor-grab'
             }`}
@@ -174,6 +237,7 @@ export default function Desktop() {
         <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
+          iconId={contextMenu.iconId}
           onClose={closeContextMenu}
           onAction={handleMenuAction}
         />

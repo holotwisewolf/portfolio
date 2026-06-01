@@ -205,20 +205,10 @@ export default function StockCharts() {
           <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages</div>
           <LanguageBars languages={languages} />
         </div>
-
-        {/* Contact Links */}
-        <div>
-          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Contact</div>
-          <ContactLink label="GitHub" />
-          <ContactLink label="LinkedIn" />
-          <ContactLink label="Email" />
-        </div>
       </div>
     </div>
   )
 }
-
-function ContactLink({ label }: { label: string }) {
   return (
     <div className="flex justify-between py-1 text-gray-400 border-b border-gray-900 hover:text-white cursor-pointer">
       <span>{label}</span>

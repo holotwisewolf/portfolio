@@ -30,6 +30,14 @@ export default function ProfilePanel() {
         Profile
       </div>
 
+      {/* Contact Block */}
+      <div className="mb-4">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Contact</div>
+        <ContactLink label="GitHub" href="https://github.com" />
+        <ContactLink label="LinkedIn" href="https://linkedin.com" />
+        <ContactLink label="Email" href="mailto:hello@example.com" />
+      </div>
+
       {/* Identity Block */}
       <div className="mb-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Identity</div>
@@ -67,5 +75,19 @@ export default function ProfilePanel() {
         <ActivityGrid dots={35} />
       </div>
     </div>
+  )
+}
+
+function ContactLink({ label, href }: { label: string; href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex justify-between py-1 text-gray-400 border-b border-gray-900 hover:text-white cursor-pointer transition-colors"
+    >
+      <span>{label}</span>
+      <span>↗</span>
+    </a>
   )
 }

@@ -5,11 +5,12 @@ import { useEffect, useRef } from 'react'
 interface ContextMenuProps {
   x: number
   y: number
+  iconId?: string
   onClose: () => void
   onAction: (action: string) => void
 }
 
-export default function ContextMenu({ x, y, onClose, onAction }: ContextMenuProps) {
+export default function ContextMenu({ x, y, iconId, onClose, onAction }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
 
   const handleAction = (action: string) => {
@@ -50,13 +51,26 @@ export default function ContextMenu({ x, y, onClose, onAction }: ContextMenuProp
     }
   }, [x, y])
 
-  const menuItems = [
+  // Icon-specific menu items
+  const iconMenuItems = [
+    { label: 'Open', action: 'open', icon: '📂' },
+    { divider: true },
+    { label: 'Rename', action: 'rename', icon: '✏️' },
+    { label: 'Delete', action: 'delete', icon: '🗑️' },
+    { divider: true },
+    { label: 'Properties', action: 'properties', icon: '⚙️' },
+  ]
+
+  // Desktop menu items
+  const desktopMenuItems = [
     { label: 'New Folder', action: 'new-folder', icon: '📁' },
     { label: 'New File', action: 'new-file', icon: '📄' },
     { divider: true },
     { label: 'Refresh', action: 'refresh', icon: '🔄' },
     { label: 'Properties', action: 'properties', icon: '⚙️' },
   ]
+
+  const menuItems = iconId ? iconMenuItems : desktopMenuItems
 
   return (
     <div
