@@ -60,7 +60,7 @@ export default function StatusBar() {
     }
 
     fetchStocks()
-    const interval = setInterval(fetchStocks, 30000) // Every 30s
+    const interval = setInterval(fetchStocks, 30 * 60 * 1000) // Every 30 min
     return () => clearInterval(interval)
   }, [])
 

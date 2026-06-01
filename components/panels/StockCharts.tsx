@@ -50,19 +50,11 @@ export default function StockCharts() {
           const change = quote.change || 0
           const changePercent = quote.changePercent || 0
 
-          // Generate mock historical data with 30-min intervals
-          const historicalData: StockData[] = []
-          let basePrice = price * 0.98
-          const intervals = [4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5, 0]
-          for (const hours of intervals) {
-            const variation = (Math.random() - 0.5) * (price * 0.01)
-            basePrice += variation
-            const timeLabel = hours === 0 ? 'now' : `${hours}h`
-            historicalData.push({
-              time: timeLabel,
-              price: parseFloat(basePrice.toFixed(2))
-            })
-          }
+          // Use real historical data from API, or fallback to empty array
+          const historicalData: StockData[] = quote.historical?.map((h: any) => ({
+            time: h.time,
+            price: h.price
+          })) || []
 
           newCharts[symbol] = {
             symbol,
@@ -76,7 +68,7 @@ export default function StockCharts() {
         setCharts(newCharts)
         setLoading(false)
 
-        // Update VIX randomly
+        // Update VIX randomly (still fake since we're not fetching VIX)
         setVix(15 + Math.random() * 10)
       }
     } catch (error) {
@@ -87,8 +79,8 @@ export default function StockCharts() {
 
   useEffect(() => {
     fetchStockData()
-    // Poll every 5 minutes instead of 30 seconds
-    const interval = setInterval(fetchStockData, 5 * 60 * 1000)
+    // Poll every 30 minutes
+    const interval = setInterval(fetchStockData, 30 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
 
