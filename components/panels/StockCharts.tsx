@@ -141,7 +141,20 @@ export default function StockCharts() {
           <div className="text-gray-500 text-center py-8">Loading...</div>
         ) : (
           <>
-            {Object.values(charts).map((chart) => (
+            {Object.values(charts).map((chart) => {
+              // Skip if no valid data
+              if (!chart.currentPrice || isNaN(chart.currentPrice) || !chart.data || chart.data.length === 0) {
+                return (
+                  <div key={chart.symbol} className="mb-3">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-gray-300">{chart.symbol}</span>
+                      <span className="text-gray-500 text-sm">No data</span>
+                    </div>
+                  </div>
+                )
+              }
+
+              return (
               <div key={chart.symbol} className="mb-3">
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="text-gray-300">{chart.symbol}</span>
@@ -182,7 +195,8 @@ export default function StockCharts() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            ))}
+              )
+            })}
 
             <StatRow label="VIX" value={`${vix.toFixed(1)} ▲`} valueClass={vix > 20 ? 'text-red-400' : 'text-green-400'} />
             <StatRow
