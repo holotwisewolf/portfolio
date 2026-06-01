@@ -142,12 +142,12 @@ export default function StockCharts() {
         ) : (
           <>
             {Object.values(charts).map((chart) => {
-              // Sanitize data - filter out any invalid entries
-              const sanitizedData = (chart.data || []).filter((d: any) => d && d.price != null && !isNaN(d.price) && d.price > 0)
-              const isValidPrice = chart.currentPrice != null && !isNaN(chart.currentPrice) && chart.currentPrice > 0
-              const isValidChange = chart.changePercent != null && !isNaN(chart.changePercent)
+              // Check if we have valid data
+              const hasData = chart.data && Array.isArray(chart.data) && chart.data.length > 0
+              const validPrice = chart.currentPrice != null && !isNaN(chart.currentPrice) && chart.currentPrice > 0
 
-              if (!isValidPrice || sanitizedData.length === 0) {
+              // If no valid data, show loading message
+              if (!hasData || !validPrice) {
                 return (
                   <div key={chart.symbol} className="mb-3">
                     <div className="flex justify-between items-baseline mb-1">
@@ -164,32 +164,23 @@ export default function StockCharts() {
                   <span className="text-gray-300">{chart.symbol}</span>
                   <span className="text-white text-sm">
                     ${chart.currentPrice.toFixed(2)}{' '}
-                    {isValidChange && (
+                    {chart.changePercent != null && !isNaN(chart.changePercent) && (
                       <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
                       </span>
                     )}
                   </span>
                 </div>
-                <ResponsiveContainer width="100%" height={40}>
-                  <LineChart data={sanitizedData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                {hasData && (
+                  <ResponsiveContainer width="100%" height={40}>
+                    <LineChart data={chart.data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <XAxis
                       dataKey="time"
                       stroke="#444"
                       tick={{ fill: '#444', fontSize: 8 }}
                       tickFormatter={(value) => value === 'now' ? 'n' : value.replace('h', '')}
                     />
-                    <YAxis hide={true} domain={[({ data }) => {
-                      if (!data || data.length === 0) return [0, 100]
-                      const prices = data.map((d: any) => d.price).filter((p: number) => p != null && !isNaN(p))
-                      if (prices.length === 0) return [0, 100]
-                      const min = Math.min(...prices)
-                      const max = Math.max(...prices)
-                      const range = max - min
-                      // Add some padding so the line doesn't touch edges
-                      const padding = range === 0 ? 1 : range * 0.02
-                      return [min - padding, max + padding]
-                    }]} />
+                    <YAxis hide={true} domain={['auto', 'auto']} />
                     <Line
                       type="monotone"
                       dataKey="price"
@@ -200,6 +191,7 @@ export default function StockCharts() {
                     />
                   </LineChart>
                 </ResponsiveContainer>
+                )}
               </div>
               )
             })}
