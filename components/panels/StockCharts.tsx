@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import StatRow from '@/components/ui/StatRow'
 import ActivityGrid from '@/components/ui/ActivityGrid'
 import LanguageBars, { Language } from '@/components/ui/LanguageBars'
+import AsciiGlobe from '@/components/ui/AsciiGlobe'
 
 interface StockData {
   time: string
@@ -269,6 +270,11 @@ export default function StockCharts() {
               </span>
             ))}
           </div>
+        </div>
+
+        {/* ASCII Globe */}
+        <div className="mt-auto">
+          <AsciiGlobe />
         </div>
       </div>
     </div>
