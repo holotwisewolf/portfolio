@@ -17,6 +17,7 @@ interface Particle {
   _shortBreakTimer: number       // Short timer for 40% break chance
   _longBreakTimer: number        // Long timer for 60% break chance
   _localDensity: number         // Nearby connector count for redistribution
+  _gracePeriodTimer: number     // Grace period for hard cap (10% chance, ~3 sec)
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
 }
 
@@ -91,6 +92,7 @@ export default function PixelBackground() {
         _shortBreakTimer: 90, // ~1.5 seconds before 40% break chance (was 120)
         _longBreakTimer: 180,   // ~3 seconds before 60% break chance (was 300)
         _localDensity: 0,       // Track nearby connector count
+        _gracePeriodTimer: 0,   // Grace period for hard cap explosions
         _bounceCount: 0
       })
     }
@@ -134,12 +136,23 @@ export default function PixelBackground() {
       // Find particles that exceed hard cap (6+ neighbors) for instant explosion
       const hardCapParticles: number[] = []
       for (let i = 0; i < particleCount; i++) {
-        if (neighborCounts[i] >= HARD_CAP && particles[i]._clusterTimer === 0) {
-          hardCapParticles.push(i)
+        // Decrement grace period timer
+        if (particles[i]._gracePeriodTimer > 0) {
+          particles[i]._gracePeriodTimer--
+        }
+
+        // Check for hard cap (with grace period chance)
+        if (neighborCounts[i] >= HARD_CAP && particles[i]._clusterTimer === 0 && particles[i]._gracePeriodTimer === 0) {
+          // 10% chance to get a grace period
+          if (Math.random() < 0.1) {
+            particles[i]._gracePeriodTimer = 180 // ~3 seconds grace period
+          } else {
+            hardCapParticles.push(i)
+          }
         }
       }
 
-      // Instant hard cap explosion
+      // Instant hard cap explosion (with 10% grace period chance)
       if (hardCapParticles.length > 0) {
         hardCapParticles.forEach(idx => {
           const p = particles[idx]
