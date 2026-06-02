@@ -187,15 +187,51 @@ export default function PixelBackground() {
           centerX /= triggeredCluster.length
           centerY /= triggeredCluster.length
 
-          // Blast particles away from cluster center (radial explosion)
+          // Blast particles away from cluster center
           triggeredCluster.forEach(idx => {
             const p = particles[idx]
-            const dx = p.x - centerX
-            const dy = p.y - centerY
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
+            const isSpaceFinder = (idx % 10 >= 7) // 30% use subtle space-finding
 
-            p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 0.3
-            p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 0.3
+            if (isSpaceFinder) {
+              // Space-finder: subtle drift toward empty space
+              let avoidX = 0, avoidY = 0, closeCount = 0
+              const scanRadius = 200
+
+              for (let j = 0; j < particleCount; j++) {
+                if (idx === j) continue
+                const q = particles[j]
+                const dx = p.x - q.x
+                const dy = p.y - q.y
+                const d = Math.sqrt(dx * dx + dy * dy)
+
+                // Gentle push away from nearby particles
+                if (d < scanRadius && d > 0) {
+                  const weight = (scanRadius - d) / scanRadius // Closer = stronger
+                  avoidX += (dx / d) * weight
+                  avoidY += (dy / d) * weight
+                  closeCount++
+                }
+              }
+
+              if (closeCount > 0) {
+                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+                // Subtle drift toward space (weaker than radial blast)
+                p.vx = (avoidX / avoidDist) * (blastForce * 0.5) + (Math.random() - 0.5) * 0.3
+                p.vy = (avoidY / avoidDist) * (blastForce * 0.5) + (Math.random() - 0.5) * 0.3
+              } else {
+                p.vx = (Math.random() - 0.5) * 0.5
+                p.vy = (Math.random() - 0.5) * 0.5
+              }
+            } else {
+              // Normal radial blast from center (70% of particles)
+              const dx = p.x - centerX
+              const dy = p.y - centerY
+              const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+              p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 0.3
+              p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 0.3
+            }
+
             p._clusterTimer = COOLDOWN_FRAMES
           })
         }
