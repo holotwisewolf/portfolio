@@ -14,6 +14,8 @@ interface Particle {
   _isConnector: boolean
   _connectorTarget: { x: number; y: number } | null
   _breakFreeTimer: number        // When >0, connector breaks free to explore
+  _shortBreakTimer: number       // Short timer for 30% break chance
+  _longBreakTimer: number        // Long timer for 50% break chance
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
 }
 
@@ -85,6 +87,8 @@ export default function PixelBackground() {
         _isConnector: (i % 20 >= 17), // 15% are permanent bridge connectors (3 out of 20)
         _connectorTarget: null,
         _breakFreeTimer: 0,
+        _shortBreakTimer: 120, // ~2 seconds before 30% break chance
+        _longBreakTimer: 300,   // ~5 seconds before 50% break chance
         _bounceCount: 0
       })
     }
@@ -344,37 +348,63 @@ export default function PixelBackground() {
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
         if (p._isConnector && p._clusterTimer === 0) {
-          // Decrement break-free timer
-          if (p._breakFreeTimer > 0) {
-            p._breakFreeTimer--
-            // When breaking free, ignore mesh and just explore
-            p.vx += (Math.random() - 0.5) * 0.12
-            p.vy += (Math.random() - 0.5) * 0.12
+          // Decrement timers
+          if (p._shortBreakTimer > 0) p._shortBreakTimer--
+          if (p._longBreakTimer > 0) p._longBreakTimer--
+          if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
-            // 30% chance to start breaking free when timer runs out
-          } else if (Math.random() < 0.01) { // ~0.6% per frame = ~30% chance over 2-3 seconds
-            p._breakFreeTimer = 60 + Math.random() * 60 // Break free for 1-2 seconds
+          // Check for break-free chances
+          if (p._breakFreeTimer === 0) {
+            // Short timer expired: 30% chance to break free
+            if (p._shortBreakTimer <= 0 && Math.random() < 0.3) {
+              p._breakFreeTimer = 90 + Math.random() * 60 // Break free for 1.5-2.5 seconds
+              p._shortBreakTimer = 120 // Reset short timer
+              p._longBreakTimer = 300 // Reset long timer
+            }
+            // Long timer expired: 50% chance to break free
+            else if (p._longBreakTimer <= 0 && Math.random() < 0.5) {
+              p._breakFreeTimer = 90 + Math.random() * 60
+              p._shortBreakTimer = 120
+              p._longBreakTimer = 300
+            }
           }
 
           // Skip mesh forces when breaking free
           if (p._breakFreeTimer > 0) {
-            // Just gentle push away from regular particles
-            let ax = 0, ay = 0
+            // Calculate opposite/reflection position from current cluster
+            let targetX = canvas.width / 2
+            let targetY = canvas.height / 2
+
+            // Find center of nearby particles
+            let nearbyCount = 0
+            let centerX = 0, centerY = 0
             for (let j = 0; j < particleCount; j++) {
               if (i === j || particles[j]._isConnector) continue
-              const q = particles[j]
-              const dx = p.x - q.x
-              const dy = p.y - q.y
+              const dx = p.x - particles[j].x
+              const dy = p.y - particles[j].y
               const d = Math.sqrt(dx * dx + dy * dy)
-
-              if (d > 0 && d < 200) {
-                const weight = 1 / (d + 1)
-                ax += (dx / d) * weight * 0.02
-                ay += (dy / d) * weight * 0.02
+              if (d < 150) {
+                centerX += particles[j].x
+                centerY += particles[j].y
+                nearbyCount++
               }
             }
-            p.vx += ax
-            p.vy += ay
+
+            if (nearbyCount > 0) {
+              centerX /= nearbyCount
+              centerY /= nearbyCount
+              // Reflect to opposite side of canvas
+              targetX = canvas.width - centerX
+              targetY = canvas.height - centerY
+            }
+
+            // Drift toward reflection point with some randomness
+            const dx = targetX - p.x
+            const dy = targetY - p.y
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+            p.vx += (dx / d) * 0.15 + (Math.random() - 0.5) * 0.1
+            p.vy += (dy / d) * 0.15 + (Math.random() - 0.5) * 0.1
             return
           }
           let ax = 0, ay = 0
