@@ -312,87 +312,32 @@ export default function PixelBackground() {
           p.vy += (Math.random() - 0.5) * 0.03
         }
 
-        // Bridge connector behavior: seek midpoint between clusters
+        // Bridge connector behavior: seek true empty space (local maxima)
         if (p._isConnector && p._clusterTimer === 0) {
-          // Find nearby cluster centers
-          const clusters: { x: number; y: number; size: number }[] = []
-          const visited = new Set<number>()
+          // Scan ALL nearby particles and push away from the crowd
+          let avoidX = 0, avoidY = 0
+          const scanRadius = 350 // Wider scan to find true empty space
 
           for (let j = 0; j < particleCount; j++) {
-            if (i === j || visited.has(j)) continue
+            if (i === j) continue
+            const q = particles[j]
+            const dx = p.x - q.x
+            const dy = p.y - q.y
+            const d = Math.sqrt(dx * dx + dy * dy)
 
-            const dx = p.x - particles[j].x
-            const dy = p.y - particles[j].y
-            const distToParticle = Math.sqrt(dx * dx + dy * dy)
-
-            // Look for particles within a wider range (up to 300px)
-            if (distToParticle < 300) {
-              // Find this particle's cluster
-              const clusterMembers: number[] = [j]
-              visited.add(j)
-
-              for (let k = 0; k < particleCount; k++) {
-                if (k === j || visited.has(k)) continue
-                if (dist(particles[j], particles[k]) < CLUSTER_RADIUS) {
-                  clusterMembers.push(k)
-                  visited.add(k)
-                }
-              }
-
-              if (clusterMembers.length >= 2) {
-                // Calculate cluster center
-                let cx = 0, cy = 0
-                clusterMembers.forEach(m => {
-                  cx += particles[m].x
-                  cy += particles[m].y
-                })
-                cx /= clusterMembers.length
-                cy /= clusterMembers.length
-                clusters.push({ x: cx, y: cy, size: clusterMembers.length })
-              }
+            if (d < scanRadius && d > 0) {
+              // Weight by inverse distance - closer particles push harder
+              // This naturally finds the point furthest from ALL particles
+              const weight = 1 / (d + 1)
+              avoidX += (dx / d) * weight
+              avoidY += (dy / d) * weight
             }
           }
 
-          // If we found 2+ clusters, drift toward their midpoint
-          if (clusters.length >= 2) {
-            // Sort by size and take the two largest
-            clusters.sort((a, b) => b.size - a.size)
-            const c1 = clusters[0]
-            const c2 = clusters[1]
-
-            // Calculate midpoint
-            const midX = (c1.x + c2.x) / 2
-            const midY = (c1.y + c2.y) / 2
-
-            // Gentle drift toward midpoint
-            const dx = midX - p.x
-            const dy = midY - p.y
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-            // Only drift if we're not already at the midpoint
-            if (d > 20) {
-              p.vx += (dx / d) * 0.08
-              p.vy += (dy / d) * 0.08
-            }
-          } else if (clusters.length === 1) {
-            // If only one cluster nearby, drift toward its edge (stay at connection distance)
-            const c = clusters[0]
-            const dx = c.x - p.x
-            const dy = c.y - p.y
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-            // Maintain distance around CONNECTION_DISTANCE
-            const targetDist = CONNECTION_DISTANCE * 0.8
-            if (d < targetDist) {
-              // Too close, push away
-              p.vx -= (dx / d) * 0.05
-              p.vy -= (dy / d) * 0.05
-            } else if (d > targetDist * 1.5) {
-              // Too far, pull closer
-              p.vx += (dx / d) * 0.05
-              p.vy += (dy / d) * 0.05
-            }
-          }
+          // Drift toward the true empty space
+          const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+          p.vx += (avoidX / avoidDist) * 0.12
+          p.vy += (avoidY / avoidDist) * 0.12
         }
 
         // Position updates
