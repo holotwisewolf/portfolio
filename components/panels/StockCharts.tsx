@@ -271,11 +271,6 @@ export default function StockCharts() {
             ))}
           </div>
         </div>
-
-        {/* ASCII Globe */}
-        <div className="mt-auto">
-          <AsciiGlobe />
-        </div>
       </div>
     </div>
   )
