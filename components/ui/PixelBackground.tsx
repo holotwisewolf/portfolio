@@ -46,8 +46,8 @@ export default function PixelBackground() {
 
     // Particle configuration
     const particleCount = 120
-    const CLUSTER_RADIUS = 45         // Slightly wider attraction zone
-    const ATTRACT = 0.004            // Snappy attraction
+    const CLUSTER_RADIUS = 45         // Attraction zone
+    const ATTRACT = 0.002            // Gentler attraction for slower clustering
     const DAMPING = 0.98             // Smoother, longer-lasting glides
     const MAX_SPEED = 0.6            // Slow, graceful gathering speed
     const CONNECTION_DISTANCE = 120
@@ -58,12 +58,12 @@ export default function PixelBackground() {
     const UNSTABLE_MAX = 5
     const DRAMA_MIN = 6             // 6-8 particles: drama, harder explosion
     const DRAMA_MAX = 8
-    const UNSTABLE_DURATION = 45    // ~0.75 seconds before unstable explodes
-    const DRAMA_DURATION = 60       // ~1 second before drama explodes
+    const UNSTABLE_DURATION = 120   // ~2 seconds before unstable explodes
+    const DRAMA_DURATION = 180       // ~3 seconds before drama explodes
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
-    const COOLDOWN_FRAMES = 80  // ~1.3 seconds of immunity
+    const COOLDOWN_FRAMES = 120  // ~2 seconds of immunity to prevent chain reactions
 
     // Initialize particles
     const particles: Particle[] = []
@@ -167,15 +167,15 @@ export default function PixelBackground() {
           dramaTimer = 0
           unstableTimer = 0
 
-          // Calculate blast force based on cluster size tier
+          // Calculate blast force based on cluster size tier (gentle nudges)
           const clusterSize = triggeredCluster.length
           let blastForce: number
           if (clusterSize <= UNSTABLE_MAX) {
-            blastForce = 2.0 // Unstable (4-5): gentle correction
+            blastForce = 0.7 // Unstable (4-5): very gentle nudge
           } else if (clusterSize <= DRAMA_MAX) {
-            blastForce = 2.8 // Drama (6-8): medium power
+            blastForce = 1.0 // Drama (6-8): gentle push
           } else {
-            blastForce = 3.5 // Larger: high power (rare)
+            blastForce = 1.3 // Larger: moderate push (rare)
           }
 
           // Calculate the center of mass of the collapsing cluster
@@ -194,8 +194,8 @@ export default function PixelBackground() {
             const dy = p.y - centerY
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 1.5
-            p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 1.5
+            p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 0.3
+            p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 0.3
             p._clusterTimer = COOLDOWN_FRAMES
           })
         }
