@@ -376,26 +376,43 @@ export default function PixelBackground() {
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
-          // Check for break-free chances (more aggressive)
+          // Check for break-free chances (more aggressive + density-based)
           if (p._breakFreeTimer === 0) {
-            // Short timer expired: 40% chance to break free
-            if (p._shortBreakTimer <= 0 && Math.random() < 0.4) {
-              p._breakFreeTimer = 90 + Math.random() * 60 // Break free for 1.5-2.5 seconds
-              p._shortBreakTimer = 90 // Reset short timer
-              p._longBreakTimer = 180 // Reset long timer
+            // Higher break chance for high-density connectors
+            const densityBonus = Math.min(p._localDensity * 0.1, 0.3) // +0% to +30% based on density
+            const breakChanceShort = 0.4 + densityBonus // 40-70% for short timer
+            const breakChanceLong = 0.6 + densityBonus // 60-90% for long timer
+
+            // Short timer expired: dynamic chance to break free
+            if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort) {
+              // Longer break for high-density connectors
+              const breakDuration = p._localDensity >= 5 ? 180 : 90 // 3 sec for high density, 1.5 for normal
+              p._breakFreeTimer = breakDuration + Math.random() * 60
+              p._shortBreakTimer = 90
+              p._longBreakTimer = 180
             }
-            // Long timer expired: 60% chance to break free
-            else if (p._longBreakTimer <= 0 && Math.random() < 0.6) {
-              p._breakFreeTimer = 90 + Math.random() * 60
+            // Long timer expired: dynamic chance to break free
+            else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong) {
+              const breakDuration = p._localDensity >= 5 ? 180 : 90
+              p._breakFreeTimer = breakDuration + Math.random() * 60
               p._shortBreakTimer = 90
               p._longBreakTimer = 180
             }
           }
 
-          // Density-based forced redistribution
-          if (p._localDensity >= 4 && p._breakFreeTimer === 0) {
-            // Too many connectors nearby - force break free
-            p._breakFreeTimer = 60 + Math.random() * 30
+          // Density-based forced redistribution (more aggressive for center connectors)
+          if (p._breakFreeTimer === 0) {
+            if (p._localDensity >= 6) {
+              // Center connector - very high chance to break free
+              if (Math.random() < 0.7) { // 70% chance per frame check
+                p._breakFreeTimer = 180 + Math.random() * 60 // 3-4 seconds
+              }
+            } else if (p._localDensity >= 4) {
+              // High density - force break free
+              if (Math.random() < 0.3) { // 30% chance
+                p._breakFreeTimer = 120 + Math.random() * 40 // 2-2.7 seconds
+              }
+            }
           }
 
           // Skip mesh forces when breaking free
@@ -425,13 +442,16 @@ export default function PixelBackground() {
               }
             }
 
+            // Stronger drift for high-density connectors (escape force)
+            const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
+
             // Drift toward lowest density area
             const dx = bestX - p.x
             const dy = bestY - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            p.vx += (dx / d) * 0.2 + (Math.random() - 0.5) * 0.15
-            p.vy += (dy / d) * 0.2 + (Math.random() - 0.5) * 0.15
+            p.vx += (dx / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.2
+            p.vy += (dy / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.2
             return
           }
           let ax = 0, ay = 0
