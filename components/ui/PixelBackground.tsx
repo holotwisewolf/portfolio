@@ -52,14 +52,11 @@ export default function PixelBackground() {
     const MAX_SPEED = 0.6            // Slow, graceful gathering speed
     const CONNECTION_DISTANCE = 120
 
-    // Three-tier cluster system for natural equilibrium
-    const PEACEFUL_MAX = 3         // 1-3 particles: peaceful equilibrium
-    const UNSTABLE_MIN = 4          // 4-5 particles: unstable, will explode
+    // Local crowd control system
+    const HARD_CAP = 6              // 6+ neighbors = instant explosion
+    const UNSTABLE_MIN = 4          // 4-5 neighbors: unstable, will explode
     const UNSTABLE_MAX = 5
-    const DRAMA_MIN = 6             // 6-8 particles: drama, harder explosion
-    const DRAMA_MAX = 8
-    const UNSTABLE_DURATION = 120   // ~2 seconds before unstable explodes
-    const DRAMA_DURATION = 180       // ~3 seconds before drama explodes
+    const UNSTABLE_DURATION = 90    // ~1.5 seconds before unstable explodes
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
@@ -86,155 +83,105 @@ export default function PixelBackground() {
       return Math.sqrt(dx * dx + dy * dy)
     }
 
-    // Track cluster state for explosions
-    let explodingCluster: Set<number> = new Set()
+    // Track unstable clusters for timer-based explosions
     let unstableTimer = 0
-    let dramaTimer = 0
 
     const update = () => {
-      // Count neighbors for each particle
-      const neighborMap: number[][] = []
+      // Count neighbors for each particle (local crowd detection)
+      const neighborCounts: number[] = new Array(particleCount).fill(0)
       for (let i = 0; i < particleCount; i++) {
-        const neighbors: number[] = []
-        for (let j = 0; j < particleCount; j++) {
-          if (i !== j && dist(particles[i], particles[j]) < CLUSTER_RADIUS) {
-            neighbors.push(j)
+        for (let j = i + 1; j < particleCount; j++) {
+          if (dist(particles[i], particles[j]) < CLUSTER_RADIUS) {
+            neighborCounts[i]++
+            neighborCounts[j]++
           }
         }
-        neighborMap.push(neighbors)
       }
 
-      // Find clusters using BFS
-      const visited = new Set<number>()
-      const clusters: number[][] = []
-
+      // Find particles that exceed hard cap (6+ neighbors) for instant explosion
+      const hardCapParticles: number[] = []
       for (let i = 0; i < particleCount; i++) {
-        if (visited.has(i)) continue
-        const group: number[] = [i]
-        visited.add(i)
+        if (neighborCounts[i] >= HARD_CAP && particles[i]._clusterTimer === 0) {
+          hardCapParticles.push(i)
+        }
+      }
 
-        let added = true
-        while (added) {
-          added = false
-          for (const idx of [...group]) {
-            for (const neighbor of neighborMap[idx]) {
-              if (!visited.has(neighbor)) {
-                visited.add(neighbor)
-                group.push(neighbor)
-                added = true
-              }
+      // Instant hard cap explosion
+      if (hardCapParticles.length > 0) {
+        hardCapParticles.forEach(idx => {
+          const p = particles[idx]
+          // Find nearby particles to explode together
+          const nearbyGroup: number[] = [idx]
+          for (let j = 0; j < particleCount; j++) {
+            if (j !== idx && dist(p, particles[j]) < CLUSTER_RADIUS && particles[j]._clusterTimer === 0) {
+              nearbyGroup.push(j)
             }
           }
-        }
-        clusters.push(group)
-      }
 
-      // Find the largest current cluster
-      let largestCluster: number[] = []
-      let maxClusterSize = 0
-      for (const cluster of clusters) {
-        if (cluster.length > maxClusterSize) {
-          maxClusterSize = cluster.length
-          largestCluster = cluster
-        }
-      }
-
-      // Handle cluster timers (only if an explosion isn't currently happening)
-      if (explodingCluster.size === 0) {
-        if (maxClusterSize >= DRAMA_MIN) {
-          dramaTimer++
-          unstableTimer = 0
-        } else if (maxClusterSize >= UNSTABLE_MIN) {
-          unstableTimer++
-          dramaTimer = 0
-        } else {
-          dramaTimer = 0
-          unstableTimer = 0
-        }
-      }
-
-      // Trigger explosions for unstable and drama clusters
-      if (explodingCluster.size === 0) {
-        let triggeredCluster: number[] = []
-        if (dramaTimer > DRAMA_DURATION && maxClusterSize >= DRAMA_MIN) {
-          triggeredCluster = largestCluster
-        } else if (unstableTimer > UNSTABLE_DURATION && maxClusterSize >= UNSTABLE_MIN) {
-          triggeredCluster = largestCluster
-        }
-
-        if (triggeredCluster.length > 0) {
-          explodingCluster = new Set(triggeredCluster)
-          dramaTimer = 0
-          unstableTimer = 0
-
-          // Calculate blast force based on cluster size tier (gentle nudges)
-          const clusterSize = triggeredCluster.length
-          let blastForce: number
-          if (clusterSize <= UNSTABLE_MAX) {
-            blastForce = 0.7 // Unstable (4-5): very gentle nudge
-          } else if (clusterSize <= DRAMA_MAX) {
-            blastForce = 1.0 // Drama (6-8): gentle push
-          } else {
-            blastForce = 1.3 // Larger: moderate push (rare)
-          }
-
-          // Calculate the center of mass of the collapsing cluster
+          // Calculate center of this local group
           let centerX = 0, centerY = 0
-          triggeredCluster.forEach(idx => {
-            centerX += particles[idx].x
-            centerY += particles[idx].y
+          nearbyGroup.forEach(i => {
+            centerX += particles[i].x
+            centerY += particles[i].y
           })
-          centerX /= triggeredCluster.length
-          centerY /= triggeredCluster.length
+          centerX /= nearbyGroup.length
+          centerY /= nearbyGroup.length
 
-          // Blast particles away from cluster center
-          triggeredCluster.forEach(idx => {
-            const p = particles[idx]
-            const isSpaceFinder = (idx % 10 >= 7) // 30% use subtle space-finding
+          // Blast all particles in this local group
+          nearbyGroup.forEach(i => {
+            const p2 = particles[i]
+            const dx = p2.x - centerX
+            const dy = p2.y - centerY
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            if (isSpaceFinder) {
-              // Space-finder: subtle drift toward empty space
-              let avoidX = 0, avoidY = 0, closeCount = 0
-              const scanRadius = 200
+            p2.vx = (dx / d) * 1.5 + (Math.random() - 0.5) * 0.5
+            p2.vy = (dy / d) * 1.5 + (Math.random() - 0.5) * 0.5
+            p2._clusterTimer = COOLDOWN_FRAMES
+          })
+        })
+      }
 
-              for (let j = 0; j < particleCount; j++) {
-                if (idx === j) continue
-                const q = particles[j]
-                const dx = p.x - q.x
-                const dy = p.y - q.y
-                const d = Math.sqrt(dx * dx + dy * dy)
+      // Track unstable clusters (4-5 neighbors) for timer-based explosion
+      const maxNeighbors = Math.max(...neighborCounts)
+      if (maxNeighbors >= UNSTABLE_MIN && maxNeighbors < HARD_CAP) {
+        unstableTimer++
+      } else {
+        unstableTimer = 0
+      }
 
-                // Gentle push away from nearby particles
-                if (d < scanRadius && d > 0) {
-                  const weight = (scanRadius - d) / scanRadius // Closer = stronger
-                  avoidX += (dx / d) * weight
-                  avoidY += (dy / d) * weight
-                  closeCount++
-                }
-              }
+      // Trigger unstable explosion after timer
+      if (unstableTimer > UNSTABLE_DURATION) {
+        // Find all particles in unstable range
+        const unstableParticles: number[] = []
+        for (let i = 0; i < particleCount; i++) {
+          if (neighborCounts[i] >= UNSTABLE_MIN && neighborCounts[i] < HARD_CAP && particles[i]._clusterTimer === 0) {
+            unstableParticles.push(i)
+          }
+        }
 
-              if (closeCount > 0) {
-                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                // Subtle drift toward space (weaker than radial blast)
-                p.vx = (avoidX / avoidDist) * (blastForce * 0.5) + (Math.random() - 0.5) * 0.3
-                p.vy = (avoidY / avoidDist) * (blastForce * 0.5) + (Math.random() - 0.5) * 0.3
-              } else {
-                p.vx = (Math.random() - 0.5) * 0.5
-                p.vy = (Math.random() - 0.5) * 0.5
-              }
-            } else {
-              // Normal radial blast from center (70% of particles)
-              const dx = p.x - centerX
-              const dy = p.y - centerY
-              const d = Math.sqrt(dx * dx + dy * dy) || 1
+        if (unstableParticles.length > 0) {
+          // Calculate center of unstable group
+          let centerX = 0, centerY = 0
+          unstableParticles.forEach(i => {
+            centerX += particles[i].x
+            centerY += particles[i].y
+          })
+          centerX /= unstableParticles.length
+          centerY /= unstableParticles.length
 
-              p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 0.3
-              p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 0.3
-            }
+          // Gentle blast
+          unstableParticles.forEach(i => {
+            const p = particles[i]
+            const dx = p.x - centerX
+            const dy = p.y - centerY
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
 
+            p.vx = (dx / d) * 0.8 + (Math.random() - 0.5) * 0.3
+            p.vy = (dy / d) * 0.8 + (Math.random() - 0.5) * 0.3
             p._clusterTimer = COOLDOWN_FRAMES
           })
         }
+        unstableTimer = 0
       }
 
       // Physics and Movement Application
@@ -265,10 +212,10 @@ export default function PixelBackground() {
               neighbors++
             }
 
-            // Solid separation bounce so they don't overlap into single pixels
+            // Stronger close-range repulsion to prevent large clusters
             if (d < 12 && d > 0) {
-              ax -= (dx / d) * 0.12
-              ay -= (dy / d) * 0.12
+              ax -= (dx / d) * 0.25
+              ay -= (dy / d) * 0.25
             }
           }
         }
@@ -302,14 +249,6 @@ export default function PixelBackground() {
         if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.8 }
         if (p.y < 6) { p.y = 6; p.vy *= -0.8 }
         if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.8 }
-      }
-
-      // Clean global explosion state when all particles' immunities expire
-      if (explodingCluster.size > 0) {
-        const activeExplosions = Array.from(explodingCluster).some(idx => particles[idx]._clusterTimer > 0)
-        if (!activeExplosions) {
-          explodingCluster.clear()
-        }
       }
     }
 
