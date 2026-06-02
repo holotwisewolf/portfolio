@@ -6,7 +6,7 @@ export default function StatusBar() {
   const [isConnected, setIsConnected] = useState(true)
   const [latency, setLatency] = useState(0)
   const [time, setTime] = useState('')
-  const [stocks, setStocks] = useState({ SPY: 0, QQQ: 0 })
+  const [connections, setConnections] = useState(1) // Start with 1 (you)
 
   // Measure actual network latency
   useEffect(() => {
@@ -41,26 +41,16 @@ export default function StatusBar() {
     return () => clearInterval(interval)
   }, [])
 
+  // Simulate connections fluctuating
   useEffect(() => {
-    // Fetch stock prices
-    const fetchStocks = async () => {
-      try {
-        const res = await fetch('/api/stocks?symbols=SPY,QQQ')
-        const data = await res.json()
-        if (data.quotes) {
-          const quotes = data.quotes.reduce((acc: any, q: any) => {
-            acc[q.symbol] = q.price
-            return acc
-          }, {})
-          setStocks(quotes)
-        }
-      } catch (e) {
-        // Silently fail
-      }
+    const updateConnections = () => {
+      // Randomly add/subtract visitors (0-3 at a time)
+      const change = Math.floor(Math.random() * 7) - 3 // -3 to +3
+      setConnections(prev => Math.max(1, prev + change)) // Always at least 1 (you)
     }
 
-    fetchStocks()
-    const interval = setInterval(fetchStocks, 30 * 60 * 1000) // Every 30 min
+    updateConnections()
+    const interval = setInterval(updateConnections, 10 * 60 * 1000) // Every 10 min
     return () => clearInterval(interval)
   }, [])
 
@@ -74,8 +64,7 @@ export default function StatusBar() {
         </span>
         <span className="text-gray-500">LATENCY: {latency}ms</span>
         <span className="text-gray-400">|</span>
-        <span className="text-gray-300">SPY: ${stocks.SPY?.toFixed(2) || '---'}</span>
-        <span className="text-gray-300">QQQ: ${stocks.QQQ?.toFixed(2) || '---'}</span>
+        <span className="text-gray-300">CONNECTIONS: {connections}</span>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-gray-500">{time || '--:--:--'}</span>

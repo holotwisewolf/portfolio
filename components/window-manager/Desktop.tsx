@@ -18,8 +18,10 @@ registerWindowContent('about', About)
 registerWindowContent('admin', Admin)
 registerWindowContent('terminalnav', TerminalNav)
 
-const GRID_SIZE = 88 // Grid cell size for icon snap (matches icon height)
-const SNAP_THRESHOLD = 44 // Distance to show snap highlight
+const GRID_SIZE = 100
+const ICON_WIDTH = 64
+const ICON_HEIGHT = 88
+const SNAP_THRESHOLD = 60 // Distance to snap to grid
 
 interface DesktopIcon {
   id: string
@@ -27,13 +29,14 @@ interface DesktopIcon {
   position: { x: number; y: number }
 }
 
+// Grid-aligned positions (GRID_SIZE=100, so positions at 0, 100, 200...)
 const initialIcons: DesktopIcon[] = [
-  { id: 'terminalnav', label: 'Terminal', position: { x: 20, y: 20 } },
-  { id: 'welcome', label: 'Welcome', position: { x: 20, y: 120 } },
-  { id: 'projects', label: 'Projects', position: { x: 100, y: 20 } },
-  { id: 'blog', label: 'Blog', position: { x: 100, y: 120 } },
-  { id: 'about', label: 'About', position: { x: 180, y: 20 } },
-  { id: 'admin', label: 'Admin', position: { x: 180, y: 120 } },
+  { id: 'terminalnav', label: 'Terminal', position: { x: 20, y: 40 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 120, y: 40 } },
+  { id: 'projects', label: 'Projects', position: { x: 220, y: 40 } },
+  { id: 'blog', label: 'Blog', position: { x: 20, y: 140 } },
+  { id: 'about', label: 'About', position: { x: 120, y: 140 } },
+  { id: 'admin', label: 'Admin', position: { x: 220, y: 140 } },
 ]
 
 export default function Desktop() {
@@ -43,7 +46,6 @@ export default function Desktop() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [currentPosition, setCurrentPosition] = useState<{ x: number; y: number } | null>(null)
   const [snapPosition, setSnapPosition] = useState<{ x: number; y: number } | null>(null)
-  const [showSnapHighlight, setShowSnapHighlight] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; iconId?: string } | null>(null)
   const [clickCount, setClickCount] = useState(0)
   const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null)
@@ -58,22 +60,18 @@ export default function Desktop() {
     setClickCount(prev => {
       const newCount = prev + 1
 
-      // Clear existing timer
       if (clickTimer) {
         clearTimeout(clickTimer)
       }
 
-      // Set new timer
       const timer = setTimeout(() => {
         setClickCount(0)
-      }, 300) // 300ms for double-click detection
+      }, 300)
       setClickTimer(timer)
 
-      // Check for double click
       if (newCount === 2) {
         clearTimeout(timer)
         setClickCount(0)
-        // Defer to next tick to avoid React render cycle issues
         setTimeout(() => openWindow(icon.id as any), 0)
       }
 
@@ -83,7 +81,7 @@ export default function Desktop() {
 
   // Handle icon drag start
   const handleIconMouseDown = (e: React.MouseEvent, icon: DesktopIcon) => {
-    if (e.button !== 0) return // Only left click for drag
+    if (e.button !== 0) return
 
     e.preventDefault()
     e.stopPropagation()
@@ -104,8 +102,18 @@ export default function Desktop() {
     if (!draggingIcon || !desktopRef.current) return
 
     const desktopRect = desktopRef.current.getBoundingClientRect()
-    const x = e.clientX - desktopRect.left - dragOffset.x
-    const y = e.clientY - desktopRect.top - dragOffset.y
+
+    let x = e.clientX - desktopRect.left - dragOffset.x
+    let y = e.clientY - desktopRect.top - dragOffset.y
+
+    // Enforce boundaries
+    const minX = 20
+    const maxX = desktopRect.width - 20 - ICON_WIDTH
+    const minY = 40
+    const maxY = desktopRect.height - 100 - ICON_HEIGHT
+
+    x = Math.max(minX, Math.min(x, maxX))
+    y = Math.max(minY, Math.min(y, maxY))
 
     setCurrentPosition({ x, y })
 
@@ -118,19 +126,20 @@ export default function Desktop() {
     const isNearSnap = distance < SNAP_THRESHOLD
 
     if (isNearSnap) {
-      setSnapPosition({ x: snapX, y: snapY })
-      setShowSnapHighlight(true)
+      const clampedSnapX = Math.max(minX, Math.min(snapX, maxX))
+      const clampedSnapY = Math.max(minY, Math.min(snapY, maxY))
+      setSnapPosition({ x: clampedSnapX, y: clampedSnapY })
     } else {
-      setShowSnapHighlight(false)
+      setSnapPosition(null)
     }
   }, [draggingIcon, dragOffset])
 
   // Handle mouse up to end drag
   const handleMouseUp = useCallback(() => {
-    if (!draggingIcon) return
+    if (!draggingIcon || !desktopRef.current) return
 
-    // Use snap position if near grid, otherwise use current position
-    const finalPosition = showSnapHighlight && snapPosition ? snapPosition : currentPosition
+    // Use snap position if available, otherwise use current position
+    const finalPosition = snapPosition || currentPosition
 
     if (finalPosition) {
       setIcons(prev => {
@@ -160,8 +169,7 @@ export default function Desktop() {
     setDraggingIcon(null)
     setCurrentPosition(null)
     setSnapPosition(null)
-    setShowSnapHighlight(false)
-  }, [draggingIcon, snapPosition, currentPosition, showSnapHighlight])
+  }, [draggingIcon, snapPosition, currentPosition])
 
   // Set up global mouse event listeners
   useEffect(() => {
@@ -211,15 +219,15 @@ export default function Desktop() {
       onContextMenu={(e) => handleContextMenu(e)}
       onClick={closeContextMenu}
     >
-      {/* Snap highlight */}
-      {showSnapHighlight && snapPosition && (
+      {/* Snap preview highlight */}
+      {snapPosition && (
         <div
           className="absolute bg-white/10 border border-white/50 pointer-events-none rounded"
           style={{
             left: snapPosition.x,
             top: snapPosition.y,
-            width: 64,
-            height: 88,
+            width: ICON_WIDTH,
+            height: ICON_HEIGHT,
           }}
         />
       )}

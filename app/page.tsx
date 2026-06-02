@@ -29,32 +29,30 @@ function AppContent() {
   return (
     <div className="h-screen w-screen overflow-hidden relative flex flex-col">
       <PixelBackground />
-      <div style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <StatusBar />
-        <div className="flex-1 flex min-h-0">
-          {/* Left Panel - Profile */}
-          <div className="w-[280px] flex-shrink-0 border-r border-white bg-black">
-            <ProfilePanel />
-          </div>
-
-          {/* Center Panel - Desktop with Windows */}
-          <div className="flex-1 relative bg-black">
-            <Desktop />
-            {openWindows.map((window) => (
-              <Window key={window.id} windowId={window.id as any} />
-            ))}
-          </div>
-
-          {/* Right Panel - Market+Dev */}
-          <div className="w-[320px] flex-shrink-0 border-l border-white bg-black">
-            <StockCharts />
-          </div>
+      <StatusBar />
+      <div className="flex-1 flex min-h-0">
+        {/* Left Panel - Profile */}
+        <div className="w-[280px] flex-shrink-0 border-r border-white bg-black relative z-0">
+          <ProfilePanel />
         </div>
 
-        {/* Terminal Bar - Full Width */}
-        <TerminalBar />
-        <CustomCursor />
+        {/* Center Panel - Desktop with Windows - higher z-index, no overflow hidden so windows can extend */}
+        <div className="flex-1 relative bg-black z-10">
+          <Desktop />
+          {openWindows.map((window) => (
+            <Window key={window.id} windowId={window.id as any} />
+          ))}
+        </div>
+
+        {/* Right Panel - Market+Dev */}
+        <div className="w-[320px] flex-shrink-0 border-l border-white bg-black relative z-0">
+          <StockCharts />
+        </div>
       </div>
+
+      {/* Terminal Bar - Full Width */}
+      <TerminalBar className="relative z-20" />
+      <CustomCursor />
     </div>
   )
 }

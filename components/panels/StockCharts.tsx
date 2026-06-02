@@ -27,6 +27,7 @@ export default function StockCharts() {
   const [loading, setLoading] = useState(true)
   const [marketOpen, setMarketOpen] = useState(true)
   const [vix, setVix] = useState(18.4)
+  const [previousVix, setPreviousVix] = useState(18.4)
   const [githubStats, setGithubStats] = useState({ repos: 0, followers: 0 })
 
   const languages: Language[] = [
@@ -119,7 +120,9 @@ export default function StockCharts() {
   // Update VIX every 10 minutes (independent of stock data)
   useEffect(() => {
     const updateVix = () => {
-      setVix(15 + Math.random() * 10)
+      const newVix = 15 + Math.random() * 10
+      setPreviousVix(vix)
+      setVix(newVix)
     }
     updateVix()
     const interval = setInterval(updateVix, 10 * 60 * 1000)
@@ -196,7 +199,11 @@ export default function StockCharts() {
               )
             })}
 
-            <StatRow label="VIX" value={`${vix.toFixed(1)} ▲`} valueClass={vix > 20 ? 'text-red-400' : 'text-green-400'} />
+            <StatRow
+              label="VIX"
+              value={`${vix.toFixed(1)} ${vix > previousVix ? '▲' : vix < previousVix ? '▼' : '→'}`}
+              valueClass={vix > 20 ? 'text-red-400' : 'text-green-400'}
+            />
             <StatRow
               label="MARKET"
               value={marketOpen ? 'OPEN' : 'CLOSED'}
