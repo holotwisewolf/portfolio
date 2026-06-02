@@ -48,12 +48,13 @@ export default function PixelBackground() {
 
     const MEDIUM_CLUSTER_MIN = 5
     const BIG_CLUSTER_MIN = 10
-    const MEDIUM_CLUSTER_DURATION = 120 // ~2 seconds of stability before popping
-    const BIG_CLUSTER_DURATION = 60      // Large clusters pop faster
+    const MEDIUM_CLUSTER_DURATION = 60  // ~1 second of stability before popping
+    const BIG_CLUSTER_DURATION = 30     // Large clusters pop faster
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
-    const COOLDOWN_FRAMES = 80  // Immunity window to allow complete dispersion
+    const COOLDOWN_FRAMES = 80  // ~1.3 seconds of immunity
+    const PANIC_RADIUS = 70      // Only look at nearby crowds for avoidance
 
     // Initialize particles
     const particles: Particle[] = []
@@ -166,17 +167,9 @@ export default function PixelBackground() {
           centerX /= triggeredCluster.length
           centerY /= triggeredCluster.length
 
-          // Blast particles AWAY from the cluster center
+          // Give particles immunity frames to start dispersing
           triggeredCluster.forEach(idx => {
-            const p = particles[idx]
-            const dx = p.x - centerX
-            const dy = p.y - centerY
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-            // Add a strong radial blast outward + a little random chaos
-            p.vx = (dx / d) * EXPLOSION_FORCE + (Math.random() - 0.5) * 1.5
-            p.vy = (dy / d) * EXPLOSION_FORCE + (Math.random() - 0.5) * 1.5
-            p._clusterTimer = COOLDOWN_FRAMES // Give them immunity frames
+            particles[idx]._clusterTimer = COOLDOWN_FRAMES
           })
         }
       }
@@ -218,6 +211,50 @@ export default function PixelBackground() {
         }
 
         p._neighbors = neighbors
+
+        // Explosion: 80/20 split - 80% natural blast, 20% space-finders
+        if (p._clusterTimer > 0) {
+          const isSpaceFinder = (i % 10 >= 8) // 20% are space-finders
+
+          if (isSpaceFinder) {
+            // Half the particles: intelligently seek empty space
+            let avoidX = 0
+            let avoidY = 0
+            let closeCount = 0
+            const PANIC_RADIUS = 70
+
+            for (let j = 0; j < particleCount; j++) {
+              if (i === j) continue
+
+              const q = particles[j]
+              const dx = p.x - q.x
+              const dy = p.y - q.y
+              const d = Math.sqrt(dx * dx + dy * dy)
+
+              if (d < PANIC_RADIUS && d > 0) {
+                avoidX += (dx / d) * (1 - d / PANIC_RADIUS)
+                avoidY += (dy / d) * (1 - d / PANIC_RADIUS)
+                closeCount++
+              }
+            }
+
+            if (closeCount > 0) {
+              const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+              const blastForce = 0.8
+
+              ax += (avoidX / avoidDist) * blastForce + (Math.random() - 0.5) * 0.3
+              ay += (avoidY / avoidDist) * blastForce + (Math.random() - 0.5) * 0.3
+            } else {
+              ax += (Math.random() - 0.5) * 0.5
+              ay += (Math.random() - 0.5) * 0.5
+            }
+          } else {
+            // The other 50%: pure random explosion drift
+            const randomBlastForce = 1.2
+            ax += (Math.random() - 0.5) * randomBlastForce
+            ay += (Math.random() - 0.5) * randomBlastForce
+          }
+        }
 
         // Apply forces
         p.vx = (p.vx + ax) * DAMPING
