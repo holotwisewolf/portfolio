@@ -30,13 +30,17 @@ interface DesktopIcon {
 }
 
 // Grid-aligned positions (GRID_SIZE=100, so positions at 0, 100, 200...)
+// Padding configuration (pixels)
+const PADDING = { top: 40, left: 20, right: 20, bottom: 100 }
+
+// Icons positioned on the grid within the padded area (start at 0,0 relative to usable area)
 const initialIcons: DesktopIcon[] = [
-  { id: 'terminalnav', label: 'Terminal', position: { x: 20, y: 40 } },
-  { id: 'welcome', label: 'Welcome', position: { x: 120, y: 40 } },
-  { id: 'projects', label: 'Projects', position: { x: 220, y: 40 } },
-  { id: 'blog', label: 'Blog', position: { x: 20, y: 140 } },
-  { id: 'about', label: 'About', position: { x: 120, y: 140 } },
-  { id: 'admin', label: 'Admin', position: { x: 220, y: 140 } },
+  { id: 'terminalnav', label: 'Terminal', position: { x: 0, y: 0 } },
+  { id: 'welcome', label: 'Welcome', position: { x: 100, y: 0 } },
+  { id: 'projects', label: 'Projects', position: { x: 200, y: 0 } },
+  { id: 'blog', label: 'Blog', position: { x: 0, y: 100 } },
+  { id: 'about', label: 'About', position: { x: 100, y: 100 } },
+  { id: 'admin', label: 'Admin', position: { x: 200, y: 100 } },
 ]
 
 export default function Desktop() {
@@ -106,23 +110,32 @@ export default function Desktop() {
     let x = e.clientX - desktopRect.left - dragOffset.x
     let y = e.clientY - desktopRect.top - dragOffset.y
 
-    // Enforce boundaries
-    const minX = 20
-    const maxX = desktopRect.width - 20 - ICON_WIDTH
-    const minY = 40
-    const maxY = desktopRect.height - 100 - ICON_HEIGHT
+    // Calculate usable area (accounting for padding)
+    const usableWidth = desktopRect.width - PADDING.left - PADDING.right
+    const usableHeight = desktopRect.height - PADDING.top - PADDING.bottom
 
-    x = Math.max(minX, Math.min(x, maxX))
-    y = Math.max(minY, Math.min(y, maxY))
+    // Current position relative to usable area
+    const relativeX = x - PADDING.left
+    const relativeY = y - PADDING.top
 
-    setCurrentPosition({ x, y })
+    // Snap to grid within usable area
+    const snapX = Math.round(relativeX / GRID_SIZE) * GRID_SIZE
+    const snapY = Math.round(relativeY / GRID_SIZE) * GRID_SIZE
 
-    // Calculate snap grid position
-    const snapX = Math.round(x / GRID_SIZE) * GRID_SIZE
-    const snapY = Math.round(y / GRID_SIZE) * GRID_SIZE
+    // Enforce boundaries (relative to usable area)
+    const minX = 0
+    const maxX = usableWidth - ICON_WIDTH
+    const minY = 0
+    const maxY = usableHeight - ICON_HEIGHT
+
+    // Constrain position to usable area
+    const constrainedX = Math.max(minX, Math.min(relativeX, maxX))
+    const constrainedY = Math.max(minY, Math.min(relativeY, maxY))
+
+    setCurrentPosition({ x: constrainedX, y: constrainedY })
 
     // Check if near snap position
-    const distance = Math.sqrt(Math.pow(x - snapX, 2) + Math.pow(y - snapY, 2))
+    const distance = Math.sqrt(Math.pow(relativeX - snapX, 2) + Math.pow(relativeY - snapY, 2))
     const isNearSnap = distance < SNAP_THRESHOLD
 
     if (isNearSnap) {
@@ -219,13 +232,18 @@ export default function Desktop() {
       onContextMenu={(e) => handleContextMenu(e)}
       onClick={closeContextMenu}
     >
+      {/* Spacer bars for padding - icons positioned within the center area */}
+      <div className="absolute left-0 top-0 bottom-0 pointer-events-none" style={{ width: `${PADDING.left}px` }} />
+      <div className="absolute right-0 top-0 bottom-0 pointer-events-none" style={{ width: `${PADDING.right}px` }} />
+      <div className="absolute left-0 right-0 top-0 pointer-events-none" style={{ height: `${PADDING.top}px` }} />
+      <div className="absolute left-0 right-0 bottom-0 pointer-events-none" style={{ height: `${PADDING.bottom}px` }} />
       {/* Snap preview highlight */}
       {snapPosition && (
         <div
           className="absolute bg-white/10 border border-white/50 pointer-events-none rounded"
           style={{
-            left: snapPosition.x,
-            top: snapPosition.y,
+            left: snapPosition.x + PADDING.left,
+            top: snapPosition.y + PADDING.top,
             width: ICON_WIDTH,
             height: ICON_HEIGHT,
           }}
@@ -239,6 +257,10 @@ export default function Desktop() {
           ? currentPosition
           : icon.position
 
+        // Add padding offset when rendering (icons stored relative to usable area)
+        const renderX = displayPosition.x + PADDING.left
+        const renderY = displayPosition.y + PADDING.top
+
         return (
           <button
             key={icon.id}
@@ -248,7 +270,7 @@ export default function Desktop() {
             className={`icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors ${
               isDragging ? 'cursor-grabbing z-50' : 'cursor-grab'
             }`}
-            style={{ left: displayPosition.x, top: displayPosition.y }}
+            style={{ left: renderX, top: renderY }}
           >
             <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">
               {icon.label[0]}

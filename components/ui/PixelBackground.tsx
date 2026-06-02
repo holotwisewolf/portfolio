@@ -1,11 +1,26 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+interface Particle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+}
 
 export default function PixelBackground() {
+  const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
+    setMounted(true)
+    console.log('PixelBackground mounted!')
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -13,101 +28,93 @@ export default function PixelBackground() {
     if (!ctx) return
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      canvas.width = canvas.parentElement?.clientWidth || window.innerWidth
+      canvas.height = canvas.parentElement?.clientHeight || window.innerHeight
     }
 
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // Coherent pixel grid - organized rows that scan down
-    const pixelSize = 8
-    const gridCols = Math.ceil(canvas.width / pixelSize)
-    const gridRows = Math.ceil(canvas.height / pixelSize)
+    // Particle configuration
+    const particleCount = 50
+    const connectionDistance = 150
+    const speed = 0.3
 
-    // Each row has a state
-    const rowStates: Array<{ active: boolean; alpha: number; targetX: number }> = []
-
-    for (let y = 0; y < gridRows; y++) {
-      rowStates.push({
-        active: false,
-        alpha: 0,
-        targetX: Math.floor(Math.random() * gridCols)
+    // Initialize particles
+    const particles: Particle[] = []
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * speed,
+        vy: (Math.random() - 0.5) * speed
       })
     }
 
     // Animation loop
     let animationId: number
-    let scanLine = 0
-    let lastTime = 0
-    const scanSpeed = 0.05 // How fast the scan line moves
 
-    const animate = (time: number) => {
-      const delta = time - lastTime
-      lastTime = time
+    const animate = () => {
+      // Clear with transparent background
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      // Clear with slight fade
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      // Update and draw particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
 
-      // Update scan line
-      scanLine = (scanLine + scanSpeed) % gridRows
-      const currentRow = Math.floor(scanLine)
+        // Update position
+        p.x += p.vx
+        p.y += p.vy
 
-      // Activate current row
-      if (rowStates[currentRow]) {
-        rowStates[currentRow].active = true
-        rowStates[currentRow].alpha = 1
-        rowStates[currentRow].targetX = Math.floor(Math.random() * gridCols)
-      }
+        // Bounce off edges
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1
 
-      // Draw and update each row
-      for (let y = 0; y < gridRows; y++) {
-        const state = rowStates[y]
-        if (!state) continue
+        // Keep particles in bounds
+        p.x = Math.max(0, Math.min(canvas.width, p.x))
+        p.y = Math.max(0, Math.min(canvas.height, p.y))
 
-        if (state.active) {
-          state.alpha -= 0.02
-          if (state.alpha <= 0) {
-            state.active = false
-            continue
-          }
+        // Draw pixel (square)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
+        ctx.fillRect(p.x - 2, p.y - 2, 4, 4)
 
-          // Draw pixel at target position
-          const x = state.targetX * pixelSize
-          const brightness = Math.floor(state.alpha * 80 + 40)
-          ctx.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness}, ${state.alpha})`
-          ctx.fillRect(x, y * pixelSize, pixelSize - 2, pixelSize - 2)
+        // Draw connections to nearby particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j]
+          const dx = p.x - p2.x
+          const dy = p.y - p2.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
 
-          // Occasionally add a neighboring pixel for coherence
-          if (Math.random() < 0.3 && state.targetX > 0) {
-            const neighborX = (state.targetX - 1) * pixelSize
-            ctx.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness}, ${state.alpha * 0.5})`
-            ctx.fillRect(neighborX, y * pixelSize, pixelSize - 2, pixelSize - 2)
+          if (distance < connectionDistance) {
+            const opacity = (1 - distance / connectionDistance) * 0.2
+            ctx.beginPath()
+            ctx.moveTo(p.x, p.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+            ctx.lineWidth = 0.5
+            ctx.stroke()
           }
         }
       }
 
-      // Draw scan line indicator (subtle)
-      const scanY = currentRow * pixelSize
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)'
-      ctx.fillRect(0, scanY, canvas.width, pixelSize)
-
       animationId = requestAnimationFrame(animate)
     }
 
-    animate(0)
+    animate()
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
       cancelAnimationFrame(animationId)
     }
-  }, [])
+  }, [mounted])
+
+  if (!mounted) return null
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full pointer-events-none"
+      className="absolute inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
     />
   )
 }

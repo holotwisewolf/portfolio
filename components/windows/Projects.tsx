@@ -29,11 +29,7 @@ export default function Projects() {
   const openWindow = useWindowStore((s) => s.openWindow)
 
   const handleProjectClick = (project: Project) => {
-    openWindow(
-      `project-${project.id}` as any,
-      project.title,
-      () => <ProjectDetail project={project} />
-    )
+    openWindow(`project-${project.id}` as any)
   }
 
   return (

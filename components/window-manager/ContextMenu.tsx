@@ -10,6 +10,22 @@ interface ContextMenuProps {
   onAction: (action: string) => void
 }
 
+interface MenuItem {
+  label: string
+  action: string
+  icon: string
+  divider?: never
+}
+
+interface DividerItem {
+  divider: true
+  label?: never
+  action?: never
+  icon?: never
+}
+
+type Menuitem = MenuItem | DividerItem
+
 export default function ContextMenu({ x, y, iconId, onClose, onAction }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -52,7 +68,7 @@ export default function ContextMenu({ x, y, iconId, onClose, onAction }: Context
   }, [x, y])
 
   // Icon-specific menu items
-  const iconMenuItems = [
+  const iconMenuItems: Menuitem[] = [
     { label: 'Open', action: 'open', icon: '📂' },
     { divider: true },
     { label: 'Rename', action: 'rename', icon: '✏️' },
@@ -62,7 +78,7 @@ export default function ContextMenu({ x, y, iconId, onClose, onAction }: Context
   ]
 
   // Desktop menu items
-  const desktopMenuItems = [
+  const desktopMenuItems: Menuitem[] = [
     { label: 'New Folder', action: 'new-folder', icon: '📁' },
     { label: 'New File', action: 'new-file', icon: '📄' },
     { divider: true },
@@ -79,7 +95,7 @@ export default function ContextMenu({ x, y, iconId, onClose, onAction }: Context
       style={{ left: x, top: y }}
     >
       {menuItems.map((item, index) => {
-        if (item.divider) {
+        if ('divider' in item) {
           return <div key={index} className="border-t border-gray-800 my-1" />
         }
 

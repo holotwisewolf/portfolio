@@ -24,26 +24,28 @@ export default function StockCharts() {
     SPY: { symbol: 'SPY', data: [], currentPrice: 0, change: 0, changePercent: 0 },
     QQQ: { symbol: 'QQQ', data: [], currentPrice: 0, change: 0, changePercent: 0 }
   })
+  const [vixData, setVixData] = useState<ChartData>({ symbol: 'VIX', data: [], currentPrice: 0, change: 0, changePercent: 0 })
   const [loading, setLoading] = useState(true)
   const [marketOpen, setMarketOpen] = useState(true)
   const [vix, setVix] = useState(18.4)
   const [previousVix, setPreviousVix] = useState(18.4)
   const [githubStats, setGithubStats] = useState({ repos: 0, followers: 0 })
-
-  const languages: Language[] = [
+  const [commitActivity, setCommitActivity] = useState<number[]>([])
+  const [languages, setLanguages] = useState<Language[]>([
     { name: 'JavaScript', percentage: 48 },
     { name: 'TypeScript', percentage: 28 },
     { name: 'Python', percentage: 16 },
     { name: 'Other', percentage: 8 }
-  ]
+  ])
 
   const fetchStockData = async () => {
     try {
-      const res = await fetch('/api/stocks?symbols=SPY,QQQ')
+      const res = await fetch('/api/stocks?symbols=SPY,QQQ,^VIX')
       const data = await res.json()
 
       if (data.quotes) {
         const newCharts: { [key: string]: ChartData } = {}
+        let vixQuote: any = null
 
         for (const quote of data.quotes) {
           const symbol = quote.symbol
@@ -57,20 +59,34 @@ export default function StockCharts() {
             price: h.price
           })) || []
 
-          newCharts[symbol] = {
-            symbol,
-            data: historicalData,
-            currentPrice: price,
-            change,
-            changePercent
+          if (symbol === '^VIX' || symbol === 'VIX') {
+            // Store VIX separately, don't add to charts
+            vixQuote = {
+              symbol: 'VIX',
+              data: historicalData,
+              currentPrice: price,
+              change,
+              changePercent
+            }
+          } else {
+            newCharts[symbol] = {
+              symbol,
+              data: historicalData,
+              currentPrice: price,
+              change,
+              changePercent
+            }
           }
         }
 
         setCharts(newCharts)
         setLoading(false)
 
-        // Update VIX randomly (still fake since we're not fetching VIX)
-        setVix(15 + Math.random() * 10)
+        // Update VIX from real data
+        if (vixQuote?.currentPrice) {
+          setPreviousVix(vix)
+          setVix(vixQuote.currentPrice)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch stock data:', error)
@@ -96,6 +112,14 @@ export default function StockCharts() {
             repos: data.publicRepos || 0,
             followers: data.followers || 0
           })
+          // Set commit activity if available
+          if (data.commitActivity && Array.isArray(data.commitActivity)) {
+            setCommitActivity(data.commitActivity)
+          }
+          // Set languages if available
+          if (data.languages && Array.isArray(data.languages)) {
+            setLanguages(data.languages.map((l: any) => ({ name: l.language, percentage: l.percentage })))
+          }
         }
       } catch (error) {
         console.error('Failed to fetch GitHub stats:', error)
@@ -115,18 +139,6 @@ export default function StockCharts() {
     const marketStart = 9 * 60 + 30 // 9:30 AM
     const marketEnd = 16 * 60 // 4:00 PM
     setMarketOpen(day >= 1 && day <= 5 && time >= marketStart && time <= marketEnd)
-  }, [])
-
-  // Update VIX every 10 minutes (independent of stock data)
-  useEffect(() => {
-    const updateVix = () => {
-      const newVix = 15 + Math.random() * 10
-      setPreviousVix(vix)
-      setVix(newVix)
-    }
-    updateVix()
-    const interval = setInterval(updateVix, 10 * 60 * 1000)
-    return () => clearInterval(interval)
   }, [])
 
   return (
@@ -183,7 +195,15 @@ export default function StockCharts() {
                       tick={{ fill: '#444', fontSize: 8 }}
                       tickFormatter={(value) => value === 'now' ? 'n' : value.replace('h', '')}
                     />
-                    <YAxis hide={true} domain={['auto', 'auto']} />
+                    <YAxis
+                      domain={[chart.data.reduce((min, d) => Math.min(min, d.price), Infinity) - 2, chart.data.reduce((max, d) => Math.max(max, d.price), -Infinity) + 2]}
+                      stroke="#333"
+                      tick={{ fill: '#666', fontSize: 7 }}
+                      width={40}
+                      tickCount={6}
+                      interval="preserveStartEnd"
+                      tickFormatter={(value) => value.toFixed(1)}
+                    />
                     <Line
                       type="monotone"
                       dataKey="price"
@@ -224,7 +244,7 @@ export default function StockCharts() {
         {/* Activity Dots - right under header */}
         <div className="mb-3">
           <div className="text-[9px] text-gray-700 mb-1">Commit activity (35 days)</div>
-          <ActivityGrid dots={35} />
+          <ActivityGrid dots={35} commits={commitActivity} />
         </div>
 
         <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />

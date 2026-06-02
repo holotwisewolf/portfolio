@@ -26,11 +26,7 @@ export default function Blog() {
   }, [])
 
   const handlePostClick = (post: BlogPost) => {
-    openWindow(
-      `blog-${post.slug}` as any,
-      post.title,
-      () => <BlogPostWindow slug={post.slug} />
-    )
+    openWindow(`blog-${post.slug}` as any)
   }
 
   return (

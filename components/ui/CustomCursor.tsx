@@ -56,7 +56,7 @@ export default function CustomCursor() {
     <div
       ref={cursorRef}
       className={cursorClasses}
-      style={{ left: position.x, top: position.y }}
+      style={{ left: position.x, top: position.y, zIndex: 99999 }}
     />
   )
 }

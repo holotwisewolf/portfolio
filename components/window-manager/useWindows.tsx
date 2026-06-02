@@ -4,6 +4,9 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { WindowManagerState, WindowId } from '@/lib/window-state'
 
+// Re-export WindowId type for use in other components
+export type { WindowId }
+
 // Window content registry - stores the component for each window ID
 const windowContentRegistry = new Map<WindowId, React.ComponentType>()
 

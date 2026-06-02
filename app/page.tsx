@@ -27,33 +27,39 @@ function AppContent() {
   const openWindows = Object.values(windows).filter(w => w.isOpen && !w.isMinimized)
 
   return (
-    <div className="h-screen w-screen overflow-hidden relative flex flex-col">
-      <PixelBackground />
-      <StatusBar />
-      <div className="flex-1 flex min-h-0">
-        {/* Left Panel - Profile */}
-        <div className="w-[280px] flex-shrink-0 border-r border-white bg-black relative z-0">
-          <ProfilePanel />
+    <>
+      <div className="h-screen w-screen overflow-hidden relative flex flex-col">
+        <StatusBar />
+        <div className="flex-1 flex min-h-0">
+          {/* Left Panel - Profile */}
+          <div className="w-[280px] flex-shrink-0 border-r border-white bg-black relative z-0">
+            <ProfilePanel />
+          </div>
+
+          {/* Center Panel - Desktop with Windows - higher z-index, no overflow hidden so windows can extend */}
+          <div className="flex-1 relative z-10">
+            <PixelBackground />
+            <div className="absolute inset-0">
+              <Desktop />
+              {openWindows.map((window) => (
+                <Window key={window.id} windowId={window.id as any} />
+              ))}
+            </div>
+          </div>
+
+          {/* Right Panel - Market+Dev */}
+          <div className="w-[320px] flex-shrink-0 border-l border-white bg-black relative z-0">
+            <StockCharts />
+          </div>
         </div>
 
-        {/* Center Panel - Desktop with Windows - higher z-index, no overflow hidden so windows can extend */}
-        <div className="flex-1 relative bg-black z-10">
-          <Desktop />
-          {openWindows.map((window) => (
-            <Window key={window.id} windowId={window.id as any} />
-          ))}
+        {/* Terminal Bar - Full Width */}
+        <div className="relative z-20">
+          <TerminalBar />
         </div>
-
-        {/* Right Panel - Market+Dev */}
-        <div className="w-[320px] flex-shrink-0 border-l border-white bg-black relative z-0">
-          <StockCharts />
-        </div>
+        <CustomCursor />
       </div>
-
-      {/* Terminal Bar - Full Width */}
-      <TerminalBar className="relative z-20" />
-      <CustomCursor />
-    </div>
+    </>
   )
 }
 

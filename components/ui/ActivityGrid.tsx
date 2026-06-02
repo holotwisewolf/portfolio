@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react'
 interface ActivityGridProps {
   dots?: number
   pattern?: ('high' | 'mid' | 'low')[]
+  commits?: number[] // Real commit counts per day
 }
 
-export default function ActivityGrid({ dots = 35, pattern }: ActivityGridProps) {
+export default function ActivityGrid({ dots = 35, pattern, commits }: ActivityGridProps) {
   const [isMounted, setIsMounted] = useState(false)
   const [activityPattern, setActivityPattern] = useState<('high' | 'mid' | 'low')[]>(
     pattern || Array(dots).fill('low') as ('high' | 'mid' | 'low')[]
@@ -15,10 +16,14 @@ export default function ActivityGrid({ dots = 35, pattern }: ActivityGridProps) 
 
   useEffect(() => {
     setIsMounted(true)
-    if (!pattern) {
+
+    if (commits && commits.length > 0) {
+      // Convert real commit counts to activity levels
+      setActivityPattern(commitsToActivity(commits))
+    } else if (!pattern) {
       setActivityPattern(generateActivityPattern(dots))
     }
-  }, [dots, pattern])
+  }, [dots, pattern, commits])
 
   return (
     <div className="flex flex-wrap gap-[2px]" suppressHydrationWarning>
@@ -34,7 +39,19 @@ export default function ActivityGrid({ dots = 35, pattern }: ActivityGridProps) 
   )
 }
 
-// Generate activity pattern with three levels
+// Convert commit counts to activity levels
+function commitsToActivity(commits: number[]): ('high' | 'mid' | 'low')[] {
+  const maxCommits = Math.max(...commits, 1)
+  return commits.map(count => {
+    if (count === 0) return 'low'
+    const ratio = count / maxCommits
+    if (ratio > 0.6) return 'high'
+    if (ratio > 0.3) return 'mid'
+    return 'low'
+  })
+}
+
+// Generate activity pattern with three levels (fallback)
 function generateActivityPattern(count: number): ('high' | 'mid' | 'low')[] {
   const pattern: ('high' | 'mid' | 'low')[] = []
   for (let i = 0; i < count; i++) {
