@@ -338,7 +338,7 @@ export default function PixelBackground() {
           p.vy += (Math.random() - 0.5) * 0.03
         }
 
-        // Bridge connector behavior: form mesh network in empty spaces
+        // Bridge connector behavior: form dynamic mesh network in empty spaces
         if (p._isConnector && p._clusterTimer === 0) {
           let ax = 0, ay = 0
 
@@ -353,12 +353,12 @@ export default function PixelBackground() {
             // Very gentle avoidance - just enough to find empty space
             if (d > 0 && d < 200) {
               const weight = 1 / (d + 1)
-              ax += (dx / d) * weight * 0.02  // Was 0.8, now 0.02 (40x weaker!)
+              ax += (dx / d) * weight * 0.02
               ay += (dy / d) * weight * 0.02
             }
           }
 
-          // Part 2: Mesh with other connectors - attract to form network
+          // Part 2: VERY loose mesh with other connectors - no rigid locking
           for (let j = 0; j < particleCount; j++) {
             if (i === j || !particles[j]._isConnector) continue // Only other connectors
             const q = particles[j]
@@ -367,23 +367,27 @@ export default function PixelBackground() {
             const d = Math.sqrt(dx * dx + dy * dy)
 
             if (d > 0) {
-              if (d > CONNECTOR_SPACING * 2) {
-                // Too far - attract to form network
-                const strength = CONNECTOR_ATTRACT * (1 - Math.min(d / 500, 1))
+              if (d > CONNECTOR_SPACING * 2.5) {
+                // Too far - very gentle attract
+                const strength = CONNECTOR_ATTRACT * 0.5 * (1 - Math.min(d / 600, 1))
                 ax += (dx / d) * strength
                 ay += (dy / d) * strength
-              } else if (d < CONNECTOR_SPACING * 0.8) {
-                // Too close - strong repel to prevent clumping
-                ax -= (dx / d) * 0.08
-                ay -= (dy / d) * 0.08
+              } else if (d < CONNECTOR_SPACING * 0.6) {
+                // Too close - gentle repel
+                ax -= (dx / d) * 0.04
+                ay -= (dy / d) * 0.04
               }
-              // At optimal spacing - no force, let them coexist
+              // At optimal spacing - no force, free to drift
             }
           }
 
           // Apply mesh network forces
           p.vx += ax
           p.vy += ay
+
+          // Add strong random wander so they keep exploring (don't lock)
+          p.vx += (Math.random() - 0.5) * 0.08
+          p.vy += (Math.random() - 0.5) * 0.08
         }
 
         // Position updates
