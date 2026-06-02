@@ -13,6 +13,8 @@ interface Particle {
   _clusterTimer: number
   _isConnector: boolean
   _connectorTarget: { x: number; y: number } | null
+  _breakFreeTimer: number        // When >0, connector breaks free to explore
+  _bounceCount: number          // Consecutive wall bounces (for corner escape)
 }
 
 export default function PixelBackground() {
@@ -81,7 +83,9 @@ export default function PixelBackground() {
         _neighbors: 0,
         _clusterTimer: 0,
         _isConnector: (i % 20 >= 17), // 15% are permanent bridge connectors (3 out of 20)
-        _connectorTarget: null
+        _connectorTarget: null,
+        _breakFreeTimer: 0,
+        _bounceCount: 0
       })
     }
 
@@ -340,6 +344,39 @@ export default function PixelBackground() {
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
         if (p._isConnector && p._clusterTimer === 0) {
+          // Decrement break-free timer
+          if (p._breakFreeTimer > 0) {
+            p._breakFreeTimer--
+            // When breaking free, ignore mesh and just explore
+            p.vx += (Math.random() - 0.5) * 0.12
+            p.vy += (Math.random() - 0.5) * 0.12
+
+            // 30% chance to start breaking free when timer runs out
+          } else if (Math.random() < 0.01) { // ~0.6% per frame = ~30% chance over 2-3 seconds
+            p._breakFreeTimer = 60 + Math.random() * 60 // Break free for 1-2 seconds
+          }
+
+          // Skip mesh forces when breaking free
+          if (p._breakFreeTimer > 0) {
+            // Just gentle push away from regular particles
+            let ax = 0, ay = 0
+            for (let j = 0; j < particleCount; j++) {
+              if (i === j || particles[j]._isConnector) continue
+              const q = particles[j]
+              const dx = p.x - q.x
+              const dy = p.y - q.y
+              const d = Math.sqrt(dx * dx + dy * dy)
+
+              if (d > 0 && d < 200) {
+                const weight = 1 / (d + 1)
+                ax += (dx / d) * weight * 0.02
+                ay += (dy / d) * weight * 0.02
+              }
+            }
+            p.vx += ax
+            p.vy += ay
+            return
+          }
           let ax = 0, ay = 0
 
           // Part 1: VERY gentle push away from regular particles (don't affect clusters)
@@ -394,11 +431,32 @@ export default function PixelBackground() {
         p.x += p.vx
         p.y += p.vy
 
-        // Boundary bounces with energy loss
-        if (p.x < 6) { p.x = 6; p.vx *= -0.8 }
-        if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.8 }
-        if (p.y < 6) { p.y = 6; p.vy *= -0.8 }
-        if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.8 }
+        // Boundary bounces with energy loss and corner escape
+        let bounced = false
+        if (p.x < 6) { p.x = 6; p.vx *= -0.8; bounced = true }
+        if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.8; bounced = true }
+        if (p.y < 6) { p.y = 6; p.vy *= -0.8; bounced = true }
+        if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.8; bounced = true }
+
+        // Track consecutive bounces for corner escape
+        if (bounced) {
+          p._bounceCount++
+          // After 2+ consecutive bounces, add speed to escape corners
+          if (p._bounceCount > 2) {
+            const speedBoost = 1.0 + (p._bounceCount - 2) * 0.3 // Each bounce adds 30% speed
+            p.vx *= speedBoost
+            p.vy *= speedBoost
+            // Cap the max boost
+            const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
+            if (speed > MAX_SPEED * 3) {
+              p.vx = (p.vx / speed) * MAX_SPEED * 3
+              p.vy = (p.vy / speed) * MAX_SPEED * 3
+            }
+          }
+        } else {
+          // Reset bounce count when not bouncing
+          p._bounceCount = 0
+        }
       }
     }
 
