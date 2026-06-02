@@ -91,6 +91,21 @@ export default function PixelBackground() {
       return Math.sqrt(dx * dx + dy * dy)
     }
 
+    // Probability-based explosion force
+    const getRandomBlastForce = (): { radial: number; spaceFinder: number } => {
+      const roll = Math.random()
+      if (roll < 0.4) {
+        // 40% small - stay local
+        return { radial: 0.8 + Math.random() * 0.4, spaceFinder: 0.6 + Math.random() * 0.3 }
+      } else if (roll < 0.9) {
+        // 50% medium - moderate dispersal
+        return { radial: 1.5 + Math.random() * 0.7, spaceFinder: 1.2 + Math.random() * 0.5 }
+      } else {
+        // 10% large - escape to join other clusters (rare)
+        return { radial: 2.8 + Math.random() * 0.8, spaceFinder: 2.2 + Math.random() * 0.6 }
+      }
+    }
+
     // Track unstable clusters for timer-based explosions
     let unstableTimer = 0
 
@@ -135,6 +150,9 @@ export default function PixelBackground() {
           centerX /= nearbyGroup.length
           centerY /= nearbyGroup.length
 
+          // Get random blast force for this explosion
+          const blastForce = getRandomBlastForce()
+
           // Blast all particles in this local group
           nearbyGroup.forEach(i => {
             const p2 = particles[i]
@@ -162,8 +180,8 @@ export default function PixelBackground() {
 
               if (closeCount > 0) {
                 const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                p2.vx = (avoidX / avoidDist) * 2.5 + (Math.random() - 0.5) * 0.5
-                p2.vy = (avoidY / avoidDist) * 2.5 + (Math.random() - 0.5) * 0.5
+                p2.vx = (avoidX / avoidDist) * blastForce.spaceFinder + (Math.random() - 0.5) * 0.5
+                p2.vy = (avoidY / avoidDist) * blastForce.spaceFinder + (Math.random() - 0.5) * 0.5
               } else {
                 p2.vx = (Math.random() - 0.5) * 1.5
                 p2.vy = (Math.random() - 0.5) * 1.5
@@ -174,8 +192,8 @@ export default function PixelBackground() {
               const dy = p2.y - centerY
               const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-              p2.vx = (dx / d) * 2.2 + (Math.random() - 0.5) * 0.6
-              p2.vy = (dy / d) * 2.2 + (Math.random() - 0.5) * 0.6
+              p2.vx = (dx / d) * blastForce.radial + (Math.random() - 0.5) * 0.6
+              p2.vy = (dy / d) * blastForce.radial + (Math.random() - 0.5) * 0.6
             }
 
             p2._clusterTimer = COOLDOWN_FRAMES
@@ -211,6 +229,9 @@ export default function PixelBackground() {
           centerX /= unstableParticles.length
           centerY /= unstableParticles.length
 
+          // Get random blast force for this explosion
+          const blastForce = getRandomBlastForce()
+
           // Gentle blast with space-finding
           unstableParticles.forEach(i => {
             const p = particles[i]
@@ -238,8 +259,8 @@ export default function PixelBackground() {
 
               if (closeCount > 0) {
                 const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                p.vx = (avoidX / avoidDist) * 1.8 + (Math.random() - 0.5) * 0.4
-                p.vy = (avoidY / avoidDist) * 1.8 + (Math.random() - 0.5) * 0.4
+                p.vx = (avoidX / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
+                p.vy = (avoidY / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
               } else {
                 p.vx = (Math.random() - 0.5) * 0.8
                 p.vy = (Math.random() - 0.5) * 0.8
@@ -250,8 +271,8 @@ export default function PixelBackground() {
               const dy = p.y - centerY
               const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-              p.vx = (dx / d) * 1.5 + (Math.random() - 0.5) * 0.4
-              p.vy = (dy / d) * 1.5 + (Math.random() - 0.5) * 0.4
+              p.vx = (dx / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
+              p.vy = (dy / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
             }
 
             p._clusterTimer = COOLDOWN_FRAMES
