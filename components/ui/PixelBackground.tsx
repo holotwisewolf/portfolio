@@ -11,6 +11,8 @@ interface Particle {
   base: number
   _neighbors: number
   _clusterTimer: number
+  _isConnector: boolean
+  _connectorTarget: { x: number; y: number } | null
 }
 
 export default function PixelBackground() {
@@ -73,7 +75,9 @@ export default function PixelBackground() {
         size: Math.random() < 0.7 ? 2 : 3,
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
-        _clusterTimer: 0
+        _clusterTimer: 0,
+        _isConnector: (i % 10 >= 8), // 20% are permanent bridge connectors
+        _connectorTarget: null
       })
     }
 
@@ -308,6 +312,89 @@ export default function PixelBackground() {
           p.vy += (Math.random() - 0.5) * 0.03
         }
 
+        // Bridge connector behavior: seek midpoint between clusters
+        if (p._isConnector && p._clusterTimer === 0) {
+          // Find nearby cluster centers
+          const clusters: { x: number; y: number; size: number }[] = []
+          const visited = new Set<number>()
+
+          for (let j = 0; j < particleCount; j++) {
+            if (i === j || visited.has(j)) continue
+
+            const dx = p.x - particles[j].x
+            const dy = p.y - particles[j].y
+            const distToParticle = Math.sqrt(dx * dx + dy * dy)
+
+            // Look for particles within a wider range (up to 300px)
+            if (distToParticle < 300) {
+              // Find this particle's cluster
+              const clusterMembers: number[] = [j]
+              visited.add(j)
+
+              for (let k = 0; k < particleCount; k++) {
+                if (k === j || visited.has(k)) continue
+                if (dist(particles[j], particles[k]) < CLUSTER_RADIUS) {
+                  clusterMembers.push(k)
+                  visited.add(k)
+                }
+              }
+
+              if (clusterMembers.length >= 2) {
+                // Calculate cluster center
+                let cx = 0, cy = 0
+                clusterMembers.forEach(m => {
+                  cx += particles[m].x
+                  cy += particles[m].y
+                })
+                cx /= clusterMembers.length
+                cy /= clusterMembers.length
+                clusters.push({ x: cx, y: cy, size: clusterMembers.length })
+              }
+            }
+          }
+
+          // If we found 2+ clusters, drift toward their midpoint
+          if (clusters.length >= 2) {
+            // Sort by size and take the two largest
+            clusters.sort((a, b) => b.size - a.size)
+            const c1 = clusters[0]
+            const c2 = clusters[1]
+
+            // Calculate midpoint
+            const midX = (c1.x + c2.x) / 2
+            const midY = (c1.y + c2.y) / 2
+
+            // Gentle drift toward midpoint
+            const dx = midX - p.x
+            const dy = midY - p.y
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+            // Only drift if we're not already at the midpoint
+            if (d > 20) {
+              p.vx += (dx / d) * 0.08
+              p.vy += (dy / d) * 0.08
+            }
+          } else if (clusters.length === 1) {
+            // If only one cluster nearby, drift toward its edge (stay at connection distance)
+            const c = clusters[0]
+            const dx = c.x - p.x
+            const dy = c.y - p.y
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+            // Maintain distance around CONNECTION_DISTANCE
+            const targetDist = CONNECTION_DISTANCE * 0.8
+            if (d < targetDist) {
+              // Too close, push away
+              p.vx -= (dx / d) * 0.05
+              p.vy -= (dy / d) * 0.05
+            } else if (d > targetDist * 1.5) {
+              // Too far, pull closer
+              p.vx += (dx / d) * 0.05
+              p.vy += (dy / d) * 0.05
+            }
+          }
+        }
+
         // Position updates
         p.x += p.vx
         p.y += p.vy
@@ -345,8 +432,13 @@ export default function PixelBackground() {
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i]
         const density = Math.min(p._neighbors / 6, 1)
-        const alpha = p.base + density * 0.5
+        let alpha = p.base + density * 0.5
         const size = p.size + (density > 0.5 ? 1 : 0)
+
+        // Connector particles are slightly brighter
+        if (p._isConnector) {
+          alpha = Math.min(alpha + 0.2, 0.95)
+        }
 
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
         ctx.fillRect(Math.floor(p.x), Math.floor(p.y), size, size)
