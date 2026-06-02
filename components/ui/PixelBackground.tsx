@@ -54,6 +54,10 @@ export default function PixelBackground() {
     const MAX_SPEED = 0.8            // Faster speed for more movement
     const CONNECTION_DISTANCE = 130   // Increased for more web connections
 
+    // Connector mesh settings
+    const CONNECTOR_SPACING = 100    // Optimal distance between connectors
+    const CONNECTOR_ATTRACT = 0.006  // Slightly stronger than normal attraction
+
     // Local crowd control system
     const HARD_CAP = 6              // 6+ neighbors = instant explosion
     const UNSTABLE_MIN = 4          // 4-5 neighbors: unstable, will explode
@@ -265,12 +269,13 @@ export default function PixelBackground() {
         if (p._clusterTimer > 0) p._clusterTimer--
 
         // Only apply gravity if this specific particle is NOT immune/dispersing
-        if (p._clusterTimer === 0) {
+        // Connectors have their own mesh network physics, skip normal attraction
+        if (p._clusterTimer === 0 && !p._isConnector) {
           for (let j = 0; j < particleCount; j++) {
             if (i === j) continue
 
-            // Skip attracting if the neighbor is currently immune
-            if (particles[j]._clusterTimer > 0) continue
+            // Skip attracting if the neighbor is currently immune or is a connector
+            if (particles[j]._clusterTimer > 0 || particles[j]._isConnector) continue
 
             const q = particles[j]
             const dx = q.x - p.x
@@ -312,32 +317,52 @@ export default function PixelBackground() {
           p.vy += (Math.random() - 0.5) * 0.03
         }
 
-        // Bridge connector behavior: seek true empty space (local maxima)
+        // Bridge connector behavior: form mesh network in empty spaces
         if (p._isConnector && p._clusterTimer === 0) {
-          // Scan ALL nearby particles and push away from the crowd
-          let avoidX = 0, avoidY = 0
-          const scanRadius = 350 // Wider scan to find true empty space
+          let ax = 0, ay = 0
 
+          // Part 1: Push away from regular particle clusters (find empty space)
           for (let j = 0; j < particleCount; j++) {
-            if (i === j) continue
+            if (i === j || particles[j]._isConnector) continue // Skip other connectors
             const q = particles[j]
             const dx = p.x - q.x
             const dy = p.y - q.y
             const d = Math.sqrt(dx * dx + dy * dy)
 
-            if (d < scanRadius && d > 0) {
-              // Weight by inverse distance - closer particles push harder
-              // This naturally finds the point furthest from ALL particles
+            // Push away from regular particles (entire screen scan)
+            if (d > 0) {
               const weight = 1 / (d + 1)
-              avoidX += (dx / d) * weight
-              avoidY += (dy / d) * weight
+              ax += (dx / d) * weight * 0.8
+              ay += (dy / d) * weight * 0.8
             }
           }
 
-          // Drift toward the true empty space
-          const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-          p.vx += (avoidX / avoidDist) * 0.12
-          p.vy += (avoidY / avoidDist) * 0.12
+          // Part 2: Mesh with other connectors - attract to form network
+          for (let j = 0; j < particleCount; j++) {
+            if (i === j || !particles[j]._isConnector) continue // Only other connectors
+            const q = particles[j]
+            const dx = q.x - p.x
+            const dy = q.y - p.y
+            const d = Math.sqrt(dx * dx + dy * dy)
+
+            if (d > 0) {
+              if (d > CONNECTOR_SPACING * 1.5) {
+                // Too far - attract to form network
+                const strength = CONNECTOR_ATTRACT * (1 - Math.min(d / 400, 1))
+                ax += (dx / d) * strength
+                ay += (dy / d) * strength
+              } else if (d < CONNECTOR_SPACING * 0.7) {
+                // Too close - repel to maintain spacing
+                ax -= (dx / d) * 0.02
+                ay -= (dy / d) * 0.02
+              }
+              // At optimal spacing - no force, let them coexist
+            }
+          }
+
+          // Apply mesh network forces
+          p.vx += ax
+          p.vy += ay
         }
 
         // Position updates
