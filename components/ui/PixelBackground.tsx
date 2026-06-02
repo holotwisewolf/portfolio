@@ -46,11 +46,11 @@ export default function PixelBackground() {
 
     // Particle configuration
     const particleCount = 120
-    const CLUSTER_RADIUS = 45         // Attraction zone
-    const ATTRACT = 0.002            // Gentler attraction for slower clustering
+    const CLUSTER_RADIUS = 50         // Attraction zone (increased for more connections)
+    const ATTRACT = 0.004            // Stronger attraction to pull particles together
     const DAMPING = 0.98             // Smoother, longer-lasting glides
-    const MAX_SPEED = 0.6            // Slow, graceful gathering speed
-    const CONNECTION_DISTANCE = 120
+    const MAX_SPEED = 0.8            // Faster speed for more movement
+    const CONNECTION_DISTANCE = 130   // Increased for more web connections
 
     // Local crowd control system
     const HARD_CAP = 6              // 6+ neighbors = instant explosion
@@ -60,7 +60,7 @@ export default function PixelBackground() {
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
-    const COOLDOWN_FRAMES = 120  // ~2 seconds of immunity to prevent chain reactions
+    const COOLDOWN_FRAMES = 80  // ~1.3 seconds immunity (shorter for more connections)
 
     // Initialize particles
     const particles: Particle[] = []
@@ -130,12 +130,46 @@ export default function PixelBackground() {
           // Blast all particles in this local group
           nearbyGroup.forEach(i => {
             const p2 = particles[i]
-            const dx = p2.x - centerX
-            const dy = p2.y - centerY
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
+            const isSpaceFinder = (i % 10 >= 7) // 30% space-finders
 
-            p2.vx = (dx / d) * 1.5 + (Math.random() - 0.5) * 0.5
-            p2.vy = (dy / d) * 1.5 + (Math.random() - 0.5) * 0.5
+            if (isSpaceFinder) {
+              // Space-finder: drift toward empty space
+              let avoidX = 0, avoidY = 0, closeCount = 0
+              const scanRadius = 200
+
+              for (let j = 0; j < particleCount; j++) {
+                if (i === j) continue
+                const q = particles[j]
+                const dx = p2.x - q.x
+                const dy = p2.y - q.y
+                const d = Math.sqrt(dx * dx + dy * dy)
+
+                if (d < scanRadius && d > 0) {
+                  const weight = (scanRadius - d) / scanRadius
+                  avoidX += (dx / d) * weight
+                  avoidY += (dy / d) * weight
+                  closeCount++
+                }
+              }
+
+              if (closeCount > 0) {
+                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+                p2.vx = (avoidX / avoidDist) * 0.9 + (Math.random() - 0.5) * 0.3
+                p2.vy = (avoidY / avoidDist) * 0.9 + (Math.random() - 0.5) * 0.3
+              } else {
+                p2.vx = (Math.random() - 0.5) * 0.5
+                p2.vy = (Math.random() - 0.5) * 0.5
+              }
+            } else {
+              // Normal radial blast
+              const dx = p2.x - centerX
+              const dy = p2.y - centerY
+              const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+              p2.vx = (dx / d) * 1.0 + (Math.random() - 0.5) * 0.4
+              p2.vy = (dy / d) * 1.0 + (Math.random() - 0.5) * 0.4
+            }
+
             p2._clusterTimer = COOLDOWN_FRAMES
           })
         })
@@ -169,15 +203,49 @@ export default function PixelBackground() {
           centerX /= unstableParticles.length
           centerY /= unstableParticles.length
 
-          // Gentle blast
+          // Gentle blast with space-finding
           unstableParticles.forEach(i => {
             const p = particles[i]
-            const dx = p.x - centerX
-            const dy = p.y - centerY
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
+            const isSpaceFinder = (i % 10 >= 7) // 30% space-finders
 
-            p.vx = (dx / d) * 0.8 + (Math.random() - 0.5) * 0.3
-            p.vy = (dy / d) * 0.8 + (Math.random() - 0.5) * 0.3
+            if (isSpaceFinder) {
+              // Space-finder: drift toward empty space
+              let avoidX = 0, avoidY = 0, closeCount = 0
+              const scanRadius = 200
+
+              for (let j = 0; j < particleCount; j++) {
+                if (i === j) continue
+                const q = particles[j]
+                const dx = p.x - q.x
+                const dy = p.y - q.y
+                const d = Math.sqrt(dx * dx + dy * dy)
+
+                if (d < scanRadius && d > 0) {
+                  const weight = (scanRadius - d) / scanRadius
+                  avoidX += (dx / d) * weight
+                  avoidY += (dy / d) * weight
+                  closeCount++
+                }
+              }
+
+              if (closeCount > 0) {
+                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+                p.vx = (avoidX / avoidDist) * 0.5 + (Math.random() - 0.5) * 0.2
+                p.vy = (avoidY / avoidDist) * 0.5 + (Math.random() - 0.5) * 0.2
+              } else {
+                p.vx = (Math.random() - 0.5) * 0.3
+                p.vy = (Math.random() - 0.5) * 0.3
+              }
+            } else {
+              // Normal radial blast
+              const dx = p.x - centerX
+              const dy = p.y - centerY
+              const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+              p.vx = (dx / d) * 0.6 + (Math.random() - 0.5) * 0.2
+              p.vy = (dy / d) * 0.6 + (Math.random() - 0.5) * 0.2
+            }
+
             p._clusterTimer = COOLDOWN_FRAMES
           })
         }
@@ -212,10 +280,10 @@ export default function PixelBackground() {
               neighbors++
             }
 
-            // Stronger close-range repulsion to prevent large clusters
+            // Balanced close-range repulsion
             if (d < 12 && d > 0) {
-              ax -= (dx / d) * 0.25
-              ay -= (dy / d) * 0.25
+              ax -= (dx / d) * 0.15
+              ay -= (dy / d) * 0.15
             }
           }
         }
