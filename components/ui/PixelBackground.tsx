@@ -342,7 +342,7 @@ export default function PixelBackground() {
         if (p._isConnector && p._clusterTimer === 0) {
           let ax = 0, ay = 0
 
-          // Part 1: Push away from regular particle clusters (find empty space)
+          // Part 1: VERY gentle push away from regular particles (don't affect clusters)
           for (let j = 0; j < particleCount; j++) {
             if (i === j || particles[j]._isConnector) continue // Skip other connectors
             const q = particles[j]
@@ -350,11 +350,11 @@ export default function PixelBackground() {
             const dy = p.y - q.y
             const d = Math.sqrt(dx * dx + dy * dy)
 
-            // Push away from regular particles (entire screen scan)
-            if (d > 0) {
+            // Very gentle avoidance - just enough to find empty space
+            if (d > 0 && d < 200) {
               const weight = 1 / (d + 1)
-              ax += (dx / d) * weight * 0.8
-              ay += (dy / d) * weight * 0.8
+              ax += (dx / d) * weight * 0.02  // Was 0.8, now 0.02 (40x weaker!)
+              ay += (dy / d) * weight * 0.02
             }
           }
 
