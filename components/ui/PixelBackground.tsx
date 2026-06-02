@@ -55,8 +55,8 @@ export default function PixelBackground() {
     const CONNECTION_DISTANCE = 130   // Increased for more web connections
 
     // Connector mesh settings
-    const CONNECTOR_SPACING = 100    // Optimal distance between connectors
-    const CONNECTOR_ATTRACT = 0.006  // Slightly stronger than normal attraction
+    const CONNECTOR_SPACING = 120    // Optimal distance between connectors
+    const CONNECTOR_ATTRACT = 0.003  // Weaker attraction to prevent clumping
 
     // Local crowd control system
     const HARD_CAP = 6              // 6+ neighbors = instant explosion
@@ -80,7 +80,7 @@ export default function PixelBackground() {
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 10 >= 6), // 40% are permanent bridge connectors
+        _isConnector: (i % 10 >= 7), // 30% are permanent bridge connectors
         _connectorTarget: null
       })
     }
@@ -367,15 +367,15 @@ export default function PixelBackground() {
             const d = Math.sqrt(dx * dx + dy * dy)
 
             if (d > 0) {
-              if (d > CONNECTOR_SPACING * 1.5) {
+              if (d > CONNECTOR_SPACING * 2) {
                 // Too far - attract to form network
-                const strength = CONNECTOR_ATTRACT * (1 - Math.min(d / 400, 1))
+                const strength = CONNECTOR_ATTRACT * (1 - Math.min(d / 500, 1))
                 ax += (dx / d) * strength
                 ay += (dy / d) * strength
-              } else if (d < CONNECTOR_SPACING * 0.7) {
-                // Too close - repel to maintain spacing
-                ax -= (dx / d) * 0.02
-                ay -= (dy / d) * 0.02
+              } else if (d < CONNECTOR_SPACING * 0.8) {
+                // Too close - strong repel to prevent clumping
+                ax -= (dx / d) * 0.08
+                ay -= (dy / d) * 0.08
               }
               // At optimal spacing - no force, let them coexist
             }
