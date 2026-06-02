@@ -9,7 +9,7 @@ import { WindowProvider, useWindowStore } from '@/components/window-manager/useW
 import Window from '@/components/window-manager/Window'
 import CustomCursor from '@/components/ui/CustomCursor'
 import StatusBar from '@/components/ui/StatusBar'
-import PixelBackground from '@/components/ui/PixelBackground'
+import PixelBlast from '@/components/ui/PixelBlast'
 
 function AppContent() {
   const openWindow = useWindowStore((s) => s.openWindow)
@@ -38,7 +38,7 @@ function AppContent() {
 
           {/* Center Panel - Desktop with Windows - higher z-index, no overflow hidden so windows can extend */}
           <div className="flex-1 relative z-10">
-            <PixelBackground />
+            <PixelBlast />
             <div className="absolute inset-0">
               <Desktop />
               {openWindows.map((window) => (
