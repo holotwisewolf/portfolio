@@ -52,8 +52,8 @@ export default function PixelBackground() {
 
     // Particle configuration
     const particleCount = 150         // More particles for more activity
-    const CLUSTER_RADIUS = 50         // Attraction zone (increased for more connections)
-    const ATTRACT = 0.004            // Stronger attraction to pull particles together
+    const CLUSTER_RADIUS = 55         // Wider attraction zone for more clustering
+    const ATTRACT = 0.006            // Stronger attraction for more cluster formation
     const DAMPING = 0.98             // Smoother, longer-lasting glides
     const MAX_SPEED = 0.8            // Faster speed for more movement
     const CONNECTION_DISTANCE = 130   // Increased for more web connections
@@ -63,10 +63,10 @@ export default function PixelBackground() {
     const CONNECTOR_ATTRACT = 0.003  // Weaker attraction to prevent clumping
 
     // Local crowd control system
-    const HARD_CAP = 6              // 6+ neighbors = instant explosion
+    const HARD_CAP = 7              // 7+ neighbors = instant explosion (was 6)
     const UNSTABLE_MIN = 4          // 4-5 neighbors: unstable, will explode
-    const UNSTABLE_MAX = 5
-    const UNSTABLE_DURATION = 90    // ~1.5 seconds before unstable explodes
+    const UNSTABLE_MAX = 6          // 4-6 neighbors: unstable (was 5)
+    const UNSTABLE_DURATION = 75    // ~1.25 seconds before unstable explodes (was 90)
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
@@ -84,7 +84,7 @@ export default function PixelBackground() {
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 20 >= 17), // 15% are permanent bridge connectors (3 out of 20)
+        _isConnector: (i % 20 >= 18), // 10% are permanent bridge connectors (2 out of 20)
         _connectorTarget: null,
         _breakFreeTimer: 0,
         _shortBreakTimer: 120, // ~2 seconds before 30% break chance
