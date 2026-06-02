@@ -14,8 +14,9 @@ interface Particle {
   _isConnector: boolean
   _connectorTarget: { x: number; y: number } | null
   _breakFreeTimer: number        // When >0, connector breaks free to explore
-  _shortBreakTimer: number       // Short timer for 30% break chance
-  _longBreakTimer: number        // Long timer for 50% break chance
+  _shortBreakTimer: number       // Short timer for 40% break chance
+  _longBreakTimer: number        // Long timer for 60% break chance
+  _localDensity: number         // Nearby connector count for redistribution
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
 }
 
@@ -87,8 +88,9 @@ export default function PixelBackground() {
         _isConnector: (i % 20 >= 18), // 10% are permanent bridge connectors (2 out of 20)
         _connectorTarget: null,
         _breakFreeTimer: 0,
-        _shortBreakTimer: 120, // ~2 seconds before 30% break chance
-        _longBreakTimer: 300,   // ~5 seconds before 50% break chance
+        _shortBreakTimer: 90, // ~1.5 seconds before 40% break chance (was 120)
+        _longBreakTimer: 180,   // ~3 seconds before 60% break chance (was 300)
+        _localDensity: 0,       // Track nearby connector count
         _bounceCount: 0
       })
     }
@@ -348,63 +350,75 @@ export default function PixelBackground() {
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
         if (p._isConnector && p._clusterTimer === 0) {
+          // Calculate local connector density
+          p._localDensity = 0
+          for (let j = 0; j < particleCount; j++) {
+            if (i === j || !particles[j]._isConnector) continue
+            const d = dist(p, particles[j])
+            if (d < 150) p._localDensity++ // Count nearby connectors
+          }
+
           // Decrement timers
           if (p._shortBreakTimer > 0) p._shortBreakTimer--
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
-          // Check for break-free chances
+          // Check for break-free chances (more aggressive)
           if (p._breakFreeTimer === 0) {
-            // Short timer expired: 30% chance to break free
-            if (p._shortBreakTimer <= 0 && Math.random() < 0.3) {
+            // Short timer expired: 40% chance to break free
+            if (p._shortBreakTimer <= 0 && Math.random() < 0.4) {
               p._breakFreeTimer = 90 + Math.random() * 60 // Break free for 1.5-2.5 seconds
-              p._shortBreakTimer = 120 // Reset short timer
-              p._longBreakTimer = 300 // Reset long timer
+              p._shortBreakTimer = 90 // Reset short timer
+              p._longBreakTimer = 180 // Reset long timer
             }
-            // Long timer expired: 50% chance to break free
-            else if (p._longBreakTimer <= 0 && Math.random() < 0.5) {
+            // Long timer expired: 60% chance to break free
+            else if (p._longBreakTimer <= 0 && Math.random() < 0.6) {
               p._breakFreeTimer = 90 + Math.random() * 60
-              p._shortBreakTimer = 120
-              p._longBreakTimer = 300
+              p._shortBreakTimer = 90
+              p._longBreakTimer = 180
             }
+          }
+
+          // Density-based forced redistribution
+          if (p._localDensity >= 4 && p._breakFreeTimer === 0) {
+            // Too many connectors nearby - force break free
+            p._breakFreeTimer = 60 + Math.random() * 30
           }
 
           // Skip mesh forces when breaking free
           if (p._breakFreeTimer > 0) {
-            // Calculate opposite/reflection position from current cluster
-            let targetX = canvas.width / 2
-            let targetY = canvas.height / 2
+            // Find LOWEST density area to target
+            let bestX = canvas.width / 2
+            let bestY = canvas.height / 2
+            let lowestDensity = 999
 
-            // Find center of nearby particles
-            let nearbyCount = 0
-            let centerX = 0, centerY = 0
-            for (let j = 0; j < particleCount; j++) {
-              if (i === j || particles[j]._isConnector) continue
-              const dx = p.x - particles[j].x
-              const dy = p.y - particles[j].y
-              const d = Math.sqrt(dx * dx + dy * dy)
-              if (d < 150) {
-                centerX += particles[j].x
-                centerY += particles[j].y
-                nearbyCount++
+            // Sample grid points across canvas to find emptiest area
+            const gridSize = 100
+            for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
+              for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
+                let density = 0
+                for (let j = 0; j < particleCount; j++) {
+                  if (!particles[j]._isConnector) continue
+                  const dx = gx - particles[j].x
+                  const dy = gy - particles[j].y
+                  const d = Math.sqrt(dx * dx + dy * dy)
+                  if (d < 100) density++
+                }
+                if (density < lowestDensity) {
+                  lowestDensity = density
+                  bestX = gx
+                  bestY = gy
+                }
               }
             }
 
-            if (nearbyCount > 0) {
-              centerX /= nearbyCount
-              centerY /= nearbyCount
-              // Reflect to opposite side of canvas
-              targetX = canvas.width - centerX
-              targetY = canvas.height - centerY
-            }
-
-            // Drift toward reflection point with some randomness
-            const dx = targetX - p.x
-            const dy = targetY - p.y
+            // Drift toward lowest density area
+            const dx = bestX - p.x
+            const dy = bestY - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            p.vx += (dx / d) * 0.15 + (Math.random() - 0.5) * 0.1
-            p.vy += (dy / d) * 0.15 + (Math.random() - 0.5) * 0.1
+            p.vx += (dx / d) * 0.2 + (Math.random() - 0.5) * 0.15
+            p.vy += (dy / d) * 0.2 + (Math.random() - 0.5) * 0.15
             return
           }
           let ax = 0, ay = 0
@@ -425,7 +439,7 @@ export default function PixelBackground() {
             }
           }
 
-          // Part 2: VERY loose mesh with other connectors - no rigid locking
+          // Part 2: VERY loose mesh with other connectors - density-aware
           for (let j = 0; j < particleCount; j++) {
             if (i === j || !particles[j]._isConnector) continue // Only other connectors
             const q = particles[j]
@@ -434,15 +448,18 @@ export default function PixelBackground() {
             const d = Math.sqrt(dx * dx + dy * dy)
 
             if (d > 0) {
+              // Density-based modification: high density = less attraction, more repulsion
+              const densityFactor = Math.min(p._localDensity / 4, 1.5) // 1.0 at 4 nearby, max 1.5
+
               if (d > CONNECTOR_SPACING * 2.5) {
-                // Too far - very gentle attract
-                const strength = CONNECTOR_ATTRACT * 0.5 * (1 - Math.min(d / 600, 1))
+                // Too far - very gentle attract (reduced by density)
+                const strength = CONNECTOR_ATTRACT * 0.5 * (1 - Math.min(d / 600, 1)) / densityFactor
                 ax += (dx / d) * strength
                 ay += (dy / d) * strength
               } else if (d < CONNECTOR_SPACING * 0.6) {
-                // Too close - gentle repel
-                ax -= (dx / d) * 0.04
-                ay -= (dy / d) * 0.04
+                // Too close - repel (strengthened by density)
+                ax -= (dx / d) * 0.04 * densityFactor
+                ay -= (dy / d) * 0.04 * densityFactor
               }
               // At optimal spacing - no force, free to drift
             }
