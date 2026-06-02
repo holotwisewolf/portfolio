@@ -47,7 +47,7 @@ export default function PixelBackground() {
     }
 
     // Particle configuration
-    const particleCount = 120
+    const particleCount = 150         // More particles for more activity
     const CLUSTER_RADIUS = 50         // Attraction zone (increased for more connections)
     const ATTRACT = 0.004            // Stronger attraction to pull particles together
     const DAMPING = 0.98             // Smoother, longer-lasting glides
@@ -80,7 +80,7 @@ export default function PixelBackground() {
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 10 >= 7), // 30% are permanent bridge connectors
+        _isConnector: (i % 20 >= 17), // 15% are permanent bridge connectors (3 out of 20)
         _connectorTarget: null
       })
     }
