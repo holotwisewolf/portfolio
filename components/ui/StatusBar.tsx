@@ -55,7 +55,7 @@ export default function StatusBar() {
   }, [])
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-black text-white text-xs font-mono border-b-2 border-white z-[10001] flex items-center justify-between px-2 py-1">
+    <div className="bg-black text-white text-xs font-mono border-b-2 border-white z-[10001] flex items-center justify-between px-2 py-1">
       <div className="flex items-center gap-4">
         <span className="text-white font-bold">&gt; PORTFOLIO</span>
         <span className="text-gray-500">|</span>

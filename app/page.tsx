@@ -36,7 +36,7 @@ function AppContent() {
             <ProfilePanel />
           </div>
 
-          {/* Center Panel - Desktop with Windows - higher z-index, no overflow hidden so windows can extend */}
+          {/* Center Panel - Desktop with Windows - higher z-index */}
           <div className="flex-1 relative z-10">
             <PixelBackground />
             <div className="absolute inset-0">

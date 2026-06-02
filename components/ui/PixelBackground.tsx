@@ -38,6 +38,12 @@ export default function PixelBackground() {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
+    // Watch for size changes (terminal expand/collapse)
+    const resizeObserver = new ResizeObserver(() => resizeCanvas())
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement)
+    }
+
     // Particle configuration
     const particleCount = 120
     const CLUSTER_RADIUS = 45         // Slightly wider attraction zone
@@ -46,10 +52,12 @@ export default function PixelBackground() {
     const MAX_SPEED = 0.6            // Slow, graceful gathering speed
     const CONNECTION_DISTANCE = 120
 
-    const MEDIUM_CLUSTER_MIN = 5
-    const BIG_CLUSTER_MIN = 10
-    const MEDIUM_CLUSTER_DURATION = 60  // ~1 second of stability before popping
-    const BIG_CLUSTER_DURATION = 30     // Large clusters pop faster
+    const MEDIUM_CLUSTER_MIN = 3
+    const MEDIUM_CLUSTER_MAX = 7
+    const BIG_CLUSTER_MIN = 8
+    const BIG_CLUSTER_MAX = 12
+    const MEDIUM_CLUSTER_DURATION = 45  // ~0.75 seconds
+    const BIG_CLUSTER_DURATION = 60     // ~1 second
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
@@ -158,6 +166,17 @@ export default function PixelBackground() {
           bigClusterTimer = 0
           mediumClusterTimer = 0
 
+          // Calculate blast force based on cluster size
+          const clusterSize = triggeredCluster.length
+          let blastForce: number
+          if (clusterSize <= 5) {
+            blastForce = 2.0 // Small clusters: low power
+          } else if (clusterSize <= 8) {
+            blastForce = 2.8 // Medium clusters: medium power
+          } else {
+            blastForce = 3.5 // Big clusters: high power
+          }
+
           // Calculate the center of mass of the collapsing cluster
           let centerX = 0, centerY = 0
           triggeredCluster.forEach(idx => {
@@ -167,9 +186,51 @@ export default function PixelBackground() {
           centerX /= triggeredCluster.length
           centerY /= triggeredCluster.length
 
-          // Give particles immunity frames to start dispersing
+          // Blast particles AWAY from the cluster center
           triggeredCluster.forEach(idx => {
-            particles[idx]._clusterTimer = COOLDOWN_FRAMES
+            const p = particles[idx]
+            const isSpaceFinder = (idx % 10 >= 8) // 20% are space-finders
+
+            if (isSpaceFinder) {
+              // Space-finder: avoid crowds intelligently (scan entire screen)
+              let avoidX = 0, avoidY = 0, closeCount = 0
+              const PANIC_RADIUS = Math.max(canvas.width, canvas.height) * 2
+
+              for (let j = 0; j < particleCount; j++) {
+                if (idx === j) continue
+                const q = particles[j]
+                const dx = p.x - q.x
+                const dy = p.y - q.y
+                const d = Math.sqrt(dx * dx + dy * dy)
+
+                // Weight by inverse distance - closer particles push harder
+                if (d > 0) {
+                  const weight = 1 / (d + 1)
+                  avoidX += (dx / d) * weight
+                  avoidY += (dy / d) * weight
+                  closeCount++
+                }
+              }
+
+              if (closeCount > 0) {
+                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+                p.vx = (avoidX / avoidDist) * (blastForce * 0.6) + (Math.random() - 0.5) * 0.5
+                p.vy = (avoidY / avoidDist) * (blastForce * 0.6) + (Math.random() - 0.5) * 0.5
+              } else {
+                p.vx = (Math.random() - 0.5) * 1.5
+                p.vy = (Math.random() - 0.5) * 1.5
+              }
+            } else {
+              // Normal radial blast from center
+              const dx = p.x - centerX
+              const dy = p.y - centerY
+              const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+              p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 1.5
+              p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 1.5
+            }
+
+            p._clusterTimer = COOLDOWN_FRAMES
           })
         }
       }
@@ -212,50 +273,6 @@ export default function PixelBackground() {
 
         p._neighbors = neighbors
 
-        // Explosion: 80/20 split - 80% natural blast, 20% space-finders
-        if (p._clusterTimer > 0) {
-          const isSpaceFinder = (i % 10 >= 8) // 20% are space-finders
-
-          if (isSpaceFinder) {
-            // Half the particles: intelligently seek empty space
-            let avoidX = 0
-            let avoidY = 0
-            let closeCount = 0
-            const PANIC_RADIUS = 70
-
-            for (let j = 0; j < particleCount; j++) {
-              if (i === j) continue
-
-              const q = particles[j]
-              const dx = p.x - q.x
-              const dy = p.y - q.y
-              const d = Math.sqrt(dx * dx + dy * dy)
-
-              if (d < PANIC_RADIUS && d > 0) {
-                avoidX += (dx / d) * (1 - d / PANIC_RADIUS)
-                avoidY += (dy / d) * (1 - d / PANIC_RADIUS)
-                closeCount++
-              }
-            }
-
-            if (closeCount > 0) {
-              const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-              const blastForce = 0.8
-
-              ax += (avoidX / avoidDist) * blastForce + (Math.random() - 0.5) * 0.3
-              ay += (avoidY / avoidDist) * blastForce + (Math.random() - 0.5) * 0.3
-            } else {
-              ax += (Math.random() - 0.5) * 0.5
-              ay += (Math.random() - 0.5) * 0.5
-            }
-          } else {
-            // The other 50%: pure random explosion drift
-            const randomBlastForce = 1.2
-            ax += (Math.random() - 0.5) * randomBlastForce
-            ay += (Math.random() - 0.5) * randomBlastForce
-          }
-        }
-
         // Apply forces
         p.vx = (p.vx + ax) * DAMPING
         p.vy = (p.vy + ay) * DAMPING
@@ -279,10 +296,10 @@ export default function PixelBackground() {
         p.y += p.vy
 
         // Boundary bounces with energy loss
-        if (p.x < 6) { p.x = 6; p.vx *= -0.4 }
-        if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.4 }
-        if (p.y < 6) { p.y = 6; p.vy *= -0.4 }
-        if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.4 }
+        if (p.x < 6) { p.x = 6; p.vx *= -0.8 }
+        if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.8 }
+        if (p.y < 6) { p.y = 6; p.vy *= -0.8 }
+        if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.8 }
       }
 
       // Clean global explosion state when all particles' immunities expire
@@ -338,6 +355,7 @@ export default function PixelBackground() {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
+      resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
   }, [mounted])
