@@ -52,17 +52,18 @@ export default function PixelBackground() {
     const MAX_SPEED = 0.6            // Slow, graceful gathering speed
     const CONNECTION_DISTANCE = 120
 
-    const MEDIUM_CLUSTER_MIN = 3
-    const MEDIUM_CLUSTER_MAX = 7
-    const BIG_CLUSTER_MIN = 8
-    const BIG_CLUSTER_MAX = 12
-    const MEDIUM_CLUSTER_DURATION = 45  // ~0.75 seconds
-    const BIG_CLUSTER_DURATION = 60     // ~1 second
+    // Three-tier cluster system for natural equilibrium
+    const PEACEFUL_MAX = 3         // 1-3 particles: peaceful equilibrium
+    const UNSTABLE_MIN = 4          // 4-5 particles: unstable, will explode
+    const UNSTABLE_MAX = 5
+    const DRAMA_MIN = 6             // 6-8 particles: drama, harder explosion
+    const DRAMA_MAX = 8
+    const UNSTABLE_DURATION = 45    // ~0.75 seconds before unstable explodes
+    const DRAMA_DURATION = 60       // ~1 second before drama explodes
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
     const COOLDOWN_FRAMES = 80  // ~1.3 seconds of immunity
-    const PANIC_RADIUS = 70      // Only look at nearby crowds for avoidance
 
     // Initialize particles
     const particles: Particle[] = []
@@ -87,8 +88,8 @@ export default function PixelBackground() {
 
     // Track cluster state for explosions
     let explodingCluster: Set<number> = new Set()
-    let mediumClusterTimer = 0
-    let bigClusterTimer = 0
+    let unstableTimer = 0
+    let dramaTimer = 0
 
     const update = () => {
       // Count neighbors for each particle
@@ -140,41 +141,41 @@ export default function PixelBackground() {
 
       // Handle cluster timers (only if an explosion isn't currently happening)
       if (explodingCluster.size === 0) {
-        if (maxClusterSize >= BIG_CLUSTER_MIN) {
-          bigClusterTimer++
-          mediumClusterTimer = 0
-        } else if (maxClusterSize >= MEDIUM_CLUSTER_MIN) {
-          mediumClusterTimer++
-          bigClusterTimer = 0
+        if (maxClusterSize >= DRAMA_MIN) {
+          dramaTimer++
+          unstableTimer = 0
+        } else if (maxClusterSize >= UNSTABLE_MIN) {
+          unstableTimer++
+          dramaTimer = 0
         } else {
-          bigClusterTimer = 0
-          mediumClusterTimer = 0
+          dramaTimer = 0
+          unstableTimer = 0
         }
       }
 
-      // Trigger Exploded States
+      // Trigger explosions for unstable and drama clusters
       if (explodingCluster.size === 0) {
         let triggeredCluster: number[] = []
-        if (bigClusterTimer > BIG_CLUSTER_DURATION && maxClusterSize >= BIG_CLUSTER_MIN) {
+        if (dramaTimer > DRAMA_DURATION && maxClusterSize >= DRAMA_MIN) {
           triggeredCluster = largestCluster
-        } else if (mediumClusterTimer > MEDIUM_CLUSTER_DURATION && maxClusterSize >= MEDIUM_CLUSTER_MIN) {
+        } else if (unstableTimer > UNSTABLE_DURATION && maxClusterSize >= UNSTABLE_MIN) {
           triggeredCluster = largestCluster
         }
 
         if (triggeredCluster.length > 0) {
           explodingCluster = new Set(triggeredCluster)
-          bigClusterTimer = 0
-          mediumClusterTimer = 0
+          dramaTimer = 0
+          unstableTimer = 0
 
-          // Calculate blast force based on cluster size
+          // Calculate blast force based on cluster size tier
           const clusterSize = triggeredCluster.length
           let blastForce: number
-          if (clusterSize <= 5) {
-            blastForce = 2.0 // Small clusters: low power
-          } else if (clusterSize <= 8) {
-            blastForce = 2.8 // Medium clusters: medium power
+          if (clusterSize <= UNSTABLE_MAX) {
+            blastForce = 2.0 // Unstable (4-5): gentle correction
+          } else if (clusterSize <= DRAMA_MAX) {
+            blastForce = 2.8 // Drama (6-8): medium power
           } else {
-            blastForce = 3.5 // Big clusters: high power
+            blastForce = 3.5 // Larger: high power (rare)
           }
 
           // Calculate the center of mass of the collapsing cluster
@@ -186,50 +187,15 @@ export default function PixelBackground() {
           centerX /= triggeredCluster.length
           centerY /= triggeredCluster.length
 
-          // Blast particles AWAY from the cluster center
+          // Blast particles away from cluster center (radial explosion)
           triggeredCluster.forEach(idx => {
             const p = particles[idx]
-            const isSpaceFinder = (idx % 10 >= 8) // 20% are space-finders
+            const dx = p.x - centerX
+            const dy = p.y - centerY
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            if (isSpaceFinder) {
-              // Space-finder: avoid crowds intelligently (scan entire screen)
-              let avoidX = 0, avoidY = 0, closeCount = 0
-              const PANIC_RADIUS = Math.max(canvas.width, canvas.height) * 2
-
-              for (let j = 0; j < particleCount; j++) {
-                if (idx === j) continue
-                const q = particles[j]
-                const dx = p.x - q.x
-                const dy = p.y - q.y
-                const d = Math.sqrt(dx * dx + dy * dy)
-
-                // Weight by inverse distance - closer particles push harder
-                if (d > 0) {
-                  const weight = 1 / (d + 1)
-                  avoidX += (dx / d) * weight
-                  avoidY += (dy / d) * weight
-                  closeCount++
-                }
-              }
-
-              if (closeCount > 0) {
-                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                p.vx = (avoidX / avoidDist) * (blastForce * 0.6) + (Math.random() - 0.5) * 0.5
-                p.vy = (avoidY / avoidDist) * (blastForce * 0.6) + (Math.random() - 0.5) * 0.5
-              } else {
-                p.vx = (Math.random() - 0.5) * 1.5
-                p.vy = (Math.random() - 0.5) * 1.5
-              }
-            } else {
-              // Normal radial blast from center
-              const dx = p.x - centerX
-              const dy = p.y - centerY
-              const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-              p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 1.5
-              p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 1.5
-            }
-
+            p.vx = (dx / d) * blastForce + (Math.random() - 0.5) * 1.5
+            p.vy = (dy / d) * blastForce + (Math.random() - 0.5) * 1.5
             p._clusterTimer = COOLDOWN_FRAMES
           })
         }
