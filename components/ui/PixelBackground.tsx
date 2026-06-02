@@ -80,7 +80,7 @@ export default function PixelBackground() {
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 10 >= 8), // 20% are permanent bridge connectors
+        _isConnector: (i % 10 >= 6), // 40% are permanent bridge connectors
         _connectorTarget: null
       })
     }
@@ -162,11 +162,11 @@ export default function PixelBackground() {
 
               if (closeCount > 0) {
                 const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                p2.vx = (avoidX / avoidDist) * 0.9 + (Math.random() - 0.5) * 0.3
-                p2.vy = (avoidY / avoidDist) * 0.9 + (Math.random() - 0.5) * 0.3
+                p2.vx = (avoidX / avoidDist) * 2.5 + (Math.random() - 0.5) * 0.5
+                p2.vy = (avoidY / avoidDist) * 2.5 + (Math.random() - 0.5) * 0.5
               } else {
-                p2.vx = (Math.random() - 0.5) * 0.5
-                p2.vy = (Math.random() - 0.5) * 0.5
+                p2.vx = (Math.random() - 0.5) * 1.5
+                p2.vy = (Math.random() - 0.5) * 1.5
               }
             } else {
               // Normal radial blast
@@ -174,8 +174,8 @@ export default function PixelBackground() {
               const dy = p2.y - centerY
               const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-              p2.vx = (dx / d) * 1.0 + (Math.random() - 0.5) * 0.4
-              p2.vy = (dy / d) * 1.0 + (Math.random() - 0.5) * 0.4
+              p2.vx = (dx / d) * 2.2 + (Math.random() - 0.5) * 0.6
+              p2.vy = (dy / d) * 2.2 + (Math.random() - 0.5) * 0.6
             }
 
             p2._clusterTimer = COOLDOWN_FRAMES
@@ -238,11 +238,11 @@ export default function PixelBackground() {
 
               if (closeCount > 0) {
                 const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                p.vx = (avoidX / avoidDist) * 0.5 + (Math.random() - 0.5) * 0.2
-                p.vy = (avoidY / avoidDist) * 0.5 + (Math.random() - 0.5) * 0.2
+                p.vx = (avoidX / avoidDist) * 1.8 + (Math.random() - 0.5) * 0.4
+                p.vy = (avoidY / avoidDist) * 1.8 + (Math.random() - 0.5) * 0.4
               } else {
-                p.vx = (Math.random() - 0.5) * 0.3
-                p.vy = (Math.random() - 0.5) * 0.3
+                p.vx = (Math.random() - 0.5) * 0.8
+                p.vy = (Math.random() - 0.5) * 0.8
               }
             } else {
               // Normal radial blast
@@ -250,8 +250,8 @@ export default function PixelBackground() {
               const dy = p.y - centerY
               const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-              p.vx = (dx / d) * 0.6 + (Math.random() - 0.5) * 0.2
-              p.vy = (dy / d) * 0.6 + (Math.random() - 0.5) * 0.2
+              p.vx = (dx / d) * 1.5 + (Math.random() - 0.5) * 0.4
+              p.vy = (dy / d) * 1.5 + (Math.random() - 0.5) * 0.4
             }
 
             p._clusterTimer = COOLDOWN_FRAMES
