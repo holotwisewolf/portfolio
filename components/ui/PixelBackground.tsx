@@ -19,6 +19,7 @@ interface Particle {
   _localDensity: number         // Nearby connector count for redistribution
   _gracePeriodTimer: number     // Grace period for hard cap (10% chance, ~3 sec)
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
+  _connectorBrightness: number  // 0.15 (common) or 0.4 (rare) - fixed glow unaffected by density
 }
 
 export default function PixelBackground() {
@@ -88,6 +89,14 @@ export default function PixelBackground() {
     // Initialize particles
     const particles: Particle[] = []
     for (let i = 0; i < particleCount; i++) {
+      // Random connector brightness: 0.2 (25%), 0.25 (25%), 0.3 (30%), 0.5 (20%)
+      const brightnessRoll = Math.random()
+      let connectorBrightness: number
+      if (brightnessRoll < 0.25) connectorBrightness = 0.2
+      else if (brightnessRoll < 0.5) connectorBrightness = 0.25
+      else if (brightnessRoll < 0.8) connectorBrightness = 0.3
+      else connectorBrightness = 0.5
+
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -104,7 +113,8 @@ export default function PixelBackground() {
         _longBreakTimer: 180,   // ~3 seconds before 60% break chance (was 300)
         _localDensity: 0,       // Track nearby connector count
         _gracePeriodTimer: 0,   // Grace period for hard cap explosions
-        _bounceCount: 0
+        _bounceCount: 0,
+        _connectorBrightness: connectorBrightness
       })
     }
 
@@ -678,9 +688,9 @@ export default function PixelBackground() {
         let alpha = p.base + density * 0.5
         const size = p.size + (density > 0.5 ? 1 : 0)
 
-        // Connector particles are brighter
+        // Connector particles get extra brightness bonus (influenced by density like regular particles)
         if (p._isConnector) {
-          alpha = Math.min(alpha + 0.3, 0.95)
+          alpha = Math.min(alpha + p._connectorBrightness, 0.95)
         }
 
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
