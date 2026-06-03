@@ -70,9 +70,20 @@ export default function PixelBackground() {
     const UNSTABLE_MAX = 6          // 4-6 neighbors: unstable (was 5)
     const UNSTABLE_DURATION = 75    // ~1.25 seconds before unstable explodes (was 90)
 
+    // Grace period settings (randomized cycles)
+    const GRACE_MIN_DURATION = 300   // 5 seconds minimum
+    const GRACE_MAX_DURATION = 600   // 10 seconds maximum
+    const NORMAL_MIN_DURATION = 900  // 15 seconds minimum
+    const NORMAL_MAX_DURATION = 1800 // 30 seconds maximum
+
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
     const COOLDOWN_FRAMES = 80  // ~1.3 seconds immunity (shorter for more connections)
+
+    // Grace period cycle state
+    let inGracePeriod = false
+    let cycleTimer = 0
+    let currentPhaseDuration = NORMAL_MIN_DURATION + Math.random() * (NORMAL_MAX_DURATION - NORMAL_MIN_DURATION)
 
     // Initialize particles
     const particles: Particle[] = []
@@ -127,6 +138,21 @@ export default function PixelBackground() {
     }
 
     const update = () => {
+      // Handle grace period cycle
+      cycleTimer++
+      if (cycleTimer >= currentPhaseDuration) {
+        cycleTimer = 0
+        inGracePeriod = !inGracePeriod
+
+        if (inGracePeriod) {
+          // Starting grace period - random duration 5-10 seconds
+          currentPhaseDuration = GRACE_MIN_DURATION + Math.random() * (GRACE_MAX_DURATION - GRACE_MIN_DURATION)
+        } else {
+          // Starting normal period - random duration 15-30 seconds
+          currentPhaseDuration = NORMAL_MIN_DURATION + Math.random() * (NORMAL_MAX_DURATION - NORMAL_MIN_DURATION)
+        }
+      }
+
       // Count neighbors for each particle (local crowd detection)
       const neighborCounts: number[] = new Array(particleCount).fill(0)
       for (let i = 0; i < particleCount; i++) {
@@ -158,7 +184,8 @@ export default function PixelBackground() {
       }
 
       // Instant hard cap explosion (with 10% grace period chance)
-      if (hardCapParticles.length > 0) {
+      // SKIP during global grace period
+      if (hardCapParticles.length > 0 && !inGracePeriod) {
         hardCapParticles.forEach(idx => {
           const p = particles[idx]
           // Find nearby particles to explode together
@@ -227,6 +254,7 @@ export default function PixelBackground() {
             p2._clusterTimer = COOLDOWN_FRAMES
           })
         })
+        }
       }
 
       // Find unstable clusters (4-6 neighbors) using BFS for individual timers
@@ -291,7 +319,9 @@ export default function PixelBackground() {
       }
 
       // Trigger explosions for clusters whose timers expired
-      clustersToExplode.forEach(cluster => {
+      // SKIP during global grace period (timers still progress)
+      if (!inGracePeriod) {
+        clustersToExplode.forEach(cluster => {
         // Calculate center of this cluster
         let centerX = 0, centerY = 0
         cluster.forEach(i => {
