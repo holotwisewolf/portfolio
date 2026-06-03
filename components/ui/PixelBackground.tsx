@@ -71,20 +71,19 @@ export default function PixelBackground() {
     const UNSTABLE_MAX = 6          // 4-6 neighbors: unstable (was 5)
     const UNSTABLE_DURATION = 75    // ~1.25 seconds before unstable explodes (was 90)
 
-    // Grace period settings (randomized cycles)
-    const GRACE_MIN_DURATION = 300   // 5 seconds minimum
-    const GRACE_MAX_DURATION = 600   // 10 seconds maximum
-    const NORMAL_MIN_DURATION = 900  // 15 seconds minimum
-    const NORMAL_MAX_DURATION = 1800 // 30 seconds maximum
+    // Grace period settings (probabilistic, not cycles)
+    const GRACE_MIN_DURATION = 120   // 2 seconds minimum
+    const GRACE_MAX_DURATION = 720   // 12 seconds maximum
 
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
     const COOLDOWN_FRAMES = 80  // ~1.3 seconds immunity (shorter for more connections)
 
-    // Grace period cycle state
+    // Grace period state (probabilistic)
     let inGracePeriod = false
-    let cycleTimer = 0
-    let currentPhaseDuration = NORMAL_MIN_DURATION + Math.random() * (NORMAL_MAX_DURATION - NORMAL_MIN_DURATION)
+    let graceFrameCounter = 0
+    let graceDuration = 0
+    let recentExplosions = 0  // Track chaos level
 
     // Initialize particles
     const particles: Particle[] = []
@@ -148,19 +147,39 @@ export default function PixelBackground() {
     }
 
     const update = () => {
-      // Handle grace period cycle
-      cycleTimer++
-      if (cycleTimer >= currentPhaseDuration) {
-        cycleTimer = 0
-        inGracePeriod = !inGracePeriod
-
-        if (inGracePeriod) {
-          // Starting grace period - random duration 5-10 seconds
-          currentPhaseDuration = GRACE_MIN_DURATION + Math.random() * (GRACE_MAX_DURATION - GRACE_MIN_DURATION)
-        } else {
-          // Starting normal period - random duration 15-30 seconds
-          currentPhaseDuration = NORMAL_MIN_DURATION + Math.random() * (NORMAL_MAX_DURATION - NORMAL_MIN_DURATION)
+      // Probabilistic grace period (not scheduled cycles)
+      if (inGracePeriod) {
+        graceFrameCounter++
+        if (graceFrameCounter >= graceDuration) {
+          inGracePeriod = false
+          graceFrameCounter = 0
         }
+      } else {
+        // Track chaos - increment when explosions happen
+        // (This gets updated after explosion logic below)
+
+        // Chance to enter grace - higher during chaos, but never guaranteed
+        let enterChance = 0.0008  // Base 0.08% per frame (~1.2 seconds average wait if no chaos)
+
+        // Chaos bonus (but even high chaos doesn't guarantee grace)
+        if (recentExplosions >= 3) enterChance += 0.0015   // +0.15%
+        if (recentExplosions >= 6) enterChance += 0.002    // +0.2%
+        if (recentExplosions >= 10) enterChance += 0.002   // +0.2% more
+
+        // Max ~0.63% per frame during extreme chaos = ~2.6 seconds average wait
+        // But it's still probabilistic - could go 60+ seconds without grace
+
+        // 35% chance to SKIP this check entirely (adds more unpredictability)
+        if (Math.random() > 0.35 && Math.random() < enterChance) {
+          inGracePeriod = true
+          graceFrameCounter = 0
+          // Random duration: 2-12 seconds (wide variance)
+          graceDuration = GRACE_MIN_DURATION + Math.random() * (GRACE_MAX_DURATION - GRACE_MIN_DURATION)
+          recentExplosions = 0  // Reset chaos counter
+        }
+
+        // Decay recentExplosions slowly (so grace doesn't trigger on old chaos)
+        recentExplosions *= 0.98
       }
 
       // Count neighbors for each particle (local crowd detection)
@@ -196,6 +215,8 @@ export default function PixelBackground() {
       // Instant hard cap explosion (with 10% grace period chance)
       // SKIP during global grace period
       if (hardCapParticles.length > 0 && !inGracePeriod) {
+        recentExplosions += hardCapParticles.length  // Track chaos
+        hardCapParticles.forEach(idx => {
         hardCapParticles.forEach(idx => {
           const p = particles[idx]
           // Find nearby particles to explode together
@@ -329,7 +350,8 @@ export default function PixelBackground() {
 
       // Trigger explosions for clusters whose timers expired
       // SKIP during global grace period (timers still progress)
-      if (!inGracePeriod) {
+      if (!inGracePeriod && clustersToExplode.length > 0) {
+        recentExplosions += clustersToExplode.length * 2  // Track chaos (cluster explosions = more chaos)
         clustersToExplode.forEach(cluster => {
           // Calculate center of this cluster
           let centerX = 0, centerY = 0
