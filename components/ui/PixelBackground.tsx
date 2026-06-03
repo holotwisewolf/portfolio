@@ -118,8 +118,13 @@ export default function PixelBackground() {
       }
     }
 
-    // Track unstable clusters for timer-based explosions
-    let unstableTimer = 0
+    // Track unstable clusters for timer-based explosions (per-cluster)
+    const clusterTimers: Map<string, number> = new Map() // clusterId -> timer value
+
+    // Generate cluster ID from sorted particle indices
+    const getClusterId = (indices: number[]): string => {
+      return indices.sort((a, b) => a - b).join('-')
+    }
 
     const update = () => {
       // Count neighbors for each particle (local crowd detection)
@@ -224,85 +229,127 @@ export default function PixelBackground() {
         })
       }
 
-      // Track unstable clusters (4-5 neighbors) for timer-based explosion
-      const maxNeighbors = Math.max(...neighborCounts)
-      if (maxNeighbors >= UNSTABLE_MIN && maxNeighbors < HARD_CAP) {
-        unstableTimer++
-      } else {
-        unstableTimer = 0
-      }
+      // Find unstable clusters (4-6 neighbors) using BFS for individual timers
+      const visited = new Set<number>()
+      const unstableClusters: number[][] = []
 
-      // Trigger unstable explosion after timer
-      if (unstableTimer > UNSTABLE_DURATION) {
-        // Find all particles in unstable range
-        const unstableParticles: number[] = []
-        for (let i = 0; i < particleCount; i++) {
-          if (neighborCounts[i] >= UNSTABLE_MIN && neighborCounts[i] < HARD_CAP && particles[i]._clusterTimer === 0) {
-            unstableParticles.push(i)
+      for (let i = 0; i < particleCount; i++) {
+        if (visited.has(i)) continue
+        if (neighborCounts[i] < UNSTABLE_MIN || neighborCounts[i] >= HARD_CAP) continue
+        if (particles[i]._clusterTimer > 0) continue
+
+        // BFS to find this cluster
+        const cluster: number[] = []
+        const queue = [i]
+        visited.add(i)
+
+        while (queue.length > 0) {
+          const current = queue.shift()!
+          cluster.push(current)
+
+          for (let j = 0; j < particleCount; j++) {
+            if (visited.has(j)) continue
+            if (particles[j]._clusterTimer > 0) continue
+            if (neighborCounts[j] < UNSTABLE_MIN || neighborCounts[j] >= HARD_CAP) continue
+
+            // Check if connected
+            if (dist(particles[current], particles[j]) < CLUSTER_RADIUS) {
+              visited.add(j)
+              queue.push(j)
+            }
           }
         }
 
-        if (unstableParticles.length > 0) {
-          // Calculate center of unstable group
-          let centerX = 0, centerY = 0
-          unstableParticles.forEach(i => {
-            centerX += particles[i].x
-            centerY += particles[i].y
-          })
-          centerX /= unstableParticles.length
-          centerY /= unstableParticles.length
+        if (cluster.length > 0) {
+          unstableClusters.push(cluster)
+        }
+      }
 
-          // Get random blast force for this explosion
-          const blastForce = getRandomBlastForce()
+      // Update timers for each unstable cluster individually
+      const clustersToExplode: number[][] = []
 
-          // Gentle blast with space-finding
-          unstableParticles.forEach(i => {
-            const p = particles[i]
-            const isSpaceFinder = (i % 10 >= 7) // 30% space-finders
+      unstableClusters.forEach(cluster => {
+        const clusterId = getClusterId(cluster)
+        const currentTimer = clusterTimers.get(clusterId) || 0
 
-            if (isSpaceFinder) {
-              // Space-finder: drift toward empty space
-              let avoidX = 0, avoidY = 0, closeCount = 0
-              const scanRadius = 200
+        // Increment timer for this cluster
+        clusterTimers.set(clusterId, currentTimer + 1)
 
-              for (let j = 0; j < particleCount; j++) {
-                if (i === j) continue
-                const q = particles[j]
-                const dx = p.x - q.x
-                const dy = p.y - q.y
-                const d = Math.sqrt(dx * dx + dy * dy)
+        // Check if this cluster should explode
+        if (currentTimer + 1 > UNSTABLE_DURATION) {
+          clustersToExplode.push(cluster)
+          clusterTimers.delete(clusterId) // Remove timer, will restart if cluster reforms
+        }
+      })
 
-                if (d < scanRadius && d > 0) {
-                  const weight = (scanRadius - d) / scanRadius
-                  avoidX += (dx / d) * weight
-                  avoidY += (dy / d) * weight
-                  closeCount++
-                }
+      // Clean up timers for clusters that no longer exist
+      const activeClusterIds = new Set(unstableClusters.map(c => getClusterId(c)))
+      for (const [id] of clusterTimers) {
+        if (!activeClusterIds.has(id)) {
+          clusterTimers.delete(id)
+        }
+      }
+
+      // Trigger explosions for clusters whose timers expired
+      clustersToExplode.forEach(cluster => {
+        // Calculate center of this cluster
+        let centerX = 0, centerY = 0
+        cluster.forEach(i => {
+          centerX += particles[i].x
+          centerY += particles[i].y
+        })
+        centerX /= cluster.length
+        centerY /= cluster.length
+
+        // Get random blast force for this explosion
+        const blastForce = getRandomBlastForce()
+
+        // Gentle blast with space-finding
+        cluster.forEach(i => {
+          const p = particles[i]
+          const isSpaceFinder = (i % 10 >= 7) // 30% space-finders
+
+          if (isSpaceFinder) {
+            // Space-finder: drift toward empty space
+            let avoidX = 0, avoidY = 0, closeCount = 0
+            const scanRadius = 200
+
+            for (let j = 0; j < particleCount; j++) {
+              if (i === j) continue
+              const q = particles[j]
+              const dx = p.x - q.x
+              const dy = p.y - q.y
+              const d = Math.sqrt(dx * dx + dy * dy)
+
+              if (d < scanRadius && d > 0) {
+                const weight = (scanRadius - d) / scanRadius
+                avoidX += (dx / d) * weight
+                avoidY += (dy / d) * weight
+                closeCount++
               }
-
-              if (closeCount > 0) {
-                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-                p.vx = (avoidX / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
-                p.vy = (avoidY / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
-              } else {
-                p.vx = (Math.random() - 0.5) * 0.8
-                p.vy = (Math.random() - 0.5) * 0.8
-              }
-            } else {
-              // Normal radial blast
-              const dx = p.x - centerX
-              const dy = p.y - centerY
-              const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-              p.vx = (dx / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
-              p.vy = (dy / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
             }
 
-            p._clusterTimer = COOLDOWN_FRAMES
-          })
-        }
-        unstableTimer = 0
-      }
+            if (closeCount > 0) {
+              const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+              p.vx = (avoidX / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
+              p.vy = (avoidY / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
+            } else {
+              p.vx = (Math.random() - 0.5) * 0.8
+              p.vy = (Math.random() - 0.5) * 0.8
+            }
+          } else {
+            // Normal radial blast
+            const dx = p.x - centerX
+            const dy = p.y - centerY
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+            p.vx = (dx / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
+            p.vy = (dy / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
+          }
+
+          p._clusterTimer = COOLDOWN_FRAMES
+        })
+      })
 
       // Physics and Movement Application
       for (let i = 0; i < particleCount; i++) {
@@ -376,12 +423,12 @@ export default function PixelBackground() {
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
-          // Check for break-free chances (more aggressive + density-based)
+          // Check for break-free chances
           if (p._breakFreeTimer === 0) {
             // Higher break chance for high-density connectors
-            const densityBonus = Math.min(p._localDensity * 0.1, 0.3) // +0% to +30% based on density
-            const breakChanceShort = 0.4 + densityBonus // 40-70% for short timer
-            const breakChanceLong = 0.6 + densityBonus // 60-90% for long timer
+            const densityBonus = Math.min(p._localDensity * 0.1, 0.25) // +0% to +25% based on density
+            const breakChanceShort = 0.25 + densityBonus // 25-50% for short timer
+            const breakChanceLong = 0.5 + densityBonus // 50-75% for long timer
 
             // Short timer expired: dynamic chance to break free
             if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort) {
@@ -404,12 +451,12 @@ export default function PixelBackground() {
           if (p._breakFreeTimer === 0) {
             if (p._localDensity >= 6) {
               // Center connector - very high chance to break free
-              if (Math.random() < 0.7) { // 70% chance per frame check
+              if (Math.random() < 0.5) { // 50% chance per frame check (was 70%)
                 p._breakFreeTimer = 180 + Math.random() * 60 // 3-4 seconds
               }
             } else if (p._localDensity >= 4) {
               // High density - force break free
-              if (Math.random() < 0.3) { // 30% chance
+              if (Math.random() < 0.2) { // 20% chance (was 30%)
                 p._breakFreeTimer = 120 + Math.random() * 40 // 2-2.7 seconds
               }
             }
