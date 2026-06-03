@@ -254,7 +254,6 @@ export default function PixelBackground() {
             p2._clusterTimer = COOLDOWN_FRAMES
           })
         })
-        }
       }
 
       // Find unstable clusters (4-6 neighbors) using BFS for individual timers
@@ -322,76 +321,81 @@ export default function PixelBackground() {
       // SKIP during global grace period (timers still progress)
       if (!inGracePeriod) {
         clustersToExplode.forEach(cluster => {
-        // Calculate center of this cluster
-        let centerX = 0, centerY = 0
-        cluster.forEach(i => {
-          centerX += particles[i].x
-          centerY += particles[i].y
-        })
-        centerX /= cluster.length
-        centerY /= cluster.length
+          // Calculate center of this cluster
+          let centerX = 0, centerY = 0
+          cluster.forEach(i => {
+            centerX += particles[i].x
+            centerY += particles[i].y
+          })
+          centerX /= cluster.length
+          centerY /= cluster.length
 
-        // Get random blast force for this explosion
-        const blastForce = getRandomBlastForce()
+          // Get random blast force for this explosion
+          const blastForce = getRandomBlastForce()
 
-        // Gentle blast with space-finding
-        cluster.forEach(i => {
-          const p = particles[i]
-          const isSpaceFinder = (i % 10 >= 7) // 30% space-finders
+          // Gentle blast with space-finding
+          cluster.forEach(i => {
+            const p = particles[i]
+            const isSpaceFinder = (i % 10 >= 7) // 30% space-finders
 
-          if (isSpaceFinder) {
-            // Space-finder: drift toward empty space
-            let avoidX = 0, avoidY = 0, closeCount = 0
-            const scanRadius = 200
+            if (isSpaceFinder) {
+              // Space-finder: drift toward empty space
+              let avoidX = 0, avoidY = 0, closeCount = 0
+              const scanRadius = 200
 
-            for (let j = 0; j < particleCount; j++) {
-              if (i === j) continue
-              const q = particles[j]
-              const dx = p.x - q.x
-              const dy = p.y - q.y
-              const d = Math.sqrt(dx * dx + dy * dy)
+              for (let j = 0; j < particleCount; j++) {
+                if (i === j) continue
+                const q = particles[j]
+                const dx = p.x - q.x
+                const dy = p.y - q.y
+                const d = Math.sqrt(dx * dx + dy * dy)
 
-              if (d < scanRadius && d > 0) {
-                const weight = (scanRadius - d) / scanRadius
-                avoidX += (dx / d) * weight
-                avoidY += (dy / d) * weight
-                closeCount++
+                if (d < scanRadius && d > 0) {
+                  const weight = (scanRadius - d) / scanRadius
+                  avoidX += (dx / d) * weight
+                  avoidY += (dy / d) * weight
+                  closeCount++
+                }
               }
-            }
 
-            if (closeCount > 0) {
-              const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
-              p.vx = (avoidX / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
-              p.vy = (avoidY / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
+              if (closeCount > 0) {
+                const avoidDist = Math.sqrt(avoidX * avoidX + avoidY * avoidY) || 1
+                p.vx = (avoidX / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
+                p.vy = (avoidY / avoidDist) * (blastForce.spaceFinder * 0.7) + (Math.random() - 0.5) * 0.4
+              } else {
+                p.vx = (Math.random() - 0.5) * 0.8
+                p.vy = (Math.random() - 0.5) * 0.8
+              }
             } else {
-              p.vx = (Math.random() - 0.5) * 0.8
-              p.vy = (Math.random() - 0.5) * 0.8
+              // Normal radial blast
+              const dx = p.x - centerX
+              const dy = p.y - centerY
+              const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+              p.vx = (dx / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
+              p.vy = (dy / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
             }
-          } else {
-            // Normal radial blast
-            const dx = p.x - centerX
-            const dy = p.y - centerY
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            p.vx = (dx / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
-            p.vy = (dy / d) * (blastForce.radial * 0.7) + (Math.random() - 0.5) * 0.4
-          }
-
-          p._clusterTimer = COOLDOWN_FRAMES
+            p._clusterTimer = COOLDOWN_FRAMES
+          })
         })
-      })
+      }
 
       // Physics and Movement Application
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i]
-        let ax = 0, ay = 0, neighbors = 0
+        let ax = 0, ay = 0
 
         // Decrement the immunity cooldown timer
         if (p._clusterTimer > 0) p._clusterTimer--
 
+        // Use neighbor count from earlier pass (for glow rendering)
+        p._neighbors = neighborCounts[i]
+
         // Only apply gravity if this specific particle is NOT immune/dispersing
         // Connectors have their own mesh network physics, skip normal attraction
-        if (p._clusterTimer === 0 && !p._isConnector) {
+        // SKIP ALL forces during grace period (time slow)
+        if (p._clusterTimer === 0 && !p._isConnector && !inGracePeriod) {
           for (let j = 0; j < particleCount; j++) {
             if (i === j) continue
 
@@ -407,7 +411,6 @@ export default function PixelBackground() {
               const strength = ATTRACT * (1 - d / CLUSTER_RADIUS)
               ax += (dx / d) * strength
               ay += (dy / d) * strength
-              neighbors++
             }
 
             // Balanced close-range repulsion
@@ -417,8 +420,6 @@ export default function PixelBackground() {
             }
           }
         }
-
-        p._neighbors = neighbors
 
         // Apply forces
         p.vx = (p.vx + ax) * DAMPING
@@ -432,14 +433,21 @@ export default function PixelBackground() {
           p.vy = (p.vy / speed) * currentMax
         }
 
-        // Gentle ambient wander (only for resting particles)
-        if (p._clusterTimer === 0) {
+        // Gentle ambient wander (only for resting particles, skip during grace period)
+        if (p._clusterTimer === 0 && !inGracePeriod) {
           p.vx += (Math.random() - 0.5) * 0.03
           p.vy += (Math.random() - 0.5) * 0.03
         }
 
+        // Tiny ambient drift during grace period so they don't fully freeze
+        if (inGracePeriod && p._clusterTimer === 0) {
+          p.vx += (Math.random() - 0.5) * 0.005  // Much smaller than normal
+          p.vy += (Math.random() - 0.5) * 0.005
+        }
+
         // Bridge connector behavior: form dynamic mesh network in empty spaces
-        if (p._isConnector && p._clusterTimer === 0) {
+        // SKIP during grace period (time slow)
+        if (p._isConnector && p._clusterTimer === 0 && !inGracePeriod) {
           // Calculate local connector density
           p._localDensity = 0
           for (let j = 0; j < particleCount; j++) {
@@ -585,8 +593,14 @@ export default function PixelBackground() {
         }
 
         // Position updates
-        p.x += p.vx
-        p.y += p.vy
+        // TIME SLOW: Apply to position during grace period, not velocity
+        if (inGracePeriod) {
+          p.x += p.vx * 0.6  // 60% speed movement
+          p.y += p.vy * 0.6
+        } else {
+          p.x += p.vx
+          p.y += p.vy
+        }
 
         // Boundary bounces with energy loss and corner escape
         let bounced = false
