@@ -446,8 +446,8 @@ export default function PixelBackground() {
         }
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
-        // SKIP during grace period (time slow)
-        if (p._isConnector && p._clusterTimer === 0 && !inGracePeriod) {
+        // ACTIVE during grace period - proactive space finding
+        if (p._isConnector && p._clusterTimer === 0) {
           // Calculate local connector density
           p._localDensity = 0
           for (let j = 0; j < particleCount; j++) {
@@ -456,46 +456,57 @@ export default function PixelBackground() {
             if (d < 150) p._localDensity++ // Count nearby connectors
           }
 
+          // Calculate fitness score: lower density = higher fitness
+          // Fitness ranges from 0.0 (very bad, crowded) to 1.0 (perfect, isolated)
+          const fitness = Math.max(0, 1 - (p._localDensity / 8)) // 0-8+ neighbors maps to 1-0 fitness
+
           // Decrement timers
           if (p._shortBreakTimer > 0) p._shortBreakTimer--
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
-          // Check for break-free chances
+          // Check for break-free chances (FITNESS-AWARE)
           if (p._breakFreeTimer === 0) {
-            // Higher break chance for high-density connectors
-            const densityBonus = Math.min(p._localDensity * 0.1, 0.25) // +0% to +25% based on density
-            const breakChanceShort = 0.25 + densityBonus // 25-50% for short timer
-            const breakChanceLong = 0.5 + densityBonus // 50-75% for long timer
+            // Bad connectors (low fitness) get pressured to move
+            // Good connectors (high fitness) get rewarded with stability
+            const densityBonus = Math.min(p._localDensity * 0.1, 0.25)
+            const fitnessBonus = fitness * 0.2 // High fitness = less pressure
+
+            const breakChanceShort = 0.25 + densityBonus - fitnessBonus // 25-50% adjusted by fitness
+            const breakChanceLong = 0.5 + densityBonus - fitnessBonus // 50-75% adjusted by fitness
 
             // Short timer expired: dynamic chance to break free
             if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort) {
-              // Longer break for high-density connectors
-              const breakDuration = p._localDensity >= 5 ? 180 : 90 // 3 sec for high density, 1.5 for normal
-              p._breakFreeTimer = breakDuration + Math.random() * 60
+              // Longer break for high-density connectors, shorter for low-density
+              const baseDuration = p._localDensity >= 5 ? 180 : 90
+              const fitnessBonus = fitness * 60 // Good connectors get +1 sec more exploration
+              p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 60
               p._shortBreakTimer = 90
               p._longBreakTimer = 180
             }
             // Long timer expired: dynamic chance to break free
             else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong) {
-              const breakDuration = p._localDensity >= 5 ? 180 : 90
-              p._breakFreeTimer = breakDuration + Math.random() * 60
+              const baseDuration = p._localDensity >= 5 ? 180 : 90
+              const fitnessBonus = fitness * 60 // Good connectors get +1 sec more exploration
+              p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 60
               p._shortBreakTimer = 90
               p._longBreakTimer = 180
             }
           }
 
-          // Density-based forced redistribution (more aggressive for center connectors)
+          // Density-based forced redistribution (FITNESS-AWARE)
+          // Bad connectors (low fitness) get pressured more aggressively
           if (p._breakFreeTimer === 0) {
-            if (p._localDensity >= 6) {
-              // Center connector - very high chance to break free
-              if (Math.random() < 0.5) { // 50% chance per frame check (was 70%)
-                p._breakFreeTimer = 180 + Math.random() * 60 // 3-4 seconds
+            // High-density, low-fitness connectors get forced out
+            if (p._localDensity >= 6 && fitness < 0.3) {
+              // Bad connector in crowd - aggressive pressure
+              if (Math.random() < 0.6) { // 60% chance per frame
+                p._breakFreeTimer = 180 + Math.random() * 60
               }
-            } else if (p._localDensity >= 4) {
-              // High density - force break free
-              if (Math.random() < 0.2) { // 20% chance (was 30%)
-                p._breakFreeTimer = 120 + Math.random() * 40 // 2-2.7 seconds
+            } else if (p._localDensity >= 4 && fitness < 0.5) {
+              // Moderate density, mediocre fitness
+              if (Math.random() < 0.25) { // 25% chance
+                p._breakFreeTimer = 120 + Math.random() * 40
               }
             }
           }
@@ -535,8 +546,8 @@ export default function PixelBackground() {
             const dy = bestY - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            p.vx += (dx / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.2
-            p.vy += (dy / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.2
+            p.vx += (dx / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
+            p.vy += (dy / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
             return
           }
           let ax = 0, ay = 0
@@ -583,20 +594,28 @@ export default function PixelBackground() {
             }
           }
 
-          // Apply mesh network forces
-          p.vx += ax
-          p.vy += ay
+          // Apply mesh network forces (weakened for high-fitness connectors)
+          const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
+          p.vx += ax * fitnessFactor
+          p.vy += ay * fitnessFactor
 
-          // Add strong random wander so they keep exploring (don't lock)
-          p.vx += (Math.random() - 0.5) * 0.08
-          p.vy += (Math.random() - 0.5) * 0.08
+          // Random wander (reduced for high-fitness connectors so they can lock in)
+          const wanderAmount = 0.08 * (1 - fitness) // High fitness = near-zero wander
+          p.vx += (Math.random() - 0.5) * wanderAmount
+          p.vy += (Math.random() - 0.5) * wanderAmount
         }
 
         // Position updates
         // TIME SLOW: Apply to position during grace period, not velocity
+        // CONNECTORS move at full speed during grace period (fast af)
         if (inGracePeriod) {
-          p.x += p.vx * 0.6  // 60% speed movement
-          p.y += p.vy * 0.6
+          if (p._isConnector) {
+            p.x += p.vx * 1.5  // 150% speed - connectors zoom during grace period
+            p.y += p.vy * 1.5
+          } else {
+            p.x += p.vx * 0.6  // 60% speed for regular particles
+            p.y += p.vy * 0.6
+          }
         } else {
           p.x += p.vx
           p.y += p.vy
@@ -659,9 +678,9 @@ export default function PixelBackground() {
         let alpha = p.base + density * 0.5
         const size = p.size + (density > 0.5 ? 1 : 0)
 
-        // Connector particles are slightly brighter
+        // Connector particles are brighter
         if (p._isConnector) {
-          alpha = Math.min(alpha + 0.2, 0.95)
+          alpha = Math.min(alpha + 0.3, 0.95)
         }
 
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
