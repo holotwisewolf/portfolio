@@ -217,7 +217,6 @@ export default function PixelBackground() {
       if (hardCapParticles.length > 0 && !inGracePeriod) {
         recentExplosions += hardCapParticles.length  // Track chaos
         hardCapParticles.forEach(idx => {
-        hardCapParticles.forEach(idx => {
           const p = particles[idx]
           // Find nearby particles to explode together
           const nearbyGroup: number[] = [idx]
@@ -580,7 +579,6 @@ export default function PixelBackground() {
 
             p.vx += (dx / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
             p.vy += (dy / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
-            return
           }
           let ax = 0, ay = 0
 

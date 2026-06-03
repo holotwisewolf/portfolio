@@ -8,6 +8,7 @@ import Blog from '../windows/Blog'
 import About from '../windows/About'
 import Admin from '../windows/Admin'
 import TerminalNav from '../windows/TerminalNav'
+import Settings from '../windows/Settings'
 import ContextMenu from './ContextMenu'
 
 // Register all window contents
@@ -17,6 +18,7 @@ registerWindowContent('blog', Blog)
 registerWindowContent('about', About)
 registerWindowContent('admin', Admin)
 registerWindowContent('terminalnav', TerminalNav)
+registerWindowContent('settings', Settings)
 
 const GRID_SIZE = 100
 const ICON_WIDTH = 64
@@ -41,6 +43,7 @@ const initialIcons: DesktopIcon[] = [
   { id: 'blog', label: 'Blog', position: { x: 0, y: 100 } },
   { id: 'about', label: 'About', position: { x: 100, y: 100 } },
   { id: 'admin', label: 'Admin', position: { x: 200, y: 100 } },
+  { id: 'settings', label: 'Settings', position: { x: 300, y: 0 } },
 ]
 
 export default function Desktop() {
