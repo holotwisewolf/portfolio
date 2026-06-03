@@ -1,14 +1,21 @@
 'use client'
 
-import { useState, useEffect, useContext } from 'react'
+import { useContext, useState } from 'react'
 import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
 
-interface SettingsProps {
-  onClose?: () => void
-}
+type GraceMode = 'enabled' | 'disabled' | 'constant'
 
-export default function Settings({ onClose }: SettingsProps) {
-  const { explosionMode, setExplosionMode } = useContext(ExplosionModeContext)
+export default function Settings() {
+  const {
+    explosionMode,
+    setExplosionMode,
+    graceMode,
+    setGraceMode,
+    frameFreezeEnabled,
+    setFrameFreezeEnabled
+  } = useContext(ExplosionModeContext)
+
+  const [expanded, setExpanded] = useState(true)
 
   const toggleExplosionMode = () => {
     const newMode = explosionMode === 'space' ? 'radial' : 'space'
@@ -17,59 +24,106 @@ export default function Settings({ onClose }: SettingsProps) {
 
   return (
     <div className="h-full bg-black font-mono text-xs p-4 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 border-b border-white pb-2">
-        <h1 className="text-white text-sm font-bold">SETTINGS</h1>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-white px-2 py-1"
+      {/* Navigation Header */}
+      <div className="border-b border-white pb-2 mb-4">
+        <div
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1"
         >
-          ✕
-        </button>
+          <span className="text-green-400">{'>'}</span>
+          <span className="text-white">BG Particle</span>
+          <span className="text-gray-500 ml-auto">{expanded ? '▼' : '▶'}</span>
+        </div>
       </div>
 
       {/* Settings */}
-      <div className="flex-1 overflow-y-auto space-y-4">
-        {/* Explosion Mode */}
-        <div className="border border-gray-700 p-3">
-          <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
-            Explosion Mode
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-gray-300">
-              <div className="mb-1">
-                <span className="text-white">Current:</span> {explosionMode === 'space' ? 'Space Finder' : 'Radial Blast'}
-              </div>
-              <div className="text-gray-500 text-[10px]">
-                {explosionMode === 'space'
-                  ? 'Space-finders push 60-70% stronger toward empty spaces'
-                  : 'Radial blast is 20-25% stronger than space-finding'}
-              </div>
+      {expanded && (
+        <div className="flex-1 overflow-y-auto space-y-4">
+          {/* Explosion Mode */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Explosion Mode
             </div>
-            <button
-              onClick={toggleExplosionMode}
-              className="px-4 py-2 border border-white hover:bg-white hover:text-black transition-colors"
-            >
-              Toggle
-            </button>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Current:</span> {explosionMode === 'space' ? 'Space Finder' : 'Radial Blast'}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {explosionMode === 'space'
+                    ? 'Space-finders push 60-70% stronger toward empty spaces'
+                    : 'Radial blast is 20-25% stronger than space-finding'}
+                </div>
+              </div>
+              <button
+                onClick={toggleExplosionMode}
+                className="px-4 py-2 border border-white hover:bg-white hover:text-black transition-colors"
+              >
+                Toggle
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Info */}
-        <div className="border border-gray-700 p-3">
-          <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">
-            About
+          {/* Grace Period */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Grace Period
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Mode:</span> {graceMode.charAt(0).toUpperCase() + graceMode.slice(1)}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {graceMode === 'enabled'
+                    ? 'Probabilistic slow-mo periods'
+                    : graceMode === 'constant'
+                    ? 'Always in slow-mo'
+                    : 'No grace periods'}
+                </div>
+              </div>
+              <select
+                value={graceMode}
+                onChange={(e) => setGraceMode(e.target.value as GraceMode)}
+                className="px-3 py-2 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
+              >
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+                <option value="constant">Constant</option>
+              </select>
+            </div>
           </div>
-          <div className="text-gray-500 text-[10px] space-y-1">
-            <div>⚡ Space Finder: Particles aggressively seek empty spaces during explosions</div>
-            <div>⚡ Radial Blast: Particles blast outward from cluster center (classic behavior)</div>
+
+          {/* Frame Freeze */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Frame Freeze
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Status:</span> {frameFreezeEnabled ? 'ENABLED' : 'DISABLED'}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {frameFreezeEnabled
+                    ? 'Particle positions frozen (glow still calculated)'
+                    : 'Normal particle movement'}
+                </div>
+              </div>
+              <button
+                onClick={() => setFrameFreezeEnabled(!frameFreezeEnabled)}
+                className="px-4 py-2 border border-white hover:bg-white hover:text-black transition-colors"
+              >
+                {frameFreezeEnabled ? 'Disable' : 'Enable'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <div className="border-t border-gray-700 pt-2 mt-4 text-gray-600 text-[10px]">
-        Changes take effect on toggle
+        Changes take effect immediately
       </div>
     </div>
   )

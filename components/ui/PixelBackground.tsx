@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useContext } from 'react'
+import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
 
 interface Particle {
   x: number
@@ -14,17 +15,24 @@ interface Particle {
   _isConnector: boolean
   _connectorTarget: { x: number; y: number } | null
   _breakFreeTimer: number        // When >0, connector breaks free to explore
+  _targetRecalcTimer: number     // When to recalculate target (optimization)
   _shortBreakTimer: number       // Short timer for 40% break chance
   _longBreakTimer: number        // Long timer for 60% break chance
   _localDensity: number         // Nearby connector count for redistribution
   _gracePeriodTimer: number     // Grace period for hard cap (10% chance, ~3 sec)
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
   _connectorBrightness: number  // 0.15 (common) or 0.4 (rare) - fixed glow unaffected by density
+  _freeRoamTimer: number        // When >0, connector is immune to all forces (emergency escape)
 }
 
-export default function PixelBackground() {
+interface PixelBackgroundProps {
+  explosionMode?: 'space' | 'radial'
+}
+
+export default function PixelBackground({ explosionMode = 'space' }: PixelBackgroundProps) {
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { graceMode, frameFreezeEnabled } = useContext(ExplosionModeContext)!
 
   useEffect(() => {
     setMounted(true)
@@ -105,7 +113,7 @@ export default function PixelBackground() {
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 20 >= 18), // 10% are permanent bridge connectors (2 out of 20)
+        _isConnector: (i % 10 >= 8), // 20% are permanent bridge connectors (2 out of 10)
         _connectorTarget: null,
         _breakFreeTimer: 0,
         _shortBreakTimer: 90, // ~1.5 seconds before 40% break chance (was 120)
@@ -113,7 +121,9 @@ export default function PixelBackground() {
         _localDensity: 0,       // Track nearby connector count
         _gracePeriodTimer: 0,   // Grace period for hard cap explosions
         _bounceCount: 0,
-        _connectorBrightness: connectorBrightness
+        _connectorBrightness: connectorBrightness,
+        _freeRoamTimer: 0,      // Emergency escape - immune to all forces
+        _targetRecalcTimer: 0   // When to recalculate break-free target
       })
     }
 
@@ -147,39 +157,49 @@ export default function PixelBackground() {
     }
 
     const update = () => {
-      // Probabilistic grace period (not scheduled cycles)
-      if (inGracePeriod) {
-        graceFrameCounter++
-        if (graceFrameCounter >= graceDuration) {
-          inGracePeriod = false
-          graceFrameCounter = 0
-        }
+      // Handle grace period based on mode
+      if (graceMode === 'constant') {
+        // Constant mode - always in grace period (always slow-mo)
+        inGracePeriod = true
+      } else if (graceMode === 'disabled') {
+        // Disabled mode - never in grace period
+        inGracePeriod = false
+        recentExplosions = 0
       } else {
-        // Track chaos - increment when explosions happen
-        // (This gets updated after explosion logic below)
+        // Enabled mode - probabilistic grace periods
+        if (inGracePeriod) {
+          graceFrameCounter++
+          if (graceFrameCounter >= graceDuration) {
+            inGracePeriod = false
+            graceFrameCounter = 0
+          }
+        } else {
+          // Track chaos - increment when explosions happen
+          // (This gets updated after explosion logic below)
 
-        // Chance to enter grace - higher during chaos, but never guaranteed
-        let enterChance = 0.0008  // Base 0.08% per frame (~1.2 seconds average wait if no chaos)
+          // Chance to enter grace - higher during chaos, but never guaranteed
+          let enterChance = 0.0008  // Base 0.08% per frame (~1.2 seconds average wait if no chaos)
 
-        // Chaos bonus (but even high chaos doesn't guarantee grace)
-        if (recentExplosions >= 3) enterChance += 0.0015   // +0.15%
-        if (recentExplosions >= 6) enterChance += 0.002    // +0.2%
-        if (recentExplosions >= 10) enterChance += 0.002   // +0.2% more
+          // Chaos bonus (but even high chaos doesn't guarantee grace)
+          if (recentExplosions >= 3) enterChance += 0.0015   // +0.15%
+          if (recentExplosions >= 6) enterChance += 0.002    // +0.2%
+          if (recentExplosions >= 10) enterChance += 0.002   // +0.2% more
 
-        // Max ~0.63% per frame during extreme chaos = ~2.6 seconds average wait
-        // But it's still probabilistic - could go 60+ seconds without grace
+          // Max ~0.63% per frame during extreme chaos = ~2.6 seconds average wait
+          // But it's still probabilistic - could go 60+ seconds without grace
 
-        // 35% chance to SKIP this check entirely (adds more unpredictability)
-        if (Math.random() > 0.35 && Math.random() < enterChance) {
-          inGracePeriod = true
-          graceFrameCounter = 0
-          // Random duration: 2-12 seconds (wide variance)
-          graceDuration = GRACE_MIN_DURATION + Math.random() * (GRACE_MAX_DURATION - GRACE_MIN_DURATION)
-          recentExplosions = 0  // Reset chaos counter
+          // 35% chance to SKIP this check entirely (adds more unpredictability)
+          if (Math.random() > 0.35 && Math.random() < enterChance) {
+            inGracePeriod = true
+            graceFrameCounter = 0
+            // Random duration: 2-12 seconds (wide variance)
+            graceDuration = GRACE_MIN_DURATION + Math.random() * (GRACE_MAX_DURATION - GRACE_MIN_DURATION)
+            recentExplosions = 0  // Reset chaos counter
+          }
+
+          // Decay recentExplosions slowly (so grace doesn't trigger on old chaos)
+          recentExplosions *= 0.98
         }
-
-        // Decay recentExplosions slowly (so grace doesn't trigger on old chaos)
-        recentExplosions *= 0.98
       }
 
       // Count neighbors for each particle (local crowd detection)
@@ -415,6 +435,15 @@ export default function PixelBackground() {
       // Physics and Movement Application
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i]
+
+        // Validate position - reset to center if NaN
+        if (isNaN(p.x) || isNaN(p.y)) {
+          p.x = canvas.width / 2
+          p.y = canvas.height / 2
+          p.vx = 0
+          p.vy = 0
+        }
+
         let ax = 0, ay = 0
 
         // Decrement the immunity cooldown timer
@@ -456,8 +485,9 @@ export default function PixelBackground() {
         p.vx = (p.vx + ax) * DAMPING
         p.vy = (p.vy + ay) * DAMPING
 
-        // Dynamic speed limit: higher limit when dispersing
-        const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 6 : MAX_SPEED
+        // Dynamic speed limit: much higher when breaking free or free roaming
+        const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 8 :
+                          p._breakFreeTimer > 0 || p._freeRoamTimer > 0 ? MAX_SPEED * 20 : MAX_SPEED
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
         if (speed > currentMax) {
           p.vx = (p.vx / speed) * currentMax
@@ -479,12 +509,70 @@ export default function PixelBackground() {
         // Bridge connector behavior: form dynamic mesh network in empty spaces
         // ACTIVE during grace period - proactive space finding
         if (p._isConnector && p._clusterTimer === 0) {
-          // Calculate local connector density
+          // Free roam mode - immune to all forces, just move toward empty space
+          if (p._freeRoamTimer > 0) {
+            p._freeRoamTimer--  // Decrement free roam timer
+
+            // Find LOWEST density area to target (consider ALL particles)
+            let bestX = canvas.width / 2
+            let bestY = canvas.height / 2
+            let lowestDensity = 999
+
+            const gridSize = 100
+            for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
+              for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
+                let density = 0
+                for (let j = 0; j < particleCount; j++) {
+                  // Consider ALL particles, not just connectors
+                  const dx = gx - particles[j].x
+                  const dy = gy - particles[j].y
+                  const d = Math.sqrt(dx * dx + dy * dy)
+                  if (d < 100) density++
+                }
+                if (density < lowestDensity) {
+                  lowestDensity = density
+                  bestX = gx
+                  bestY = gy
+                }
+              }
+            }
+
+            // Drift toward lowest density area with normal speed
+            const dx = bestX - p.x
+            const dy = bestY - p.y
+            const d = Math.sqrt(dx * dx + dy * dy) || 1
+
+            // Add velocity with NaN protection
+            const addVx = (dx / d) * 0.5 + (Math.random() - 0.5) * 0.3
+            const addVy = (dy / d) * 0.5 + (Math.random() - 0.5) * 0.3
+            if (!isNaN(addVx)) p.vx += addVx
+            if (!isNaN(addVy)) p.vy += addVy
+          }
+
+          // Calculate local particle density (ALL particles, not just connectors)
           p._localDensity = 0
           for (let j = 0; j < particleCount; j++) {
-            if (i === j || !particles[j]._isConnector) continue
+            if (i === j) continue
             const d = dist(p, particles[j])
-            if (d < 150) p._localDensity++ // Count nearby connectors
+            if (d < 150) p._localDensity++ // Count nearby particles within 150px
+          }
+
+          // GLOBAL AWARENESS: Find the emptiest area on screen
+          let globalMinDensity = 999
+          const gridSize = 100
+          for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
+            for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
+              let density = 0
+              for (let j = 0; j < particleCount; j++) {
+                const dx = gx - particles[j].x
+                const dy = gy - particles[j].y
+                const d = Math.sqrt(dx * dx + dy * dy)
+                if (d < 150) density++ // Use same radius as local density (150px)
+              }
+              if (density < globalMinDensity) {
+                globalMinDensity = density
+              }
+            }
           }
 
           // Calculate fitness score: lower density = higher fitness
@@ -495,6 +583,20 @@ export default function PixelBackground() {
           if (p._shortBreakTimer > 0) p._shortBreakTimer--
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
+
+          // GLOBAL AWARENESS: Compare current situation to global optimum
+          // If there's a significantly better spot elsewhere, pressure to move
+          const densityGap = p._localDensity - globalMinDensity // How much better is the emptiest area?
+
+          // WANDER INSTINCT: Connectors NEVER settle - always exploring
+          // High constant break-free chance regardless of position
+          if (p._breakFreeTimer === 0) {
+            // Always 40% chance per frame to break free, regardless of density
+            // Longer duration ensures they actually cross the screen
+            if (Math.random() < 0.4) {
+              p._breakFreeTimer = 180 + Math.random() * 180 // 3-6 seconds of exploration
+            }
+          }
 
           // Check for break-free chances (FITNESS-AWARE)
           if (p._breakFreeTimer === 0) {
@@ -544,101 +646,181 @@ export default function PixelBackground() {
 
           // Skip mesh forces when breaking free
           if (p._breakFreeTimer > 0) {
-            // Find LOWEST density area to target
-            let bestX = canvas.width / 2
-            let bestY = canvas.height / 2
-            let lowestDensity = 999
+            // Decrement target recalc timer
+            if (p._targetRecalcTimer > 0) p._targetRecalcTimer--
 
-            // Sample grid points across canvas to find emptiest area
-            const gridSize = 100
-            for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
-              for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
-                let density = 0
-                for (let j = 0; j < particleCount; j++) {
-                  if (!particles[j]._isConnector) continue
-                  const dx = gx - particles[j].x
-                  const dy = gy - particles[j].y
-                  const d = Math.sqrt(dx * dx + dy * dy)
-                  if (d < 100) density++
+            // Only recalculate target every 5 frames (balance between performance and responsiveness)
+            let targetX, targetY
+            if (p._targetRecalcTimer === 0) {
+              // Time to recalculate target
+              p._targetRecalcTimer = 5 // Reset for next time
+
+              // 40% chance to target a random corner/edge, 60% chance to target most isolated point
+              if (Math.random() < 0.4) {
+                // Random corner or edge with RIGHT-SIDE BIAS (counteract left skew)
+                // 12 options instead of 8, with extra right-side targets
+                const edgeChoice = Math.floor(Math.random() * 12)
+                switch(edgeChoice) {
+                  case 0: targetX = 50; targetY = 50; break // Top-left
+                  case 1: targetX = canvas.width - 50; targetY = 50; break // Top-right
+                  case 2: targetX = 50; targetY = canvas.height - 50; break // Bottom-left
+                  case 3: targetX = canvas.width - 50; targetY = canvas.height - 50; break // Bottom-right
+                  case 4: targetX = canvas.width / 2; targetY = 50; break // Top-edge center
+                  case 5: targetX = canvas.width / 2; targetY = canvas.height - 50; break // Bottom-edge center
+                  case 6: targetX = 50; targetY = canvas.height / 2; break // Left-edge center
+                  case 7: targetX = canvas.width - 50; targetY = canvas.height / 2; break // Right-edge center
+                  // Extra right-side targets (bias)
+                  case 8: targetX = canvas.width - 100; targetY = canvas.height / 3; break // Right-upper third
+                  case 9: targetX = canvas.width - 100; targetY = (canvas.height / 3) * 2; break // Right-lower third
+                  case 10: targetX = canvas.width - 100; targetY = canvas.height / 2; break // Right-center (extra)
+                  case 11: targetX = (canvas.width / 4) * 3; targetY = canvas.height / 2; break // Right-center quadrant
+                  default: targetX = canvas.width / 2; targetY = canvas.height / 2;
                 }
-                if (density < lowestDensity) {
-                  lowestDensity = density
-                  bestX = gx
-                  bestY = gy
+              } else {
+                // Find point FARTHEST from ALL particles (truly most isolated point)
+                let bestX = canvas.width / 2
+                let bestY = canvas.height / 2
+                let maxMinDist = 0
+
+                const gridSize = 50
+                for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
+                  for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
+                    let minDist = Infinity
+                    for (let j = 0; j < particleCount; j++) {
+                      // Consider ALL particles, not just connectors
+                      const dx = gx - particles[j].x
+                      const dy = gy - particles[j].y
+                      const d = Math.sqrt(dx * dx + dy * dy)
+                      if (d < minDist) minDist = d
+                    }
+                    if (minDist > maxMinDist) {
+                      maxMinDist = minDist
+                      bestX = gx
+                      bestY = gy
+                    }
+                  }
                 }
+                targetX = bestX
+                targetY = bestY
               }
+
+              // Cache the target
+              p._connectorTarget = { x: targetX, y: targetY }
+            } else {
+              // Use cached target
+              targetX = p._connectorTarget?.x || canvas.width / 2
+              targetY = p._connectorTarget?.y || canvas.height / 2
             }
 
-            // Stronger drift for high-density connectors (escape force)
-            const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
-
-            // Drift toward lowest density area
-            const dx = bestX - p.x
-            const dy = bestY - p.y
+            // Move toward target
+            const dx = targetX - p.x
+            const dy = targetY - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
-            p.vx += (dx / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
-            p.vy += (dy / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
-          }
-          let ax = 0, ay = 0
-
-          // Part 1: VERY gentle push away from regular particles (don't affect clusters)
-          for (let j = 0; j < particleCount; j++) {
-            if (i === j || particles[j]._isConnector) continue // Skip other connectors
-            const q = particles[j]
-            const dx = p.x - q.x
-            const dy = p.y - q.y
-            const d = Math.sqrt(dx * dx + dy * dy)
-
-            // Very gentle avoidance - just enough to find empty space
-            if (d > 0 && d < 200) {
-              const weight = 1 / (d + 1)
-              ax += (dx / d) * weight * 0.02
-              ay += (dy / d) * weight * 0.02
+            // If close to target, force immediate recalculation (don't get stuck hovering)
+            if (d < 50) {
+              p._targetRecalcTimer = 0 // Force target recalc next frame
             }
-          }
 
-          // Part 2: VERY loose mesh with other connectors - density-aware
-          for (let j = 0; j < particleCount; j++) {
-            if (i === j || !particles[j]._isConnector) continue // Only other connectors
-            const q = particles[j]
-            const dx = q.x - p.x
-            const dy = q.y - p.y
-            const d = Math.sqrt(dx * dx + dy * dy)
-
-            if (d > 0) {
-              // Density-based modification: high density = less attraction, more repulsion
-              const densityFactor = Math.min(p._localDensity / 4, 1.5) // 1.0 at 4 nearby, max 1.5
-
-              if (d > CONNECTOR_SPACING * 2.5) {
-                // Too far - very gentle attract (reduced by density)
-                const strength = CONNECTOR_ATTRACT * 0.5 * (1 - Math.min(d / 600, 1)) / densityFactor
-                ax += (dx / d) * strength
-                ay += (dy / d) * strength
-              } else if (d < CONNECTOR_SPACING * 0.6) {
-                // Too close - repel (strengthened by density)
-                ax -= (dx / d) * 0.04 * densityFactor
-                ay -= (dy / d) * 0.04 * densityFactor
+            // Skip velocity setting if too close to target (prevent NaN)
+            if (d < 30) {
+              // Close to target - slow down instead of stopping
+              const newVx = (dx / d) * 3.0 + (Math.random() - 0.5) * 0.3
+              const newVy = (dy / d) * 3.0 + (Math.random() - 0.5) * 0.3
+              if (!isNaN(newVx) && !isNaN(newVy)) {
+                p.vx = newVx
+                p.vy = newVy
               }
-              // At optimal spacing - no force, free to drift
+            } else {
+              // Emergency free roam: 25% chance to become immune to all forces
+              if (Math.random() < 0.25) {
+                p._freeRoamTimer = 120 + Math.random() * 60
+              }
+
+              // REPLACE velocity with constant speed toward target
+              const newVx = (dx / d) * 12.0 + (Math.random() - 0.5) * 0.5
+              const newVy = (dy / d) * 12.0 + (Math.random() - 0.5) * 0.5
+
+              // Only set if not NaN
+              if (!isNaN(newVx) && !isNaN(newVy)) {
+                p.vx = newVx
+                p.vy = newVy
+              }
             }
+          } else {
+            // NOT breaking free - apply mesh network forces
+            let ax = 0, ay = 0
+
+            // Part 1: VERY gentle push away from regular particles (don't affect clusters)
+            for (let j = 0; j < particleCount; j++) {
+              if (i === j || particles[j]._isConnector) continue // Skip other connectors
+              const q = particles[j]
+              const dx = p.x - q.x
+              const dy = p.y - q.y
+              const d = Math.sqrt(dx * dx + dy * dy)
+
+              // Very gentle avoidance - just enough to find empty space
+              if (d > 0 && d < 200) {
+                const weight = 1 / (d + 1)
+                ax += (dx / d) * weight * 0.02
+                ay += (dy / d) * weight * 0.02
+              }
+            }
+
+            // Part 2: LOCAL repulsion from nearby connectors (push away from crowded areas)
+            for (let j = 0; j < particleCount; j++) {
+              if (i === j || !particles[j]._isConnector) continue // Only other connectors
+              const q = particles[j]
+              const dx = q.x - p.x
+              const dy = q.y - p.y
+              const d = Math.sqrt(dx * dx + dy * dy)
+
+              if (d > 0) {
+                // Density-aware repulsion/attraction
+                const densityFactor = Math.min(p._localDensity / 4, 2.0) // Higher multiplier for crowded areas
+
+                // Medium-range repulsion (personal space) - push away from neighbors
+                if (d < 250 && d > 50) {
+                  const repelStrength = 0.08 * (1 - d / 250) * densityFactor
+                  ax -= (dx / d) * repelStrength
+                  ay -= (dy / d) * repelStrength
+                }
+
+                // Close-range repulsion (too close)
+                if (d < CONNECTOR_SPACING * 0.8) {
+                  ax -= (dx / d) * 0.12 * densityFactor
+                  ay -= (dy / d) * 0.12 * densityFactor
+                }
+
+                // Long-range attraction (don't spread TOO far)
+                if (d > CONNECTOR_SPACING * 3) {
+                  const attractStrength = 0.02 * (1 - Math.min(d / 800, 1))
+                  ax += (dx / d) * attractStrength
+                  ay += (dy / d) * attractStrength
+                }
+              }
+            }
+
+            // Apply mesh network forces (weakened for high-fitness connectors)
+            const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
+            p.vx += ax * fitnessFactor
+            p.vy += ay * fitnessFactor
+
+            // Random wander (reduced for high-fitness connectors so they can lock in)
+            const wanderAmount = 0.08 * (1 - fitness) // High fitness = near-zero wander
+            p.vx += (Math.random() - 0.5) * wanderAmount
+            p.vy += (Math.random() - 0.5) * wanderAmount
           }
-
-          // Apply mesh network forces (weakened for high-fitness connectors)
-          const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
-          p.vx += ax * fitnessFactor
-          p.vy += ay * fitnessFactor
-
-          // Random wander (reduced for high-fitness connectors so they can lock in)
-          const wanderAmount = 0.08 * (1 - fitness) // High fitness = near-zero wander
-          p.vx += (Math.random() - 0.5) * wanderAmount
-          p.vy += (Math.random() - 0.5) * wanderAmount
         }
 
         // Position updates
         // TIME SLOW: Apply to position during grace period, not velocity
         // CONNECTORS move at full speed during grace period (fast af)
-        if (inGracePeriod) {
+        // FRAME FREEZE: Skip position updates entirely (glow still calculated above)
+        if (frameFreezeEnabled) {
+          // Skip all movement when frame freeze is enabled
+          continue  // Skip to next particle (includes boundary checks)
+        } else if (inGracePeriod) {
           if (p._isConnector) {
             p.x += p.vx * 1.5  // 150% speed - connectors zoom during grace period
             p.y += p.vy * 1.5
@@ -651,12 +833,12 @@ export default function PixelBackground() {
           p.y += p.vy
         }
 
-        // Boundary bounces with energy loss and corner escape
+        // Boundary bounces with minimal energy loss (equal/opposite reaction)
         let bounced = false
-        if (p.x < 6) { p.x = 6; p.vx *= -0.8; bounced = true }
-        if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.8; bounced = true }
-        if (p.y < 6) { p.y = 6; p.vy *= -0.8; bounced = true }
-        if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.8; bounced = true }
+        if (p.x < 6) { p.x = 6; p.vx *= -0.98; bounced = true }
+        if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.98; bounced = true }
+        if (p.y < 6) { p.y = 6; p.vy *= -0.98; bounced = true }
+        if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.98; bounced = true }
 
         // Track consecutive bounces for corner escape
         if (bounced) {
@@ -732,7 +914,7 @@ export default function PixelBackground() {
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled])
 
   if (!mounted) return null
 
