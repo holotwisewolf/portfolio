@@ -22,7 +22,7 @@ interface Particle {
   _gracePeriodTimer: number     // Grace period for hard cap (10% chance, ~3 sec)
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
   _connectorBrightness: number  // 0.15 (common) or 0.4 (rare) - fixed glow unaffected by density
-  _freeRoamTimer: number        // When >0, connector is immune to all forces (emergency escape)
+  _stayTimer: number            // Frames spent in current area (for auto-break-free)
 }
 
 interface PixelBackgroundProps {
@@ -33,10 +33,23 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { graceMode, frameFreezeEnabled } = useContext(ExplosionModeContext)!
+  const particlesRef = useRef<Particle[] | null>(null)
+  const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
+  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}`)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Save particle positions when settings change (for seamless transitions)
+  useEffect(() => {
+    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}`
+    if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
+      // Save current positions synchronously to ref
+      savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
+      prevSettingsRef.current = currentSettings
+    }
+  }, [graceMode, explosionMode, frameFreezeEnabled])
 
   useEffect(() => {
     if (!mounted) return
@@ -113,7 +126,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 10 >= 8), // 20% are permanent bridge connectors (2 out of 10)
+        _isConnector: (i % 20 >= 18), // 10% are permanent bridge connectors (2 out of 20)
         _connectorTarget: null,
         _breakFreeTimer: 0,
         _shortBreakTimer: 90, // ~1.5 seconds before 40% break chance (was 120)
@@ -122,10 +135,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _gracePeriodTimer: 0,   // Grace period for hard cap explosions
         _bounceCount: 0,
         _connectorBrightness: connectorBrightness,
-        _freeRoamTimer: 0,      // Emergency escape - immune to all forces
-        _targetRecalcTimer: 0   // When to recalculate break-free target
+        _targetRecalcTimer: 0,   // When to recalculate break-free target
+        _stayTimer: 0            // Frames spent in current area
       })
     }
+
+    particlesRef.current = particles
 
     const dist = (a: Particle, b: Particle) => {
       const dx = a.x - b.x
@@ -157,6 +172,17 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     }
 
     const update = () => {
+      // Restore saved positions if settings changed (particles stay in place)
+      if (savedPositionsRef.current) {
+        for (let i = 0; i < particles.length && i < savedPositionsRef.current.length; i++) {
+          particles[i].x = savedPositionsRef.current[i].x
+          particles[i].y = savedPositionsRef.current[i].y
+          particles[i].vx = savedPositionsRef.current[i].vx
+          particles[i].vy = savedPositionsRef.current[i].vy
+        }
+        savedPositionsRef.current = null // Clear after restore
+      }
+
       // Handle grace period based on mode
       if (graceMode === 'constant') {
         // Constant mode - always in grace period (always slow-mo)
@@ -486,8 +512,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         p.vy = (p.vy + ay) * DAMPING
 
         // Dynamic speed limit: much higher when breaking free or free roaming
-        const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 8 :
-                          p._breakFreeTimer > 0 || p._freeRoamTimer > 0 ? MAX_SPEED * 20 : MAX_SPEED
+        const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 6 :
+                          p._breakFreeTimer > 0 ? MAX_SPEED * 6 : MAX_SPEED
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
         if (speed > currentMax) {
           p.vx = (p.vx / speed) * currentMax
@@ -509,46 +535,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // Bridge connector behavior: form dynamic mesh network in empty spaces
         // ACTIVE during grace period - proactive space finding
         if (p._isConnector && p._clusterTimer === 0) {
-          // Free roam mode - immune to all forces, just move toward empty space
-          if (p._freeRoamTimer > 0) {
-            p._freeRoamTimer--  // Decrement free roam timer
-
-            // Find LOWEST density area to target (consider ALL particles)
-            let bestX = canvas.width / 2
-            let bestY = canvas.height / 2
-            let lowestDensity = 999
-
-            const gridSize = 100
-            for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
-              for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
-                let density = 0
-                for (let j = 0; j < particleCount; j++) {
-                  // Consider ALL particles, not just connectors
-                  const dx = gx - particles[j].x
-                  const dy = gy - particles[j].y
-                  const d = Math.sqrt(dx * dx + dy * dy)
-                  if (d < 100) density++
-                }
-                if (density < lowestDensity) {
-                  lowestDensity = density
-                  bestX = gx
-                  bestY = gy
-                }
-              }
-            }
-
-            // Drift toward lowest density area with normal speed
-            const dx = bestX - p.x
-            const dy = bestY - p.y
-            const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-            // Add velocity with NaN protection
-            const addVx = (dx / d) * 0.5 + (Math.random() - 0.5) * 0.3
-            const addVy = (dy / d) * 0.5 + (Math.random() - 0.5) * 0.3
-            if (!isNaN(addVx)) p.vx += addVx
-            if (!isNaN(addVy)) p.vy += addVy
-          }
-
           // Calculate local particle density (ALL particles, not just connectors)
           p._localDensity = 0
           for (let j = 0; j < particleCount; j++) {
@@ -584,19 +570,30 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
+          // STAY TIMER: Auto break-free from crowded areas (DESYNCHRONIZED)
+          // If stuck in high-density area too long, forced to explore
+          if (p._localDensity >= 5) {
+            // Desync noise: timer ticks probabilistically, not every frame
+            if (Math.random() < 0.85) {
+              p._stayTimer++
+            }
+
+            // Unique patience threshold per connector (120-240 frames)
+            const connectorIndex = i // Use particle index as connector identifier
+            const uniquePatience = 120 + (connectorIndex % 7) * 20 // 120, 140, 160...240
+
+            if (p._stayTimer > uniquePatience && p._breakFreeTimer === 0) {
+              // Forced break-free - target the emptiest area
+              p._breakFreeTimer = 120 + Math.random() * 60 // 2-3 seconds exploration
+              p._stayTimer = 0 // Reset timer
+            }
+          } else {
+            p._stayTimer = Math.max(0, p._stayTimer - 2) // Cool down faster when area is good
+          }
+
           // GLOBAL AWARENESS: Compare current situation to global optimum
           // If there's a significantly better spot elsewhere, pressure to move
           const densityGap = p._localDensity - globalMinDensity // How much better is the emptiest area?
-
-          // WANDER INSTINCT: Connectors NEVER settle - always exploring
-          // High constant break-free chance regardless of position
-          if (p._breakFreeTimer === 0) {
-            // Always 40% chance per frame to break free, regardless of density
-            // Longer duration ensures they actually cross the screen
-            if (Math.random() < 0.4) {
-              p._breakFreeTimer = 180 + Math.random() * 180 // 3-6 seconds of exploration
-            }
-          }
 
           // Check for break-free chances (FITNESS-AWARE)
           if (p._breakFreeTimer === 0) {
@@ -611,19 +608,21 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // Short timer expired: dynamic chance to break free
             if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort) {
               // Longer break for high-density connectors, shorter for low-density
-              const baseDuration = p._localDensity >= 5 ? 180 : 90
-              const fitnessBonus = fitness * 60 // Good connectors get +1 sec more exploration
-              p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 60
+              const baseDuration = p._localDensity >= 5 ? 90 : 60
+              const fitnessBonus = fitness * 30 // Good connectors get +0.5 sec more exploration
+              p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 30
               p._shortBreakTimer = 90
               p._longBreakTimer = 180
+              p._stayTimer = 0 // Reset stay timer when breaking free
             }
             // Long timer expired: dynamic chance to break free
             else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong) {
-              const baseDuration = p._localDensity >= 5 ? 180 : 90
-              const fitnessBonus = fitness * 60 // Good connectors get +1 sec more exploration
-              p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 60
+              const baseDuration = p._localDensity >= 5 ? 90 : 60
+              const fitnessBonus = fitness * 30 // Good connectors get +0.5 sec more exploration
+              p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 30
               p._shortBreakTimer = 90
               p._longBreakTimer = 180
+              p._stayTimer = 0 // Reset stay timer when breaking free
             }
           }
 
@@ -634,12 +633,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (p._localDensity >= 6 && fitness < 0.3) {
               // Bad connector in crowd - aggressive pressure
               if (Math.random() < 0.6) { // 60% chance per frame
-                p._breakFreeTimer = 180 + Math.random() * 60
+                p._breakFreeTimer = 90 + Math.random() * 30
+                p._stayTimer = 0 // Reset stay timer when breaking free
               }
             } else if (p._localDensity >= 4 && fitness < 0.5) {
               // Moderate density, mediocre fitness
               if (Math.random() < 0.25) { // 25% chance
-                p._breakFreeTimer = 120 + Math.random() * 40
+                p._breakFreeTimer = 60 + Math.random() * 20
+                p._stayTimer = 0 // Reset stay timer when breaking free
               }
             }
           }
@@ -657,9 +658,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
               // 40% chance to target a random corner/edge, 60% chance to target most isolated point
               if (Math.random() < 0.4) {
-                // Random corner or edge with RIGHT-SIDE BIAS (counteract left skew)
-                // 12 options instead of 8, with extra right-side targets
-                const edgeChoice = Math.floor(Math.random() * 12)
+                // Random corner or edge
+                const edgeChoice = Math.floor(Math.random() * 8)
                 switch(edgeChoice) {
                   case 0: targetX = 50; targetY = 50; break // Top-left
                   case 1: targetX = canvas.width - 50; targetY = 50; break // Top-right
@@ -669,11 +669,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                   case 5: targetX = canvas.width / 2; targetY = canvas.height - 50; break // Bottom-edge center
                   case 6: targetX = 50; targetY = canvas.height / 2; break // Left-edge center
                   case 7: targetX = canvas.width - 50; targetY = canvas.height / 2; break // Right-edge center
-                  // Extra right-side targets (bias)
-                  case 8: targetX = canvas.width - 100; targetY = canvas.height / 3; break // Right-upper third
-                  case 9: targetX = canvas.width - 100; targetY = (canvas.height / 3) * 2; break // Right-lower third
-                  case 10: targetX = canvas.width - 100; targetY = canvas.height / 2; break // Right-center (extra)
-                  case 11: targetX = (canvas.width / 4) * 3; targetY = canvas.height / 2; break // Right-center quadrant
                   default: targetX = canvas.width / 2; targetY = canvas.height / 2;
                 }
               } else {
@@ -713,8 +708,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
 
             // Move toward target
-            const dx = targetX - p.x
-            const dy = targetY - p.y
+            // Add chaos offset so connectors fan out instead of clumping at same point
+            const chaosOffsetX = (Math.random() - 0.5) * (canvas.width * 0.2)
+            const chaosOffsetY = (Math.random() - 0.5) * (canvas.height * 0.2)
+
+            const dx = (targetX + chaosOffsetX) - p.x
+            const dy = (targetY + chaosOffsetY) - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
             // If close to target, force immediate recalculation (don't get stuck hovering)
@@ -722,30 +721,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               p._targetRecalcTimer = 0 // Force target recalc next frame
             }
 
-            // Skip velocity setting if too close to target (prevent NaN)
-            if (d < 30) {
-              // Close to target - slow down instead of stopping
-              const newVx = (dx / d) * 3.0 + (Math.random() - 0.5) * 0.3
-              const newVy = (dy / d) * 3.0 + (Math.random() - 0.5) * 0.3
-              if (!isNaN(newVx) && !isNaN(newVy)) {
-                p.vx = newVx
-                p.vy = newVy
-              }
-            } else {
-              // Emergency free roam: 25% chance to become immune to all forces
-              if (Math.random() < 0.25) {
-                p._freeRoamTimer = 120 + Math.random() * 60
-              }
-
-              // REPLACE velocity with constant speed toward target
-              const newVx = (dx / d) * 12.0 + (Math.random() - 0.5) * 0.5
-              const newVy = (dy / d) * 12.0 + (Math.random() - 0.5) * 0.5
-
-              // Only set if not NaN
-              if (!isNaN(newVx) && !isNaN(newVy)) {
-                p.vx = newVx
-                p.vy = newVy
-              }
+            // Skip if too close to target (prevent NaN)
+            if (d >= 30) {
+              // Drift toward lowest density area (add to velocity, don't replace)
+              const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
+              p.vx += (dx / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
+              p.vy += (dy / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
             }
           } else {
             // NOT breaking free - apply mesh network forces
@@ -767,7 +748,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               }
             }
 
-            // Part 2: LOCAL repulsion from nearby connectors (push away from crowded areas)
+            // Part 2: VERY loose mesh with other connectors - density-aware
             for (let j = 0; j < particleCount; j++) {
               if (i === j || !particles[j]._isConnector) continue // Only other connectors
               const q = particles[j]
@@ -776,28 +757,20 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               const d = Math.sqrt(dx * dx + dy * dy)
 
               if (d > 0) {
-                // Density-aware repulsion/attraction
-                const densityFactor = Math.min(p._localDensity / 4, 2.0) // Higher multiplier for crowded areas
+                // Density-based modification: high density = less attraction, more repulsion
+                const densityFactor = Math.min(p._localDensity / 4, 1.5) // 1.0 at 4 nearby, max 1.5
 
-                // Medium-range repulsion (personal space) - push away from neighbors
-                if (d < 250 && d > 50) {
-                  const repelStrength = 0.08 * (1 - d / 250) * densityFactor
-                  ax -= (dx / d) * repelStrength
-                  ay -= (dy / d) * repelStrength
+                if (d > CONNECTOR_SPACING * 2.5) {
+                  // Too far - very gentle attract (reduced by density)
+                  const strength = CONNECTOR_ATTRACT * 0.5 * (1 - Math.min(d / 600, 1)) / densityFactor
+                  ax += (dx / d) * strength
+                  ay += (dy / d) * strength
+                } else if (d < CONNECTOR_SPACING * 0.6) {
+                  // Too close - repel (strengthened by density)
+                  ax -= (dx / d) * 0.04 * densityFactor
+                  ay -= (dy / d) * 0.04 * densityFactor
                 }
-
-                // Close-range repulsion (too close)
-                if (d < CONNECTOR_SPACING * 0.8) {
-                  ax -= (dx / d) * 0.12 * densityFactor
-                  ay -= (dy / d) * 0.12 * densityFactor
-                }
-
-                // Long-range attraction (don't spread TOO far)
-                if (d > CONNECTOR_SPACING * 3) {
-                  const attractStrength = 0.02 * (1 - Math.min(d / 800, 1))
-                  ax += (dx / d) * attractStrength
-                  ay += (dy / d) * attractStrength
-                }
+                // At optimal spacing - no force, free to drift
               }
             }
 

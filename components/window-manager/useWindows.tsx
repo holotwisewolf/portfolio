@@ -86,7 +86,7 @@ export const useWindowStore = create<WindowStore>()(
 
           // Custom sizes for specific windows
           const customSize = id === 'terminalnav' ? { width: 450, height: 400 } : { width: 800, height: 600 }
-          const customTitle = id === 'terminalnav' ? 'Terminal' : id === 'settings' ? 'Dispersing Settings' : id.charAt(0).toUpperCase() + id.slice(1)
+          const customTitle = id === 'terminalnav' ? 'Terminal' : id.charAt(0).toUpperCase() + id.slice(1)
 
           return {
             windows: {

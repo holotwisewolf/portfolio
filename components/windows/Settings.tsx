@@ -123,7 +123,7 @@ export default function Settings() {
 
       {/* Footer */}
       <div className="border-t border-gray-700 pt-2 mt-4 text-gray-600 text-[10px]">
-        Changes take effect immediately
+        Changes take effect on toggle
       </div>
     </div>
   )
