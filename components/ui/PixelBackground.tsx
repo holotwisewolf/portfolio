@@ -589,10 +589,11 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
           // SOCIAL BATTERY: Drains in crowds, recharges when alone
           // Creates extrovert/introvert cycle - no staleness
+          // Uses CONNECTOR density only - battery = connector comfort in mesh
           // LONER BONUS: Faster recharge when density 1-2 (reward good positioning)
-          if (p._localDensity >= 3) {
+          if (connectorDensity >= 3) {
             p._socialBattery = Math.max(0, p._socialBattery - 0.02) // Drains in ~5 seconds
-          } else if (p._localDensity <= 2) {
+          } else if (connectorDensity <= 2) {
             p._socialBattery = Math.min(100, p._socialBattery + 0.02) // 2x faster recharge for loners
           } else {
             p._socialBattery = Math.min(100, p._socialBattery + 0.01) // Normal recharge
@@ -604,7 +605,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const batteryBonus = (p._socialBattery / 100) * 2 // 0-2 bonus based on battery
 
           // LONER BONUS: Extra patience when density 1-2 (reward good positioning)
-          const lonerBonus = p._localDensity <= 2 ? 3.5 : 0 // +3.5 tolerance for loners
+          const lonerBonus = connectorDensity <= 2 ? 3.5 : 0 // +3.5 tolerance for loners
 
           const relativeThreshold = globalMinDensity + dynamicTolerance + batteryBonus + lonerBonus
           if (p._localDensity > relativeThreshold) {
@@ -626,33 +627,16 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             p._stayTimer = Math.max(0, p._stayTimer - 2) // Cool down faster when area is good
           }
 
-          // CONNECTOR-SPECIFIC: Leave if surrounded by too many other connectors
-          // This prevents connector mesh from becoming too dense in one area
-          if (p._breakFreeTimer === 0) {
-            if (connectorDensity >= 6) {
-              // Too many connectors nearby - aggressive break-free
-              if (Math.random() < 0.5) { // 50% chance per frame
-                p._breakFreeTimer = 90 + Math.random() * 30
-                p._stayTimer = 0
-              }
-            } else if (connectorDensity >= 4) {
-              // Moderately crowded with connectors
-              if (Math.random() < 0.2) { // 20% chance per frame
-                p._breakFreeTimer = 60 + Math.random() * 20
-                p._stayTimer = 0
-              }
-            }
-          }
-
           // GLOBAL AWARENESS: Compare current situation to global optimum
           // If there's a significantly better spot elsewhere, pressure to move
           const densityGap = p._localDensity - globalMinDensity // How much better is the emptiest area?
 
           // Check for break-free chances (FITNESS-AWARE)
+          // Uses CONNECTOR density - mesh-specific pressure
           if (p._breakFreeTimer === 0) {
             // Bad connectors (low fitness) get pressured to move
             // Good connectors (high fitness) get rewarded with stability
-            const densityBonus = Math.min(p._localDensity * 0.1, 0.25)
+            const densityBonus = Math.min(connectorDensity * 0.1, 0.25)
             const fitnessBonus = fitness * 0.2 // High fitness = less pressure
 
             const breakChanceShort = 0.25 + densityBonus - fitnessBonus // 25-50% adjusted by fitness
@@ -680,16 +664,16 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           }
 
           // Density-based forced redistribution (FITNESS-AWARE)
-          // Bad connectors (low fitness) get pressured more aggressively
+          // Uses CONNECTOR density - mesh-specific safety net
           if (p._breakFreeTimer === 0) {
             // High-density, low-fitness connectors get forced out
-            if (p._localDensity >= 6 && fitness < 0.3) {
+            if (connectorDensity >= 6 && fitness < 0.3) {
               // Bad connector in crowd - aggressive pressure
               if (Math.random() < 0.6) { // 60% chance per frame
                 p._breakFreeTimer = 90 + Math.random() * 30
                 p._stayTimer = 0 // Reset stay timer when breaking free
               }
-            } else if (p._localDensity >= 4 && fitness < 0.5) {
+            } else if (connectorDensity >= 4 && fitness < 0.5) {
               // Moderate density, mediocre fitness
               if (Math.random() < 0.25) { // 25% chance
                 p._breakFreeTimer = 60 + Math.random() * 20
