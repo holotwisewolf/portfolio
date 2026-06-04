@@ -544,6 +544,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (d < 150) p._localDensity++ // Count nearby particles within 150px
           }
 
+          // Calculate CONNECTOR-ONLY density for mesh crowding detection
+          let connectorDensity = 0
+          for (let j = 0; j < particleCount; j++) {
+            if (i === j || !particles[j]._isConnector) continue // Only connectors
+            const d = dist(p, particles[j])
+            if (d < 150) connectorDensity++ // Count nearby connectors within 150px
+          }
+
           // GLOBAL AWARENESS: Find the emptiest and most crowded areas on screen
           let globalMinDensity = 999
           let globalMaxDensity = 0
@@ -616,6 +624,24 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
           } else {
             p._stayTimer = Math.max(0, p._stayTimer - 2) // Cool down faster when area is good
+          }
+
+          // CONNECTOR-SPECIFIC: Leave if surrounded by too many other connectors
+          // This prevents connector mesh from becoming too dense in one area
+          if (p._breakFreeTimer === 0) {
+            if (connectorDensity >= 6) {
+              // Too many connectors nearby - aggressive break-free
+              if (Math.random() < 0.5) { // 50% chance per frame
+                p._breakFreeTimer = 90 + Math.random() * 30
+                p._stayTimer = 0
+              }
+            } else if (connectorDensity >= 4) {
+              // Moderately crowded with connectors
+              if (Math.random() < 0.2) { // 20% chance per frame
+                p._breakFreeTimer = 60 + Math.random() * 20
+                p._stayTimer = 0
+              }
+            }
           }
 
           // GLOBAL AWARENESS: Compare current situation to global optimum
