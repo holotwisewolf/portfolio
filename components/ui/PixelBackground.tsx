@@ -514,8 +514,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         p.vy = (p.vy + ay) * DAMPING
 
         // Dynamic speed limit: much higher when breaking free or free roaming
-        const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 6 :
-                          p._breakFreeTimer > 0 ? MAX_SPEED * 4 : MAX_SPEED
+        const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 6 : MAX_SPEED
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
         if (speed > currentMax) {
           p.vx = (p.vx / speed) * currentMax
@@ -718,12 +717,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
 
             // Move toward target
-            // Add chaos offset so connectors fan out instead of clumping at same point
-            const chaosOffsetX = (Math.random() - 0.5) * (canvas.width * 0.1)
-            const chaosOffsetY = (Math.random() - 0.5) * (canvas.height * 0.1)
-
-            const dx = (targetX + chaosOffsetX) - p.x
-            const dy = (targetY + chaosOffsetY) - p.y
+            const dx = targetX - p.x
+            const dy = targetY - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
             // If close to target, force immediate recalculation (don't get stuck hovering)
@@ -735,9 +730,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (d >= 30) {
               // Drift toward lowest density area (add to velocity, don't replace)
               // Reduced force for calmer movement
-              const densityMultiplier = p._localDensity >= 5 ? 1.2 : 1.0
-              p.vx += (dx / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.15
-              p.vy += (dy / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.15
+              const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
+              p.vx += (dx / d) * 0.25 * densityMultiplier
+              p.vy += (dy / d) * 0.25 * densityMultiplier
             }
           } else {
             // NOT breaking free - apply mesh network forces
