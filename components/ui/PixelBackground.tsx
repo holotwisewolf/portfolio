@@ -761,8 +761,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // Decrement target recalc timer
             if (p._targetRecalcTimer > 0) p._targetRecalcTimer--
 
-            // Only recalculate target every 15 frames (smoother movement, less erratic)
-            let targetX, targetY
+            // Declare target variables outside if/else for proper scope
+            let targetX = canvas.width / 2, targetY = canvas.height / 2
             if (p._targetRecalcTimer === 0) {
               // Time to recalculate target
               p._targetRecalcTimer = 15 // Reset for next time
@@ -794,7 +794,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
               // Cache the target
               p._connectorTarget = { x: targetX, y: targetY }
-            } else {
+            }
+          } else {
               // Use cached target
               targetX = p._connectorTarget?.x || canvas.width / 2
               targetY = p._connectorTarget?.y || canvas.height / 2
