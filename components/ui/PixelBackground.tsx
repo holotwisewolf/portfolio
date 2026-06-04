@@ -582,17 +582,24 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
           // SOCIAL BATTERY: Drains in crowds, recharges when alone
           // Creates extrovert/introvert cycle - no staleness
+          // LONER BONUS: Faster recharge when density 1-2 (reward good positioning)
           if (p._localDensity >= 3) {
             p._socialBattery = Math.max(0, p._socialBattery - 0.02) // Drains in ~5 seconds
+          } else if (p._localDensity <= 2) {
+            p._socialBattery = Math.min(100, p._socialBattery + 0.02) // 2x faster recharge for loners
           } else {
-            p._socialBattery = Math.min(100, p._socialBattery + 0.01) // Recharges in ~10 seconds
+            p._socialBattery = Math.min(100, p._socialBattery + 0.01) // Normal recharge
           }
 
           // STAY TIMER: Auto break-free using RELATIVE + MARKET COMPETITION + SOCIAL BATTERY
           // Leave when significantly more crowded than the best available spot
           // Battery adds tolerance: full battery = stay longer, empty battery = leave quickly
           const batteryBonus = (p._socialBattery / 100) * 2 // 0-2 bonus based on battery
-          const relativeThreshold = globalMinDensity + dynamicTolerance + batteryBonus
+
+          // LONER BONUS: Extra patience when density 1-2 (reward good positioning)
+          const lonerBonus = p._localDensity <= 2 ? 3 : 0 // +3 tolerance for loners
+
+          const relativeThreshold = globalMinDensity + dynamicTolerance + batteryBonus + lonerBonus
           if (p._localDensity > relativeThreshold) {
             // Desync noise: timer ticks probabilistically, not every frame
             if (Math.random() < 0.85) {
@@ -745,9 +752,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // Skip if too close to target (prevent NaN)
             if (d >= 30) {
               // Drift toward lowest density area (add to velocity, don't replace)
-              const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
-              p.vx += (dx / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
-              p.vy += (dy / d) * 0.35 * densityMultiplier + (Math.random() - 0.5) * 0.2
+              // Reduced force for calmer movement
+              const densityMultiplier = p._localDensity >= 5 ? 1.2 : 1.0
+              p.vx += (dx / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.15
+              p.vy += (dy / d) * 0.25 * densityMultiplier + (Math.random() - 0.5) * 0.15
             }
           } else {
             // NOT breaking free - apply mesh network forces
