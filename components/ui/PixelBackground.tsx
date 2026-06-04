@@ -729,10 +729,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // Skip if too close to target (prevent NaN)
             if (d >= 30) {
               // Drift toward lowest density area (add to velocity, don't replace)
-              // Reduced force for calmer movement
+              // Reduced force for calmer movement, with damping
               const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
-              p.vx += (dx / d) * 0.25 * densityMultiplier
-              p.vy += (dy / d) * 0.25 * densityMultiplier
+              p.vx = (p.vx + (dx / d) * 0.25 * densityMultiplier) * DAMPING
+              p.vy = (p.vy + (dy / d) * 0.25 * densityMultiplier) * DAMPING
             }
           } else {
             // NOT breaking free - apply mesh network forces
@@ -789,10 +789,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               }
             }
 
-            // Apply mesh network forces (weakened for high-fitness connectors)
+            // Apply mesh network forces with damping (connectors need friction too)
             const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
-            p.vx += ax * fitnessFactor
-            p.vy += ay * fitnessFactor
+            p.vx = (p.vx + ax * fitnessFactor) * DAMPING
+            p.vy = (p.vy + ay * fitnessFactor) * DAMPING
 
             // Random wander (reduced for high-fitness connectors so they can lock in)
             const wanderAmount = 0.08 * (1 - fitness) // High fitness = near-zero wander
