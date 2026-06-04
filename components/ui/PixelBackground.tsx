@@ -24,6 +24,7 @@ interface Particle {
   _connectorBrightness: number  // 0.15 (common) or 0.4 (rare) - fixed glow unaffected by density
   _stayTimer: number            // Frames spent in current area (for auto-break-free)
   _socialBattery: number        // 0-100: drains in crowds, recharges alone (extrovert/introvert cycle)
+  _breakFreeCooldown: number    // Frames until mesh attraction fully restored
 }
 
 interface PixelBackgroundProps {
@@ -138,7 +139,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _connectorBrightness: connectorBrightness,
         _targetRecalcTimer: 0,   // When to recalculate break-free target
         _stayTimer: 0,           // Frames spent in current area
-        _socialBattery: 100      // Start fully charged (extrovert mode)
+        _socialBattery: 100,     // Start fully charged (extrovert mode)
+        _breakFreeCooldown: 0    // No cooldown initially
       })
     }
 
@@ -585,7 +587,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           // Decrement timers
           if (p._shortBreakTimer > 0) p._shortBreakTimer--
           if (p._longBreakTimer > 0) p._longBreakTimer--
+
+          // Set cooldown when break-free expires (prevents immediate snap-back)
+          const wasBreakingFree = p._breakFreeTimer > 0
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
+          if (wasBreakingFree && p._breakFreeTimer === 0) {
+            p._breakFreeCooldown = 60 // 1 second of weakened mesh attraction
+          }
+          if (p._breakFreeCooldown > 0) p._breakFreeCooldown--
 
           // SOCIAL BATTERY: Drains in crowds, recharges when alone
           // Creates extrovert/introvert cycle - no staleness
@@ -782,7 +791,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 if (d > CONNECTOR_SPACING * 3.0) {
                   // Too far - VERY WEAK attract (was preventing break-free)
                   // 8x weaker than original, also increased threshold to 360px
-                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / densityFactor
+                  // COOLDOWN: Even weaker after break-free (prevents snap-back)
+                  const cooldownFactor = p._breakFreeCooldown > 0 ? 0.2 : 1.0 // 80% weaker during cooldown
+                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / densityFactor * cooldownFactor
                   ax += (dx / d) * strength
                   ay += (dy / d) * strength
                 } else if (d < CONNECTOR_SPACING * 0.8) {
