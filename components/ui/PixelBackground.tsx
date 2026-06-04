@@ -810,8 +810,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           continue  // Skip to next particle (includes boundary checks)
         } else if (inGracePeriod) {
           if (p._isConnector) {
-            p.x += p.vx * 1.5  // 150% speed - connectors zoom during grace period
-            p.y += p.vy * 1.5
+            p.x += p.vx * 0.8  // 80% speed - connectors slow during grace period
+            p.y += p.vy * 0.8
           } else {
             p.x += p.vx * 0.6  // 60% speed for regular particles
             p.y += p.vy * 0.6
