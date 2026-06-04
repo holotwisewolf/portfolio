@@ -775,6 +775,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 ax += (dx / d) * weight * 0.02
                 ay += (dy / d) * weight * 0.02
               }
+
+              // Gentle drift toward nearby clusters (like regular particles)
+              // Weaker than regular particles so connectors still seek space
+              if (d < CLUSTER_RADIUS && d > 0) {
+                const strength = ATTRACT * 0.4 * (1 - d / CLUSTER_RADIUS) // 40% of regular attraction
+                ax -= (dx / d) * strength // Negative because dx is p - q (away from q)
+                ay -= (dy / d) * strength
+              }
             }
 
             // Part 2: VERY loose mesh with other connectors - density-aware
