@@ -515,7 +515,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
         // Dynamic speed limit: much higher when breaking free or free roaming
         const currentMax = p._clusterTimer > 0 ? MAX_SPEED * 6 :
-                          p._breakFreeTimer > 0 ? MAX_SPEED * 6 : MAX_SPEED
+                          p._breakFreeTimer > 0 ? MAX_SPEED * 4 : MAX_SPEED
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
         if (speed > currentMax) {
           p.vx = (p.vx / speed) * currentMax
@@ -684,8 +684,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // Time to recalculate target
               p._targetRecalcTimer = 5 // Reset for next time
 
-              // 40% chance to target a random corner/edge, 60% chance to target most isolated point
-              if (Math.random() < 0.4) {
+              // 15% chance to target a random corner/edge, 85% chance to target most isolated point
+              if (Math.random() < 0.15) {
                 // Random corner or edge
                 const edgeChoice = Math.floor(Math.random() * 8)
                 switch(edgeChoice) {
@@ -737,8 +737,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // Move toward target
             // Add chaos offset so connectors fan out instead of clumping at same point
-            const chaosOffsetX = (Math.random() - 0.5) * (canvas.width * 0.2)
-            const chaosOffsetY = (Math.random() - 0.5) * (canvas.height * 0.2)
+            const chaosOffsetX = (Math.random() - 0.5) * (canvas.width * 0.1)
+            const chaosOffsetY = (Math.random() - 0.5) * (canvas.height * 0.1)
 
             const dx = (targetX + chaosOffsetX) - p.x
             const dy = (targetY + chaosOffsetY) - p.y
