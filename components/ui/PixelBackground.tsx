@@ -568,26 +568,33 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           if (!p._isCrystallized && !p._isZenMode && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
             p._isCrystallized = true
             p._crystallizeTimer = 180 + Math.random() * 540 // 3-12 seconds
+            p._isZenMode = true // Crystallized connectors are also zen-calm (no wobble)
           }
 
           // Tick crystal timer
           if (p._isCrystallized) {
             p._crystallizeTimer--
+            // Also tick zen timer during crystallization (so zen doesn't extend beyond crystal)
+            if (p._zenModeTimer > 0) p._zenModeTimer--
             if (p._crystallizeTimer <= 0) {
               p._isCrystallized = false
-              // Optionally: trigger break-free on crystal end to disperse
+              // Exit zen mode too if timer expired
+              if (p._zenModeTimer <= 0) {
+                p._isZenMode = false
+              }
             }
           }
 
           // ZEN MODE: Random chance to enter content state regardless of fitness
           // 15% chance per frame to check, lasts 5-10 seconds, creates calm content state
-          if (!p._isZenMode && !p._isCrystallized && Math.random() < 0.15) {
+          if (!p._isZenMode && Math.random() < 0.15) {
             p._isZenMode = true
             p._zenModeTimer = 300 + Math.random() * 300 // 5-10 seconds
           }
 
           // Tick zen mode timer
-          if (p._isZenMode) {
+          // Don't exit zen mode during crystallization (crystals stay calm)
+          if (p._isZenMode && !p._isCrystallized) {
             p._zenModeTimer--
             if (p._zenModeTimer <= 0) {
               p._isZenMode = false
@@ -954,12 +961,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
         // Connector particles get extra brightness bonus (influenced by density like regular particles)
         if (p._isConnector) {
-          // ZEN MODE: Dimmer glow for content state (calm, less energy)
-          if (p._isZenMode) {
-            alpha = Math.min(alpha + p._connectorBrightness * 0.6, 0.8) // 40% dimmer, max 0.8
-          } else {
-            alpha = Math.min(alpha + p._connectorBrightness, 0.95)
-          }
+          alpha = Math.min(alpha + p._connectorBrightness, 0.95)
         }
 
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
