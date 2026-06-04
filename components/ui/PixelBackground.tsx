@@ -594,12 +594,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           if (wasBreakingFree && p._breakFreeTimer === 0) {
             // 2-4 seconds of weakened mesh attraction (probabilistic)
             const cooldownRoll = Math.random()
-            if (cooldownRoll < 0.33) {
+            if (cooldownRoll < 0.25) {
               p._breakFreeCooldown = 120 // 2 seconds
-            } else if (cooldownRoll < 0.66) {
+            } else if (cooldownRoll < 0.50) {
+              p._breakFreeCooldown = 150 // 2.5 seconds
+            } else if (cooldownRoll < 0.75) {
               p._breakFreeCooldown = 180 // 3 seconds
             } else {
-              p._breakFreeCooldown = 240 // 4 seconds
+              p._breakFreeCooldown = 210 // 3.5 seconds
             }
           }
           if (p._breakFreeCooldown > 0) p._breakFreeCooldown--
@@ -753,8 +755,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // Drift toward lowest density area (add to velocity, don't replace)
               // Reduced force for calmer movement, with damping
               const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
-              p.vx = (p.vx + (dx / d) * 0.25 * densityMultiplier) * DAMPING
-              p.vy = (p.vy + (dy / d) * 0.25 * densityMultiplier) * DAMPING
+              p.vx = (p.vx + (dx / d) * 0.1 * densityMultiplier) * DAMPING
+              p.vy = (p.vy + (dy / d) * 0.1 * densityMultiplier) * DAMPING
             }
           } else {
             // NOT breaking free - apply mesh network forces
