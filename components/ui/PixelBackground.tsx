@@ -592,14 +592,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const wasBreakingFree = p._breakFreeTimer > 0
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
           if (wasBreakingFree && p._breakFreeTimer === 0) {
-            // 2-3 seconds of weakened mesh attraction (probabilistic)
+            // 2-4 seconds of weakened mesh attraction (probabilistic)
             const cooldownRoll = Math.random()
             if (cooldownRoll < 0.33) {
               p._breakFreeCooldown = 120 // 2 seconds
             } else if (cooldownRoll < 0.66) {
-              p._breakFreeCooldown = 150 // 2.5 seconds
-            } else {
               p._breakFreeCooldown = 180 // 3 seconds
+            } else {
+              p._breakFreeCooldown = 240 // 4 seconds
             }
           }
           if (p._breakFreeCooldown > 0) p._breakFreeCooldown--
