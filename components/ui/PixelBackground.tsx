@@ -27,6 +27,8 @@ interface Particle {
   _breakFreeCooldown: number    // Frames until mesh attraction fully restored
   _isCrystallized: boolean     // In crystal formation mode
   _crystallizeTimer: number    // Frames until crystal mode ends
+  _isZenMode: boolean          // In content/zen state (regardless of fitness)
+  _zenModeTimer: number        // Frames until zen mode ends
 }
 
 interface PixelBackgroundProps {
@@ -144,7 +146,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _socialBattery: 100,     // Start fully charged (extrovert mode)
         _breakFreeCooldown: 0,   // No cooldown initially
         _isCrystallized: false,  // Not in crystal mode initially
-        _crystallizeTimer: 0     // No crystal timer initially
+        _crystallizeTimer: 0,    // No crystal timer initially
+        _isZenMode: false,       // Not in zen mode initially
+        _zenModeTimer: 0         // No zen timer initially
       })
     }
 
@@ -560,7 +564,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
           // CRYSTALLIZATION: Small chance to enter crystal mode when enough connectors nearby
           // Forms tight geometric formations using existing optimal spacing (120px)
-          if (!p._isCrystallized && connectorDensity >= 5 && Math.random() < 0.002) { // ~0.2% per frame
+          // SKIP during zen mode (mutually exclusive states)
+          if (!p._isCrystallized && !p._isZenMode && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
             p._isCrystallized = true
             p._crystallizeTimer = 180 + Math.random() * 540 // 3-12 seconds
           }
@@ -571,6 +576,21 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (p._crystallizeTimer <= 0) {
               p._isCrystallized = false
               // Optionally: trigger break-free on crystal end to disperse
+            }
+          }
+
+          // ZEN MODE: Random chance to enter content state regardless of fitness
+          // 15% chance per frame to check, lasts 5-10 seconds, creates calm content state
+          if (!p._isZenMode && !p._isCrystallized && Math.random() < 0.15) {
+            p._isZenMode = true
+            p._zenModeTimer = 300 + Math.random() * 300 // 5-10 seconds
+          }
+
+          // Tick zen mode timer
+          if (p._isZenMode) {
+            p._zenModeTimer--
+            if (p._zenModeTimer <= 0) {
+              p._isZenMode = false
             }
           }
 
@@ -657,7 +677,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             const connectorIndex = i // Use particle index as connector identifier
             const uniquePatience = 120 + (connectorIndex % 7) * 20 // 120, 140, 160...240
 
-            if (p._stayTimer > uniquePatience && p._breakFreeTimer === 0 && !p._isCrystallized) {
+            if (p._stayTimer > uniquePatience && p._breakFreeTimer === 0 && !p._isCrystallized && !p._isZenMode) {
               // Forced break-free - target the emptiest area
               // SKIP during crystal mode (crystals must stay together)
               p._breakFreeTimer = 120 + Math.random() * 60 // 2-3 seconds exploration
@@ -684,7 +704,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // Short timer expired: dynamic chance to break free
             // SKIP during crystal mode (crystals must stay together)
-            if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort && !p._isCrystallized) {
+            if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort && !p._isCrystallized && !p._isZenMode) {
               // Longer break for high-density connectors, shorter for low-density
               const baseDuration = p._localDensity >= 5 ? 90 : 60
               const fitnessBonus = fitness * 30 // Good connectors get +0.5 sec more exploration
@@ -695,7 +715,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
             // Long timer expired: dynamic chance to break free
             // SKIP during crystal mode (crystals must stay together)
-            else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong && !p._isCrystallized) {
+            else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong && !p._isCrystallized && !p._isZenMode) {
               const baseDuration = p._localDensity >= 5 ? 90 : 60
               const fitnessBonus = fitness * 30 // Good connectors get +0.5 sec more exploration
               p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 30
@@ -707,8 +727,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
           // Density-based forced redistribution (FITNESS-AWARE)
           // Uses CONNECTOR density - mesh-specific safety net
-          // SKIP during crystal mode (crystals must stay together)
-          if (p._breakFreeTimer === 0 && !p._isCrystallized) {
+          // SKIP during crystal mode and zen mode (content state)
+          if (p._breakFreeTimer === 0 && !p._isCrystallized && !p._isZenMode) {
             // High-density, low-fitness connectors get forced out
             if (connectorDensity >= 6 && fitness < 0.3) {
               // Bad connector in crowd - aggressive pressure
@@ -849,8 +869,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // Apply mesh network forces with damping (connectors need friction too)
             const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
-            p.vx = (p.vx + ax * fitnessFactor) * DAMPING
-            p.vy = (p.vy + ay * fitnessFactor) * DAMPING
+            // ZEN MODE: Additional calmness factor - 0.2x force when content regardless of fitness
+            const zenFactor = p._isZenMode ? 0.2 : 1.0
+            p.vx = (p.vx + ax * fitnessFactor * zenFactor) * DAMPING
+            p.vy = (p.vy + ay * fitnessFactor * zenFactor) * DAMPING
           }
         }
 
@@ -858,9 +880,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // TIME SLOW: Apply to position during grace period, not velocity
         // CONNECTORS move at full speed during grace period (fast af)
         // FRAME FREEZE: Skip position updates entirely (glow still calculated above)
+        // ZEN MODE: Connectors in content state move extra slow (0.4x speed)
         if (frameFreezeEnabled) {
           // Skip all movement when frame freeze is enabled
           continue  // Skip to next particle (includes boundary checks)
+        } else if (p._isConnector && p._isZenMode) {
+          p.x += p.vx * 0.4  // Extra slow movement for zen mode connectors
+          p.y += p.vy * 0.4
         } else if (inGracePeriod) {
           p.x += p.vx * 0.6  // 60% speed for all particles during grace period
           p.y += p.vy * 0.6
@@ -928,7 +954,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
         // Connector particles get extra brightness bonus (influenced by density like regular particles)
         if (p._isConnector) {
-          alpha = Math.min(alpha + p._connectorBrightness, 0.95)
+          // ZEN MODE: Dimmer glow for content state (calm, less energy)
+          if (p._isZenMode) {
+            alpha = Math.min(alpha + p._connectorBrightness * 0.6, 0.8) // 40% dimmer, max 0.8
+          } else {
+            alpha = Math.min(alpha + p._connectorBrightness, 0.95)
+          }
         }
 
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
