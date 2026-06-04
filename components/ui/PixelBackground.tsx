@@ -23,6 +23,7 @@ interface Particle {
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
   _connectorBrightness: number  // 0.15 (common) or 0.4 (rare) - fixed glow unaffected by density
   _stayTimer: number            // Frames spent in current area (for auto-break-free)
+  _socialBattery: number        // 0-100: drains in crowds, recharges alone (extrovert/introvert cycle)
 }
 
 interface PixelBackgroundProps {
@@ -136,7 +137,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _bounceCount: 0,
         _connectorBrightness: connectorBrightness,
         _targetRecalcTimer: 0,   // When to recalculate break-free target
-        _stayTimer: 0            // Frames spent in current area
+        _stayTimer: 0,           // Frames spent in current area
+        _socialBattery: 100      // Start fully charged (extrovert mode)
       })
     }
 
@@ -543,8 +545,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (d < 150) p._localDensity++ // Count nearby particles within 150px
           }
 
-          // GLOBAL AWARENESS: Find the emptiest area on screen
+          // GLOBAL AWARENESS: Find the emptiest and most crowded areas on screen
           let globalMinDensity = 999
+          let globalMaxDensity = 0
           const gridSize = 100
           for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
             for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
@@ -558,8 +561,15 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               if (density < globalMinDensity) {
                 globalMinDensity = density
               }
+              if (density > globalMaxDensity) {
+                globalMaxDensity = density
+              }
             }
           }
+
+          // MARKET COMPETITION: Dynamic tolerance based on screen distribution
+          const canvasContrast = globalMaxDensity - globalMinDensity
+          const dynamicTolerance = 2 + canvasContrast * 0.4
 
           // Calculate fitness score: lower density = higher fitness
           // Fitness ranges from 0.0 (very bad, crowded) to 1.0 (perfect, isolated)
@@ -570,9 +580,20 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           if (p._longBreakTimer > 0) p._longBreakTimer--
           if (p._breakFreeTimer > 0) p._breakFreeTimer--
 
-          // STAY TIMER: Auto break-free from crowded areas (DESYNCHRONIZED)
-          // If stuck in high-density area too long, forced to explore
-          if (p._localDensity >= 5) {
+          // SOCIAL BATTERY: Drains in crowds, recharges when alone
+          // Creates extrovert/introvert cycle - no staleness
+          if (p._localDensity >= 3) {
+            p._socialBattery = Math.max(0, p._socialBattery - 0.02) // Drains in ~5 seconds
+          } else {
+            p._socialBattery = Math.min(100, p._socialBattery + 0.01) // Recharges in ~10 seconds
+          }
+
+          // STAY TIMER: Auto break-free using RELATIVE + MARKET COMPETITION + SOCIAL BATTERY
+          // Leave when significantly more crowded than the best available spot
+          // Battery adds tolerance: full battery = stay longer, empty battery = leave quickly
+          const batteryBonus = (p._socialBattery / 100) * 2 // 0-2 bonus based on battery
+          const relativeThreshold = globalMinDensity + dynamicTolerance + batteryBonus
+          if (p._localDensity > relativeThreshold) {
             // Desync noise: timer ticks probabilistically, not every frame
             if (Math.random() < 0.85) {
               p._stayTimer++
@@ -760,17 +781,18 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 // Density-based modification: high density = less attraction, more repulsion
                 const densityFactor = Math.min(p._localDensity / 4, 1.5) // 1.0 at 4 nearby, max 1.5
 
-                if (d > CONNECTOR_SPACING * 2.5) {
-                  // Too far - very gentle attract (reduced by density)
-                  const strength = CONNECTOR_ATTRACT * 0.5 * (1 - Math.min(d / 600, 1)) / densityFactor
+                if (d > CONNECTOR_SPACING * 3.0) {
+                  // Too far - VERY WEAK attract (was preventing break-free)
+                  // 8x weaker than original, also increased threshold to 360px
+                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / densityFactor
                   ax += (dx / d) * strength
                   ay += (dy / d) * strength
-                } else if (d < CONNECTOR_SPACING * 0.6) {
-                  // Too close - repel (strengthened by density)
-                  ax -= (dx / d) * 0.04 * densityFactor
-                  ay -= (dy / d) * 0.04 * densityFactor
+                } else if (d < CONNECTOR_SPACING * 0.8) {
+                  // Too close - repel (weakened, spacing increased to 96px)
+                  ax -= (dx / d) * 0.03 * densityFactor
+                  ay -= (dy / d) * 0.03 * densityFactor
                 }
-                // At optimal spacing - no force, free to drift
+                // At optimal spacing (96-360px) - no force, free to drift
               }
             }
 
