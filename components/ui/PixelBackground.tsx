@@ -25,6 +25,8 @@ interface Particle {
   _stayTimer: number            // Frames spent in current area (for auto-break-free)
   _socialBattery: number        // 0-100: drains in crowds, recharges alone (extrovert/introvert cycle)
   _breakFreeCooldown: number    // Frames until mesh attraction fully restored
+  _isCrystallized: boolean     // In crystal formation mode
+  _crystallizeTimer: number    // Frames until crystal mode ends
 }
 
 interface PixelBackgroundProps {
@@ -140,7 +142,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _targetRecalcTimer: 0,   // When to recalculate break-free target
         _stayTimer: 0,           // Frames spent in current area
         _socialBattery: 100,     // Start fully charged (extrovert mode)
-        _breakFreeCooldown: 0    // No cooldown initially
+        _breakFreeCooldown: 0,   // No cooldown initially
+        _isCrystallized: false,  // Not in crystal mode initially
+        _crystallizeTimer: 0     // No crystal timer initially
       })
     }
 
@@ -554,6 +558,22 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (d < 150) connectorDensity++ // Count nearby connectors within 150px
           }
 
+          // CRYSTALLIZATION: Small chance to enter crystal mode when enough connectors nearby
+          // Forms tight geometric formations using existing optimal spacing (120px)
+          if (!p._isCrystallized && connectorDensity >= 5 && Math.random() < 0.002) { // ~0.2% per frame
+            p._isCrystallized = true
+            p._crystallizeTimer = 180 + Math.random() * 540 // 3-12 seconds
+          }
+
+          // Tick crystal timer
+          if (p._isCrystallized) {
+            p._crystallizeTimer--
+            if (p._crystallizeTimer <= 0) {
+              p._isCrystallized = false
+              // Optionally: trigger break-free on crystal end to disperse
+            }
+          }
+
           // GLOBAL AWARENESS: Find the emptiest and most crowded areas on screen
           let globalMinDensity = 999
           let globalMaxDensity = 0
@@ -637,8 +657,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             const connectorIndex = i // Use particle index as connector identifier
             const uniquePatience = 120 + (connectorIndex % 7) * 20 // 120, 140, 160...240
 
-            if (p._stayTimer > uniquePatience && p._breakFreeTimer === 0) {
+            if (p._stayTimer > uniquePatience && p._breakFreeTimer === 0 && !p._isCrystallized) {
               // Forced break-free - target the emptiest area
+              // SKIP during crystal mode (crystals must stay together)
               p._breakFreeTimer = 120 + Math.random() * 60 // 2-3 seconds exploration
               p._stayTimer = 0 // Reset timer
             }
@@ -662,7 +683,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             const breakChanceLong = 0.5 + densityBonus - fitnessBonus // 50-75% adjusted by fitness
 
             // Short timer expired: dynamic chance to break free
-            if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort) {
+            // SKIP during crystal mode (crystals must stay together)
+            if (p._shortBreakTimer <= 0 && Math.random() < breakChanceShort && !p._isCrystallized) {
               // Longer break for high-density connectors, shorter for low-density
               const baseDuration = p._localDensity >= 5 ? 90 : 60
               const fitnessBonus = fitness * 30 // Good connectors get +0.5 sec more exploration
@@ -672,7 +694,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               p._stayTimer = 0 // Reset stay timer when breaking free
             }
             // Long timer expired: dynamic chance to break free
-            else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong) {
+            // SKIP during crystal mode (crystals must stay together)
+            else if (p._longBreakTimer <= 0 && Math.random() < breakChanceLong && !p._isCrystallized) {
               const baseDuration = p._localDensity >= 5 ? 90 : 60
               const fitnessBonus = fitness * 30 // Good connectors get +0.5 sec more exploration
               p._breakFreeTimer = baseDuration + fitnessBonus + Math.random() * 30
@@ -684,7 +707,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
           // Density-based forced redistribution (FITNESS-AWARE)
           // Uses CONNECTOR density - mesh-specific safety net
-          if (p._breakFreeTimer === 0) {
+          // SKIP during crystal mode (crystals must stay together)
+          if (p._breakFreeTimer === 0 && !p._isCrystallized) {
             // High-density, low-fitness connectors get forced out
             if (connectorDensity >= 6 && fitness < 0.3) {
               // Bad connector in crowd - aggressive pressure
@@ -798,22 +822,28 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 // Density-based modification: high density = less attraction, more repulsion
                 const densityFactor = Math.min(p._localDensity / 4, 1.5) // 1.0 at 4 nearby, max 1.5
 
+                // CRYSTAL MODE: Strengthen attraction, weaken repulsion for tight formations
+                const crystalAttractMult = p._isCrystallized ? 8.0 : 1.0 // 8x stronger attraction during crystal
+                const crystalRepelMult = p._isCrystallized ? 0.3 : 1.0 // 70% weaker repulsion during crystal
+
                 if (d > CONNECTOR_SPACING * 3.0) {
-                  // Too far - VERY WEAK attract (was preventing break-free)
+                  // Too far - VERY WEAK attract normally, STRONG during crystal
                   // 8x weaker than original, also increased threshold to 360px
                   // COOLDOWN: Even weaker after break-free (prevents snap-back)
                   const cooldownFactor = p._breakFreeCooldown > 0 ? 0.2 : 1.0 // 80% weaker during cooldown
                   // During cooldown, ignore densityFactor for consistent weak attraction
                   const divisor = p._breakFreeCooldown > 0 ? 1.0 : densityFactor
-                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / divisor * cooldownFactor
+                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / divisor * cooldownFactor * crystalAttractMult
                   ax += (dx / d) * strength
                   ay += (dy / d) * strength
                 } else if (d < CONNECTOR_SPACING * 0.8) {
                   // Too close - repel (weakened, spacing increased to 96px)
-                  ax -= (dx / d) * 0.03 * densityFactor
-                  ay -= (dy / d) * 0.03 * densityFactor
+                  // During crystal: much weaker repulsion so connectors can cluster tighter
+                  ax -= (dx / d) * 0.03 * densityFactor * crystalRepelMult
+                  ay -= (dy / d) * 0.03 * densityFactor * crystalRepelMult
                 }
                 // At optimal spacing (96-360px) - no force, free to drift
+                // During crystal: this optimal range shrinks as connectors pull together
               }
             }
 
