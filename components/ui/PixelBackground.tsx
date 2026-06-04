@@ -38,10 +38,10 @@ interface PixelBackgroundProps {
 export default function PixelBackground({ explosionMode = 'space' }: PixelBackgroundProps) {
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { graceMode, frameFreezeEnabled } = useContext(ExplosionModeContext)!
+  const { graceMode, frameFreezeEnabled, crystallizationEnabled, connectorState } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
-  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}`)
+  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystallizationEnabled}-${connectorState}`)
 
   useEffect(() => {
     setMounted(true)
@@ -49,13 +49,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
   // Save particle positions when settings change (for seamless transitions)
   useEffect(() => {
-    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}`
+    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystallizationEnabled}-${connectorState}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystallizationEnabled, connectorState])
 
   useEffect(() => {
     if (!mounted) return
@@ -565,7 +565,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           // CRYSTALLIZATION: Small chance to enter crystal mode when enough connectors nearby
           // Forms tight geometric formations using existing optimal spacing (120px)
           // SKIP during zen mode (mutually exclusive states)
-          if (!p._isCrystallized && !p._isZenMode && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
+          // Check settings: crystallizationEnabled and connectorState
+          const canCrystallize = crystallizationEnabled && (connectorState === 'auto' || connectorState === 'crystal-only')
+          if (!p._isCrystallized && !p._isZenMode && canCrystallize && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
             p._isCrystallized = true
             p._crystallizeTimer = 180 + Math.random() * 540 // 3-12 seconds
             p._isZenMode = true // Crystallized connectors are also zen-calm (no wobble)
@@ -587,7 +589,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
           // ZEN MODE: Random chance to enter content state regardless of fitness
           // 15% chance per frame to check, lasts 5-10 seconds, creates calm content state
-          if (!p._isZenMode && Math.random() < 0.15) {
+          // Check settings: connectorState controls zen triggers
+          const canZen = connectorState === 'auto' || connectorState === 'zen-only'
+          if (!p._isZenMode && canZen && Math.random() < 0.15) {
             p._isZenMode = true
             p._zenModeTimer = 300 + Math.random() * 300 // 5-10 seconds
           }
@@ -983,7 +987,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystallizationEnabled, connectorState])
 
   if (!mounted) return null
 

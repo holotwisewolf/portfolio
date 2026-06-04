@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 
 type GraceMode = 'enabled' | 'disabled' | 'constant'
+type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 
 interface ExplosionModeContextType {
   explosionMode: 'space' | 'radial'
@@ -11,6 +12,10 @@ interface ExplosionModeContextType {
   setGraceMode: (mode: GraceMode) => void
   frameFreezeEnabled: boolean
   setFrameFreezeEnabled: (enabled: boolean) => void
+  crystallizationEnabled: boolean
+  setCrystallizationEnabled: (enabled: boolean) => void
+  connectorState: ConnectorState
+  setConnectorState: (state: ConnectorState) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -40,6 +45,22 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return false
   })
 
+  const [crystallizationEnabled, setCrystallizationEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('crystallizationEnabled')
+      return saved !== 'false' // Default true
+    }
+    return true
+  })
+
+  const [connectorState, setConnectorState] = useState<ConnectorState>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorState') as ConnectorState | null
+      return saved || 'auto'
+    }
+    return 'auto'
+  })
+
   const handleSetExplosionMode = (mode: 'space' | 'radial') => {
     setExplosionMode(mode)
     localStorage.setItem('explosionMode', mode)
@@ -55,6 +76,16 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('frameFreezeEnabled', enabled.toString())
   }
 
+  const handleSetCrystallizationEnabled = (enabled: boolean) => {
+    setCrystallizationEnabled(enabled)
+    localStorage.setItem('crystallizationEnabled', enabled.toString())
+  }
+
+  const handleSetConnectorState = (state: ConnectorState) => {
+    setConnectorState(state)
+    localStorage.setItem('connectorState', state)
+  }
+
   return (
     <ExplosionModeContext.Provider value={{
       explosionMode,
@@ -62,7 +93,11 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       graceMode,
       setGraceMode: handleSetGraceMode,
       frameFreezeEnabled,
-      setFrameFreezeEnabled: handleSetFrameFreezeEnabled
+      setFrameFreezeEnabled: handleSetFrameFreezeEnabled,
+      crystallizationEnabled,
+      setCrystallizationEnabled: handleSetCrystallizationEnabled,
+      connectorState,
+      setConnectorState: handleSetConnectorState
     }}>
       {children}
     </ExplosionModeContext.Provider>

@@ -4,6 +4,7 @@ import { useContext, useState } from 'react'
 import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
 
 type GraceMode = 'enabled' | 'disabled' | 'constant'
+type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 
 export default function Settings() {
   const {
@@ -12,8 +13,12 @@ export default function Settings() {
     graceMode,
     setGraceMode,
     frameFreezeEnabled,
-    setFrameFreezeEnabled
-  } = useContext(ExplosionModeContext)
+    setFrameFreezeEnabled,
+    crystallizationEnabled,
+    setCrystallizationEnabled,
+    connectorState,
+    setConnectorState
+  } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState(true)
 
@@ -116,6 +121,64 @@ export default function Settings() {
               >
                 {frameFreezeEnabled ? 'Disable' : 'Enable'}
               </button>
+            </div>
+          </div>
+
+          {/* Crystallization */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Crystallization
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Status:</span> {crystallizationEnabled ? 'ENABLED' : 'DISABLED'}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {crystallizationEnabled
+                    ? 'Connectors form tight geometric crystal formations'
+                    : 'Crystallization disabled'}
+                </div>
+              </div>
+              <button
+                onClick={() => setCrystallizationEnabled(!crystallizationEnabled)}
+                className="px-4 py-2 border border-white hover:bg-white hover:text-black transition-colors"
+              >
+                {crystallizationEnabled ? 'Disable' : 'Enable'}
+              </button>
+            </div>
+          </div>
+
+          {/* Connector State */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Connector State
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Mode:</span> {connectorState === 'auto' ? 'Auto' : connectorState === 'zen-only' ? 'Zen Only' : connectorState === 'crystal-only' ? 'Crystal Only' : 'None'}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {connectorState === 'auto'
+                    ? 'Random zen (15%) and crystal (2.5%) triggers'
+                    : connectorState === 'zen-only'
+                    ? 'Only zen mode triggers enabled'
+                    : connectorState === 'crystal-only'
+                    ? 'Only crystallization triggers enabled'
+                    : 'All special states disabled'}
+                </div>
+              </div>
+              <select
+                value={connectorState}
+                onChange={(e) => setConnectorState(e.target.value as ConnectorState)}
+                className="px-3 py-2 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
+              >
+                <option value="auto">Auto</option>
+                <option value="zen-only">Zen Only</option>
+                <option value="crystal-only">Crystal Only</option>
+                <option value="none">None</option>
+              </select>
             </div>
           </div>
         </div>
