@@ -801,7 +801,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                   // 8x weaker than original, also increased threshold to 360px
                   // COOLDOWN: Even weaker after break-free (prevents snap-back)
                   const cooldownFactor = p._breakFreeCooldown > 0 ? 0.2 : 1.0 // 80% weaker during cooldown
-                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / densityFactor * cooldownFactor
+                  // During cooldown, ignore densityFactor for consistent weak attraction
+                  const divisor = p._breakFreeCooldown > 0 ? 1.0 : densityFactor
+                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / divisor * cooldownFactor
                   ax += (dx / d) * strength
                   ay += (dy / d) * strength
                 } else if (d < CONNECTOR_SPACING * 0.8) {
