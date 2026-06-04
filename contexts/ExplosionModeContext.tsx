@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 
 type GraceMode = 'enabled' | 'disabled' | 'constant'
+type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 
 interface ExplosionModeContextType {
@@ -12,8 +13,8 @@ interface ExplosionModeContextType {
   setGraceMode: (mode: GraceMode) => void
   frameFreezeEnabled: boolean
   setFrameFreezeEnabled: (enabled: boolean) => void
-  crystallizationEnabled: boolean
-  setCrystallizationEnabled: (enabled: boolean) => void
+  crystalMode: CrystalMode
+  setCrystalMode: (mode: CrystalMode) => void
   connectorState: ConnectorState
   setConnectorState: (state: ConnectorState) => void
 }
@@ -45,12 +46,12 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return false
   })
 
-  const [crystallizationEnabled, setCrystallizationEnabled] = useState(() => {
+  const [crystalMode, setCrystalMode] = useState<CrystalMode>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('crystallizationEnabled')
-      return saved !== 'false' // Default true
+      const saved = localStorage.getItem('crystalMode') as CrystalMode | null
+      return saved || 'enabled'
     }
-    return true
+    return 'enabled'
   })
 
   const [connectorState, setConnectorState] = useState<ConnectorState>(() => {
@@ -76,9 +77,9 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('frameFreezeEnabled', enabled.toString())
   }
 
-  const handleSetCrystallizationEnabled = (enabled: boolean) => {
-    setCrystallizationEnabled(enabled)
-    localStorage.setItem('crystallizationEnabled', enabled.toString())
+  const handleSetCrystalMode = (mode: CrystalMode) => {
+    setCrystalMode(mode)
+    localStorage.setItem('crystalMode', mode)
   }
 
   const handleSetConnectorState = (state: ConnectorState) => {
@@ -94,8 +95,8 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setGraceMode: handleSetGraceMode,
       frameFreezeEnabled,
       setFrameFreezeEnabled: handleSetFrameFreezeEnabled,
-      crystallizationEnabled,
-      setCrystallizationEnabled: handleSetCrystallizationEnabled,
+      crystalMode,
+      setCrystalMode: handleSetCrystalMode,
       connectorState,
       setConnectorState: handleSetConnectorState
     }}>

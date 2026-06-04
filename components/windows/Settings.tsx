@@ -4,6 +4,7 @@ import { useContext, useState } from 'react'
 import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
 
 type GraceMode = 'enabled' | 'disabled' | 'constant'
+type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 
 export default function Settings() {
@@ -14,8 +15,8 @@ export default function Settings() {
     setGraceMode,
     frameFreezeEnabled,
     setFrameFreezeEnabled,
-    crystallizationEnabled,
-    setCrystallizationEnabled,
+    crystalMode,
+    setCrystalMode,
     connectorState,
     setConnectorState
   } = useContext(ExplosionModeContext)!
@@ -132,20 +133,25 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div className="text-gray-300">
                 <div className="mb-1">
-                  <span className="text-white">Status:</span> {crystallizationEnabled ? 'ENABLED' : 'DISABLED'}
+                  <span className="text-white">Mode:</span> {crystalMode.charAt(0).toUpperCase() + crystalMode.slice(1)}
                 </div>
                 <div className="text-gray-500 text-[10px]">
-                  {crystallizationEnabled
-                    ? 'Connectors form tight geometric crystal formations'
+                  {crystalMode === 'enabled'
+                    ? 'Random crystal formation when connectors cluster'
+                    : crystalMode === 'constant'
+                    ? 'Connectors always in crystal formation'
                     : 'Crystallization disabled'}
                 </div>
               </div>
-              <button
-                onClick={() => setCrystallizationEnabled(!crystallizationEnabled)}
-                className="px-4 py-2 border border-white hover:bg-white hover:text-black transition-colors"
+              <select
+                value={crystalMode}
+                onChange={(e) => setCrystalMode(e.target.value as CrystalMode)}
+                className="px-3 py-2 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
               >
-                {crystallizationEnabled ? 'Disable' : 'Enable'}
-              </button>
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+                <option value="constant">Constant</option>
+              </select>
             </div>
           </div>
 

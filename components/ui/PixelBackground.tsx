@@ -38,10 +38,10 @@ interface PixelBackgroundProps {
 export default function PixelBackground({ explosionMode = 'space' }: PixelBackgroundProps) {
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { graceMode, frameFreezeEnabled, crystallizationEnabled, connectorState } = useContext(ExplosionModeContext)!
+  const { graceMode, frameFreezeEnabled, crystalMode, connectorState } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
-  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystallizationEnabled}-${connectorState}`)
+  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}`)
 
   useEffect(() => {
     setMounted(true)
@@ -49,13 +49,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
   // Save particle positions when settings change (for seamless transitions)
   useEffect(() => {
-    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystallizationEnabled}-${connectorState}`
+    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystallizationEnabled, connectorState])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState])
 
   useEffect(() => {
     if (!mounted) return
@@ -565,16 +565,23 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           // CRYSTALLIZATION: Small chance to enter crystal mode when enough connectors nearby
           // Forms tight geometric formations using existing optimal spacing (120px)
           // SKIP during zen mode (mutually exclusive states)
-          // Check settings: crystallizationEnabled and connectorState
-          const canCrystallize = crystallizationEnabled && (connectorState === 'auto' || connectorState === 'crystal-only')
-          if (!p._isCrystallized && !p._isZenMode && canCrystallize && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
+          // Check settings: crystalMode and connectorState
+          const canCrystallize = (crystalMode === 'enabled' || crystalMode === 'constant') && (connectorState === 'auto' || connectorState === 'crystal-only')
+
+          if (crystalMode === 'constant' && !p._isCrystallized && connectorDensity >= 3) {
+            // CONSTANT mode: Force crystallization when enough connectors nearby
+            p._isCrystallized = true
+            p._crystallizeTimer = 999999 // Effectively infinite
+            p._isZenMode = true // Crystallized connectors are also zen-calm (no wobble)
+          } else if (!p._isCrystallized && !p._isZenMode && canCrystallize && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
+            // ENABLED mode: Random chance to crystallize
             p._isCrystallized = true
             p._crystallizeTimer = 180 + Math.random() * 540 // 3-12 seconds
             p._isZenMode = true // Crystallized connectors are also zen-calm (no wobble)
           }
 
-          // Tick crystal timer
-          if (p._isCrystallized) {
+          // Tick crystal timer (skip in constant mode - infinite timer)
+          if (p._isCrystallized && crystalMode !== 'constant') {
             p._crystallizeTimer--
             // Also tick zen timer during crystallization (so zen doesn't extend beyond crystal)
             if (p._zenModeTimer > 0) p._zenModeTimer--
@@ -988,7 +995,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystallizationEnabled, connectorState])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState])
 
   if (!mounted) return null
 
