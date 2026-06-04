@@ -597,7 +597,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const batteryBonus = (p._socialBattery / 100) * 2 // 0-2 bonus based on battery
 
           // LONER BONUS: Extra patience when density 1-2 (reward good positioning)
-          const lonerBonus = p._localDensity <= 2 ? 3 : 0 // +3 tolerance for loners
+          const lonerBonus = p._localDensity <= 2 ? 3.5 : 0 // +3.5 tolerance for loners
 
           const relativeThreshold = globalMinDensity + dynamicTolerance + batteryBonus + lonerBonus
           if (p._localDensity > relativeThreshold) {
