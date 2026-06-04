@@ -684,48 +684,30 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // Time to recalculate target
               p._targetRecalcTimer = 5 // Reset for next time
 
-              // 15% chance to target a random corner/edge, 85% chance to target most isolated point
-              if (Math.random() < 0.15) {
-                // Random corner or edge
-                const edgeChoice = Math.floor(Math.random() * 8)
-                switch(edgeChoice) {
-                  case 0: targetX = 50; targetY = 50; break // Top-left
-                  case 1: targetX = canvas.width - 50; targetY = 50; break // Top-right
-                  case 2: targetX = 50; targetY = canvas.height - 50; break // Bottom-left
-                  case 3: targetX = canvas.width - 50; targetY = canvas.height - 50; break // Bottom-right
-                  case 4: targetX = canvas.width / 2; targetY = 50; break // Top-edge center
-                  case 5: targetX = canvas.width / 2; targetY = canvas.height - 50; break // Bottom-edge center
-                  case 6: targetX = 50; targetY = canvas.height / 2; break // Left-edge center
-                  case 7: targetX = canvas.width - 50; targetY = canvas.height / 2; break // Right-edge center
-                  default: targetX = canvas.width / 2; targetY = canvas.height / 2;
-                }
-              } else {
-                // Find point FARTHEST from ALL particles (truly most isolated point)
-                let bestX = canvas.width / 2
-                let bestY = canvas.height / 2
-                let maxMinDist = 0
+              // Find point FARTHEST from ALL particles (truly most isolated point)
+              let bestX = canvas.width / 2
+              let bestY = canvas.height / 2
+              let maxMinDist = 0
 
-                const gridSize = 50
-                for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
-                  for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
-                    let minDist = Infinity
-                    for (let j = 0; j < particleCount; j++) {
-                      // Consider ALL particles, not just connectors
-                      const dx = gx - particles[j].x
-                      const dy = gy - particles[j].y
-                      const d = Math.sqrt(dx * dx + dy * dy)
-                      if (d < minDist) minDist = d
-                    }
-                    if (minDist > maxMinDist) {
-                      maxMinDist = minDist
-                      bestX = gx
-                      bestY = gy
-                    }
+              const gridSize = 50
+              for (let gx = gridSize; gx < canvas.width; gx += gridSize) {
+                for (let gy = gridSize; gy < canvas.height; gy += gridSize) {
+                  let minDist = Infinity
+                  for (let j = 0; j < particleCount; j++) {
+                    // Consider ALL particles, not just connectors
+                    const dx = gx - particles[j].x
+                    const dy = gy - particles[j].y
+                    const d = Math.sqrt(dx * dx + dy * dy)
+                    if (d < minDist) minDist = d
                   }
+                if (minDist > maxMinDist) {
+                  maxMinDist = minDist
+                  bestX = gx
+                  bestY = gy
                 }
-                targetX = bestX
-                targetY = bestY
               }
+              targetX = bestX
+              targetY = bestY
 
               // Cache the target
               p._connectorTarget = { x: targetX, y: targetY }
