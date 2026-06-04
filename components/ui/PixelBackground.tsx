@@ -687,11 +687,11 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // Decrement target recalc timer
             if (p._targetRecalcTimer > 0) p._targetRecalcTimer--
 
-            // Only recalculate target every 5 frames (balance between performance and responsiveness)
+            // Only recalculate target every 15 frames (smoother movement, less erratic)
             let targetX, targetY
             if (p._targetRecalcTimer === 0) {
               // Time to recalculate target
-              p._targetRecalcTimer = 5 // Reset for next time
+              p._targetRecalcTimer = 15 // Reset for next time
 
               // Find point FARTHEST from ALL particles (truly most isolated point)
               let bestX = canvas.width / 2
@@ -730,11 +730,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             const dx = targetX - p.x
             const dy = targetY - p.y
             const d = Math.sqrt(dx * dx + dy * dy) || 1
-
-            // If close to target, force immediate recalculation (don't get stuck hovering)
-            if (d < 50) {
-              p._targetRecalcTimer = 0 // Force target recalc next frame
-            }
 
             // Skip if too close to target (prevent NaN)
             if (d >= 30) {
@@ -803,11 +798,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
             p.vx = (p.vx + ax * fitnessFactor) * DAMPING
             p.vy = (p.vy + ay * fitnessFactor) * DAMPING
-
-            // Random wander (reduced for high-fitness connectors so they can lock in)
-            const wanderAmount = 0.08 * (1 - fitness) // High fitness = near-zero wander
-            p.vx += (Math.random() - 0.5) * wanderAmount
-            p.vy += (Math.random() - 0.5) * wanderAmount
           }
         }
 
