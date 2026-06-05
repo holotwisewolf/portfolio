@@ -52,6 +52,17 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `edgeRepelForce.urgent` | 0.06 | Connector edge repulsion (0-5px from edge) | Force |
 | `EDGE_URGENT` | 5px | Threshold for urgent stronger push | Distance |
 
+### Edge Repulsion Mechanics
+
+Connectors have proactive edge avoidance to prevent lining up along screen borders:
+
+- **15px margin**: Repulsion activates when connector is within 15px of any edge
+- **Two-zone force**:
+  - **5-15px from edge**: `0.02 × distance` (gentle push)
+  - **0-5px from edge**: `0.06 × distance` (3x stronger, urgent push)
+- **Applies to**: Connectors only, when NOT in break-free mode
+- **Purpose**: Prevents connectors from clustering along edges while maintaining natural movement near borders
+
 ---
 
 ## Zen Mode Settings
