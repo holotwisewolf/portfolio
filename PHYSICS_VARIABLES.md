@@ -47,8 +47,9 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `connectorRepel.range` | <96px | Repulsion range (< CONNECTOR_SPACING * 0.8) | Distance |
 | `targetSeekForce` | 0.2 | Force toward target when breaking free | Force |
 | `densityRadius` | 150px | Radius for density calculations | Distance |
-| `EDGE_MARGIN` | 100px | Distance from edge for repulsion to activate | Distance |
-| `edgeRepelForce` | 0.02 | Connector edge repulsion force strength | Force |
+| `EDGE_MARGIN` | 50px | Distance from edge for repulsion to activate | Distance |
+| `edgeRepelForce` | 0.03 | Connector edge repulsion force strength | Force |
+| `EDGE_URGENT` | 15px | Distance for urgent stronger push (3x force) | Distance |
 
 ---
 

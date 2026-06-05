@@ -838,17 +838,27 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // EDGE REPULSION: Push connectors away from screen edges (connectors only)
             // Prevents connectors from lining up along edges
-            const EDGE_MARGIN = 100
-            const edgeRepelForce = 0.02
+            const EDGE_MARGIN = 50
+            const edgeRepelForce = 0.03
+            const EDGE_URGENT = 15 // Very close to edge - stronger push
+
             if (p.x < EDGE_MARGIN) {
-              ax += (EDGE_MARGIN - p.x) * edgeRepelForce // Push right
+              const dist = EDGE_MARGIN - p.x
+              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
+              ax += dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0) // 3x stronger when touching edge
             } else if (p.x > canvas.width - EDGE_MARGIN) {
-              ax -= (p.x - (canvas.width - EDGE_MARGIN)) * edgeRepelForce // Push left
+              const dist = p.x - (canvas.width - EDGE_MARGIN)
+              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
+              ax -= dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0)
             }
             if (p.y < EDGE_MARGIN) {
-              ay += (EDGE_MARGIN - p.y) * edgeRepelForce // Push down
+              const dist = EDGE_MARGIN - p.y
+              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
+              ay += dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0)
             } else if (p.y > canvas.height - EDGE_MARGIN) {
-              ay -= (p.y - (canvas.height - EDGE_MARGIN)) * edgeRepelForce // Push up
+              const dist = p.y - (canvas.height - EDGE_MARGIN)
+              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
+              ay -= dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0)
             }
 
             // Part 1: VERY gentle push away from regular particles (don't affect clusters)
