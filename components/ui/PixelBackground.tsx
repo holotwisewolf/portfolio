@@ -876,13 +876,16 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 const crystalAttractMult = p._isCrystallized ? 8.0 : 1.0 // 8x stronger attraction during crystal
                 const crystalRepelMult = p._isCrystallized ? 0.3 : 1.0 // 70% weaker repulsion during crystal
 
-                if (d > CONNECTOR_SPACING * 3.0) {
+                // CRYSTAL MODE: Lower attraction threshold so connectors organize faster
+                // Normal: >360px, Crystal: >180px (pulls from closer distance)
+                const crystalThreshold = p._isCrystallized ? CONNECTOR_SPACING * 1.5 : CONNECTOR_SPACING * 3.0
+                if (d > crystalThreshold) {
                   // Too far - VERY WEAK attract normally, STRONG during crystal
                   // 8x weaker than original, also increased threshold to 360px
                   // COOLDOWN: Even weaker after break-free (prevents snap-back)
                   const cooldownFactor = p._breakFreeCooldown > 0 ? 0.2 : 1.0 // 80% weaker during cooldown
-                  // During cooldown, ignore densityFactor for consistent weak attraction
-                  const divisor = p._breakFreeCooldown > 0 ? 1.0 : densityFactor
+                  // During cooldown OR crystal: ignore densityFactor for stronger attraction
+                  const divisor = (p._breakFreeCooldown > 0 || p._isCrystallized) ? 1.0 : densityFactor
                   const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / divisor * cooldownFactor * crystalAttractMult
                   ax += (dx / d) * strength
                   ay += (dy / d) * strength
