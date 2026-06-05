@@ -836,6 +836,21 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // NOT breaking free - apply mesh network forces
             let ax = 0, ay = 0
 
+            // EDGE REPULSION: Push connectors away from screen edges (connectors only)
+            // Prevents connectors from lining up along edges
+            const EDGE_MARGIN = 100
+            const edgeRepelForce = 0.02
+            if (p.x < EDGE_MARGIN) {
+              ax += (EDGE_MARGIN - p.x) * edgeRepelForce // Push right
+            } else if (p.x > canvas.width - EDGE_MARGIN) {
+              ax -= (p.x - (canvas.width - EDGE_MARGIN)) * edgeRepelForce // Push left
+            }
+            if (p.y < EDGE_MARGIN) {
+              ay += (EDGE_MARGIN - p.y) * edgeRepelForce // Push down
+            } else if (p.y > canvas.height - EDGE_MARGIN) {
+              ay -= (p.y - (canvas.height - EDGE_MARGIN)) * edgeRepelForce // Push up
+            }
+
             // Part 1: VERY gentle push away from regular particles (don't affect clusters)
             for (let j = 0; j < particleCount; j++) {
               if (i === j || particles[j]._isConnector) continue // Skip other connectors
