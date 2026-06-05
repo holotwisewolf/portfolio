@@ -829,8 +829,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // Drift toward lowest density area (add to velocity, don't replace)
               // Reduced force for calmer movement, with damping
               const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
-              p.vx = (p.vx + (dx / d) * 0.1 * densityMultiplier) * DAMPING
-              p.vy = (p.vy + (dy / d) * 0.1 * densityMultiplier) * DAMPING
+              p.vx = (p.vx + (dx / d) * 0.2 * densityMultiplier) * DAMPING
+              p.vy = (p.vy + (dy / d) * 0.2 * densityMultiplier) * DAMPING
             }
           } else {
             // NOT breaking free - apply mesh network forces
