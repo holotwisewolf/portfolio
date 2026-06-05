@@ -38,10 +38,10 @@ interface PixelBackgroundProps {
 export default function PixelBackground({ explosionMode = 'space' }: PixelBackgroundProps) {
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled } = useContext(ExplosionModeContext)!
+  const { graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
-  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}`)
+  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}`)
 
   useEffect(() => {
     setMounted(true)
@@ -49,13 +49,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
   // Save particle positions when settings change (for seamless transitions)
   useEffect(() => {
-    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}`
+    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight])
 
   useEffect(() => {
     if (!mounted) return
@@ -989,6 +989,27 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // Connector particles get extra brightness bonus (influenced by density like regular particles)
         if (p._isConnector) {
           alpha = Math.min(alpha + p._connectorBrightness, 0.95)
+
+          // Apply highlight color if enabled
+          if (connectorHighlight !== 'disabled') {
+            let highlightColor: string
+            switch (connectorHighlight) {
+              case 'red':
+                highlightColor = `rgba(255, 100, 100, ${Math.min(alpha, 0.9)})`
+                break
+              case 'yellow':
+                highlightColor = `rgba(255, 255, 100, ${Math.min(alpha, 0.9)})`
+                break
+              case 'cyan':
+                highlightColor = `rgba(100, 255, 255, ${Math.min(alpha, 0.9)})`
+                break
+              default:
+                highlightColor = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
+            }
+            ctx.fillStyle = highlightColor
+            ctx.fillRect(Math.floor(p.x), Math.floor(p.y), size, size)
+            continue
+          }
         }
 
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
@@ -1010,7 +1031,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight])
 
   if (!mounted) return null
 

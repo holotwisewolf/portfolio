@@ -6,6 +6,7 @@ import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
 type GraceMode = 'enabled' | 'disabled' | 'constant'
 type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
+type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
 
 export default function Settings() {
   const {
@@ -20,7 +21,9 @@ export default function Settings() {
     connectorState,
     setConnectorState,
     calmnessEnabled,
-    setCalmnessEnabled
+    setCalmnessEnabled,
+    connectorHighlight,
+    setConnectorHighlight
   } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState(true)
@@ -212,6 +215,35 @@ export default function Settings() {
               >
                 {calmnessEnabled ? 'Disable' : 'Enable'}
               </button>
+            </div>
+          </div>
+
+          {/* Connector Highlight */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Connector Highlight
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Color:</span> {connectorHighlight === 'disabled' ? 'Disabled' : connectorHighlight.charAt(0).toUpperCase() + connectorHighlight.slice(1)}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {connectorHighlight === 'disabled'
+                    ? 'Connectors use default white color'
+                    : `Connectors highlighted in ${connectorHighlight}`}
+                </div>
+              </div>
+              <select
+                value={connectorHighlight}
+                onChange={(e) => setConnectorHighlight(e.target.value as ConnectorHighlight)}
+                className="px-3 py-2 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
+              >
+                <option value="disabled">Disabled</option>
+                <option value="red">Red</option>
+                <option value="yellow">Yellow</option>
+                <option value="cyan">Cyan</option>
+              </select>
             </div>
           </div>
         </div>

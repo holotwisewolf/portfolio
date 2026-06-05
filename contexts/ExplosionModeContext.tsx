@@ -5,6 +5,7 @@ import { createContext, useContext, useState, ReactNode } from 'react'
 type GraceMode = 'enabled' | 'disabled' | 'constant'
 type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
+type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
 
 interface ExplosionModeContextType {
   explosionMode: 'space' | 'radial'
@@ -19,6 +20,8 @@ interface ExplosionModeContextType {
   setConnectorState: (state: ConnectorState) => void
   calmnessEnabled: boolean
   setCalmnessEnabled: (enabled: boolean) => void
+  connectorHighlight: ConnectorHighlight
+  setConnectorHighlight: (color: ConnectorHighlight) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -72,6 +75,14 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return true
   })
 
+  const [connectorHighlight, setConnectorHighlight] = useState<ConnectorHighlight>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorHighlight') as ConnectorHighlight | null
+      return saved || 'disabled'
+    }
+    return 'disabled'
+  })
+
   const handleSetExplosionMode = (mode: 'space' | 'radial') => {
     setExplosionMode(mode)
     localStorage.setItem('explosionMode', mode)
@@ -102,6 +113,11 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('calmnessEnabled', enabled.toString())
   }
 
+  const handleSetConnectorHighlight = (color: ConnectorHighlight) => {
+    setConnectorHighlight(color)
+    localStorage.setItem('connectorHighlight', color)
+  }
+
   return (
     <ExplosionModeContext.Provider value={{
       explosionMode,
@@ -115,7 +131,9 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       connectorState,
       setConnectorState: handleSetConnectorState,
       calmnessEnabled,
-      setCalmnessEnabled: handleSetCalmnessEnabled
+      setCalmnessEnabled: handleSetCalmnessEnabled,
+      connectorHighlight,
+      setConnectorHighlight: handleSetConnectorHighlight
     }}>
       {children}
     </ExplosionModeContext.Provider>
