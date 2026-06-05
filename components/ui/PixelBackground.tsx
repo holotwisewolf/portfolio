@@ -843,20 +843,20 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             if (p.x < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.x
-              const force = dist > EDGE_URGENT ? 0.015 : 0.03 // 0.03 when within 5px of edge
+              const force = dist > EDGE_URGENT ? 0.02 : 0.06 // 0.06 when within 5px of edge
               ax += dist * force
             } else if (p.x > canvas.width - EDGE_MARGIN) {
               const dist = p.x - (canvas.width - EDGE_MARGIN)
-              const force = dist > EDGE_URGENT ? 0.015 : 0.03
+              const force = dist > EDGE_URGENT ? 0.02 : 0.06
               ax -= dist * force
             }
             if (p.y < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.y
-              const force = dist > EDGE_URGENT ? 0.015 : 0.03
+              const force = dist > EDGE_URGENT ? 0.02 : 0.06
               ay += dist * force
             } else if (p.y > canvas.height - EDGE_MARGIN) {
               const dist = p.y - (canvas.height - EDGE_MARGIN)
-              const force = dist > EDGE_URGENT ? 0.015 : 0.03
+              const force = dist > EDGE_URGENT ? 0.02 : 0.06
               ay -= dist * force
             }
 
