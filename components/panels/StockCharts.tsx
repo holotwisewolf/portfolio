@@ -143,7 +143,7 @@ export default function StockCharts() {
   }, [])
 
   return (
-    <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3" suppressHydrationWarning>
+    <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3 pb-12" suppressHydrationWarning>
       {/* Panel Label */}
       <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Stats
@@ -160,7 +160,6 @@ export default function StockCharts() {
         </div>
 
         <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
-        <StatRow label="FOLLOWERS" value={githubStats.followers.toString()} valueClass="text-white" />
 
         {/* Language Bars */}
         <div className="mb-4 mt-6">
