@@ -6,6 +6,7 @@ type GraceMode = 'enabled' | 'disabled' | 'constant'
 type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
+type CursorInteractionMode = 'none' | 'attract' | 'collide'
 
 interface ExplosionModeContextType {
   // Basic settings
@@ -67,6 +68,20 @@ interface ExplosionModeContextType {
   setEdgeUrgent: (urgent: number) => void
   edgeMomentumReaction: number
   setEdgeMomentumReaction: (reaction: number) => void
+
+  // Cursor interactions
+  cursorInteractionMode: CursorInteractionMode
+  setCursorInteractionMode: (mode: CursorInteractionMode) => void
+  cursorRippleEnabled: boolean
+  setCursorRippleEnabled: (enabled: boolean) => void
+  cursorConnectParticles: boolean
+  setCursorConnectParticles: (enabled: boolean) => void
+
+  // Window interactions
+  windowAttractParticles: boolean
+  setWindowAttractParticles: (enabled: boolean) => void
+  windowCollideParticles: boolean
+  setWindowCollideParticles: (enabled: boolean) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -298,6 +313,48 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return 0.5
   })
 
+  // Cursor interaction settings
+  const [cursorInteractionMode, setCursorInteractionMode] = useState<CursorInteractionMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('cursorInteractionMode') as CursorInteractionMode | null
+      return saved || 'none'
+    }
+    return 'none'
+  })
+
+  const [cursorRippleEnabled, setCursorRippleEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('cursorRippleEnabled')
+      return saved === 'true'
+    }
+    return false
+  })
+
+  const [cursorConnectParticles, setCursorConnectParticles] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('cursorConnectParticles')
+      return saved === 'true'
+    }
+    return false
+  })
+
+  // Window interaction settings
+  const [windowAttractParticles, setWindowAttractParticles] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('windowAttractParticles')
+      return saved === 'true'
+    }
+    return false
+  })
+
+  const [windowCollideParticles, setWindowCollideParticles] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('windowCollideParticles')
+      return saved === 'true'
+    }
+    return false
+  })
+
   // Handlers with localStorage
   const handleSetExplosionMode = (mode: 'space' | 'radial') => {
     setExplosionMode(mode)
@@ -439,6 +496,31 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('edgeMomentumReaction', reaction.toString())
   }
 
+  const handleSetCursorInteractionMode = (mode: CursorInteractionMode) => {
+    setCursorInteractionMode(mode)
+    localStorage.setItem('cursorInteractionMode', mode)
+  }
+
+  const handleSetCursorRippleEnabled = (enabled: boolean) => {
+    setCursorRippleEnabled(enabled)
+    localStorage.setItem('cursorRippleEnabled', enabled.toString())
+  }
+
+  const handleSetCursorConnectParticles = (enabled: boolean) => {
+    setCursorConnectParticles(enabled)
+    localStorage.setItem('cursorConnectParticles', enabled.toString())
+  }
+
+  const handleSetWindowAttractParticles = (enabled: boolean) => {
+    setWindowAttractParticles(enabled)
+    localStorage.setItem('windowAttractParticles', enabled.toString())
+  }
+
+  const handleSetWindowCollideParticles = (enabled: boolean) => {
+    setWindowCollideParticles(enabled)
+    localStorage.setItem('windowCollideParticles', enabled.toString())
+  }
+
   return (
     <ExplosionModeContext.Provider value={{
       explosionMode,
@@ -496,7 +578,17 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       edgeUrgent,
       setEdgeUrgent: handleSetEdgeUrgent,
       edgeMomentumReaction,
-      setEdgeMomentumReaction: handleSetEdgeMomentumReaction
+      setEdgeMomentumReaction: handleSetEdgeMomentumReaction,
+      cursorInteractionMode,
+      setCursorInteractionMode: handleSetCursorInteractionMode,
+      cursorRippleEnabled,
+      setCursorRippleEnabled: handleSetCursorRippleEnabled,
+      cursorConnectParticles,
+      setCursorConnectParticles: handleSetCursorConnectParticles,
+      windowAttractParticles,
+      setWindowAttractParticles: handleSetWindowAttractParticles,
+      windowCollideParticles,
+      setWindowCollideParticles: handleSetWindowCollideParticles
     }}>
       {children}
     </ExplosionModeContext.Provider>
