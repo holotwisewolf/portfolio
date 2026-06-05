@@ -94,38 +94,47 @@ export default function Settings() {
       </div>
 
       {/* Terminal Output */}
-      <div className="bg-gray-950 border border-gray-800 p-2 flex-shrink-0 overflow-y-auto max-h-[140px]">
-        <div className="text-[9px] tracking-wider text-white uppercase mb-1">Settings commands</div>
+      <div className="bg-gray-950 border border-gray-800 p-2 flex-shrink-0 overflow-y-auto max-h-[180px]">
+        <div className="text-[9px] tracking-wider text-white uppercase mb-1">Settings reference</div>
 
-        <div className="text-gray-700 mb-0.5">$ help</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ explosion-mode, grace-period, frame-freeze, etc.</div>
+        <div className="text-gray-700 mb-0.5">$ explosion-mode</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Space Finder: particles spread to fill space</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Radial Blast: particles burst outward from center</div>
 
-        <div className="text-gray-700 mb-0.5">$ config</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Current configuration loaded.</div>
+        <div className="text-gray-700 mb-0.5">$ grace-period</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: slow-mo on explosion, then normal</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disabled: no slow-mo, immediate normal speed</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Constant: always in slow-mo</div>
 
-        {/* Settings descriptions */}
-        <div className="text-[9px] tracking-wider text-white uppercase mb-1 pt-1 border-t border-gray-800 mt-1">Settings info</div>
+        <div className="text-gray-700 mb-0.5">$ frame-freeze</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Pauses physics when you interact with windows</div>
 
-        <div className="text-gray-700 mb-0.5">explosion-mode</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Controls particle explosion pattern</div>
+        <div className="text-gray-700 mb-0.5">$ crystallization</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: connectors form geometric grid patterns</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disabled: connectors stay in flowing state</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Constant: always crystallized, no flowing</div>
 
-        <div className="text-gray-700 mb-0.5">grace-period</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Initial slow-motion phase duration</div>
+        <div className="text-gray-700 mb-0.5">$ connector-state</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Auto: shows in zen, crystallizes in crystal mode</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Zen Only: only during zen (non-crystal) state</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Crystal Only: only during crystallization</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ None: connectors completely hidden</div>
 
-        <div className="text-gray-700 mb-0.5">frame-freeze</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Pauses updates on window interaction</div>
+        <div className="text-gray-700 mb-0.5">$ calmness</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Gradually slows particles over time for zen effect</div>
 
-        <div className="text-gray-700 mb-0.5">crystallization</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Forms geometric grid structures</div>
+        <div className="text-gray-700 mb-0.5">$ connector-highlight</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Color overlay (red/yellow/cyan) for visibility</div>
 
-        <div className="text-gray-700 mb-0.5">connector-state</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Controls connector visibility modes</div>
+        <div className="text-gray-700 mb-0.5">$ advanced-settings</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Fine-tune 21 physics variables: particle count,</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ max speed, attraction force, mesh network,</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ edge repulsion with momentum reaction</div>
 
-        <div className="text-gray-700 mb-0.5">calmness</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Reduces particle velocity over time</div>
-
-        <div className="text-gray-700 mb-0.5">connector-highlight</div>
-        <div className="text-gray-400 mb-2 text-[10px]">→ Color overlay for connector visibility</div>
+        <div className="text-gray-700 mb-0.5">$ presets</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Conservative: 100 particles, slower flow</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Balanced: 150 particles, medium flow</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Chaotic: 200 particles, fast chaotic flow</div>
 
         <div className="text-gray-700">
           ~/settings{' '}
@@ -158,10 +167,12 @@ export default function Settings() {
             <div className="pl-4 py-2 space-y-2">
               {/* Explosion Mode */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Explosion Mode</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Explosion Mode</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {explosionMode === 'space' ? 'Space Finder' : 'Radial Blast'}
+                    {explosionMode === 'space'
+                      ? 'Space-finders, particles push 60-70% stronger toward empty spaces'
+                      : 'Radial blast, particles are 20-25% stronger than space-finding'}
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleExplosionMode(); }}
@@ -174,10 +185,10 @@ export default function Settings() {
 
               {/* Grace Period */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Grace Period</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Grace Period</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {graceMode.charAt(0).toUpperCase() + graceMode.slice(1)}
+                    Stability period after instability
                   </div>
                   <select
                     value={graceMode}
@@ -193,26 +204,26 @@ export default function Settings() {
 
               {/* Frame Freeze */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Frame Freeze</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Frame Freeze</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {frameFreezeEnabled ? 'Enabled' : 'Disabled'}
+                    Pauses particles when toggled
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setFrameFreezeEnabled(!frameFreezeEnabled); }}
                     className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
                   >
-                    {frameFreezeEnabled ? 'Disable' : 'Enable'}
+                    {frameFreezeEnabled ? 'Enabled' : 'Disabled'}
                   </button>
                 </div>
               </div>
 
               {/* Crystallization */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Crystallization</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Crystallization</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {crystalMode.charAt(0).toUpperCase() + crystalMode.slice(1)}
+                    Connector attraction increases, more likely to form stable connections
                   </div>
                   <select
                     value={crystalMode}
@@ -228,10 +239,10 @@ export default function Settings() {
 
               {/* Connector State */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Connector State</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Connector State</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {connectorState === 'auto' ? 'Auto' : connectorState === 'zen-only' ? 'Zen Only' : connectorState === 'crystal-only' ? 'Crystal Only' : 'None'}
+                    Controls which connector modes activate
                   </div>
                   <select
                     value={connectorState}
@@ -248,26 +259,26 @@ export default function Settings() {
 
               {/* Calmness */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Calmness</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Calmness</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {calmnessEnabled ? 'Enabled' : 'Disabled'}
+                    Reduces connector velocity over time
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCalmnessEnabled(!calmnessEnabled); }}
                     className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
                   >
-                    {calmnessEnabled ? 'Disable' : 'Enable'}
+                    {calmnessEnabled ? 'Enabled' : 'Disabled'}
                   </button>
                 </div>
               </div>
 
               {/* Connector Highlight */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-2">Connector Highlight</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Connector Highlight</div>
                 <div className="flex items-center justify-between">
                   <div className="text-gray-300 text-[10px]">
-                    {connectorHighlight === 'disabled' ? 'Disabled' : connectorHighlight.charAt(0).toUpperCase() + connectorHighlight.slice(1)}
+                    Connector color overlay
                   </div>
                   <select
                     value={connectorHighlight}

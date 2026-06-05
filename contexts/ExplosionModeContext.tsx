@@ -11,6 +11,8 @@ interface ExplosionModeContextType {
   // Basic settings
   explosionMode: 'space' | 'radial'
   setExplosionMode: (mode: 'space' | 'radial') => void
+  spaceFinderRatio: number
+  setSpaceFinderRatio: (ratio: number) => void
   graceMode: GraceMode
   setGraceMode: (mode: GraceMode) => void
   frameFreezeEnabled: boolean
@@ -77,6 +79,14 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       return saved || 'radial'
     }
     return 'radial'
+  })
+
+  const [spaceFinderRatio, setSpaceFinderRatio] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('spaceFinderRatio')
+      return saved ? parseFloat(saved) : 0.3
+    }
+    return 0.3
   })
 
   const [graceMode, setGraceMode] = useState<GraceMode>(() => {
@@ -294,6 +304,11 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('explosionMode', mode)
   }
 
+  const handleSetSpaceFinderRatio = (ratio: number) => {
+    setSpaceFinderRatio(ratio)
+    localStorage.setItem('spaceFinderRatio', ratio.toString())
+  }
+
   const handleSetGraceMode = (mode: GraceMode) => {
     setGraceMode(mode)
     localStorage.setItem('graceMode', mode)
@@ -428,6 +443,8 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     <ExplosionModeContext.Provider value={{
       explosionMode,
       setExplosionMode: handleSetExplosionMode,
+      spaceFinderRatio,
+      setSpaceFinderRatio: handleSetSpaceFinderRatio,
       graceMode,
       setGraceMode: handleSetGraceMode,
       frameFreezeEnabled,

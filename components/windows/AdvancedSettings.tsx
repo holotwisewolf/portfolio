@@ -24,7 +24,8 @@ export default function AdvancedSettings() {
     edgeRepelForceNormal, setEdgeRepelForceNormal,
     edgeRepelForceUrgent, setEdgeRepelForceUrgent,
     edgeUrgent, setEdgeUrgent,
-    edgeMomentumReaction, setEdgeMomentumReaction
+    edgeMomentumReaction, setEdgeMomentumReaction,
+    spaceFinderRatio, setSpaceFinderRatio
   } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState({
@@ -55,6 +56,7 @@ export default function AdvancedSettings() {
     setEdgeRepelForceUrgent(0.06)
     setEdgeUrgent(10)
     setEdgeMomentumReaction(0.5)
+    setSpaceFinderRatio(0.3)
   }
 
   // Helper for number input with fixed width
@@ -107,8 +109,12 @@ export default function AdvancedSettings() {
                 <span className="text-gray-400">Connector Ratio</span>
                 <NumberInput value={connectorRatio} onChange={setConnectorRatio} min={0.05} max={0.25} step={0.01} />
               </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Space Finder Ratio</span>
+                <NumberInput value={spaceFinderRatio} onChange={setSpaceFinderRatio} min={0} max={1} step={0.05} />
+              </div>
               <div className="text-gray-500 text-[10px]">
-                50-300 particles | 5%-25% connectors
+                50-300 particles | 5%-25% connectors | 0-100% space-finders
               </div>
             </div>
           </div>

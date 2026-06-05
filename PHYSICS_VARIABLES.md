@@ -106,6 +106,7 @@ Connectors have proactive edge avoidance to prevent lining up along screen borde
 
 | Variable | Value | Description | Category |
 |----------|-------|-------------|----------|
+| `SPACE_FINDER_RATIO` | 30% | (i % 10 >= 7) = 3 out of 10 particles | Ratio |
 | `HARD_CAP` | 7 | Neighbors count for instant explosion | Threshold |
 | `UNSTABLE_MIN` | 4 | Min neighbors for unstable state | Threshold |
 | `UNSTABLE_MAX` | 6 | Max neighbors for unstable state | Threshold |
