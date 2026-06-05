@@ -220,19 +220,11 @@ body::before {
   animation: rgb-shift 3s ease-in-out infinite;
 }
 
-/* Window boot animation - BIOS-style white flash */
+/* Window boot animation - no flash */
 @keyframes window-boot {
   0% {
-    background: white;
-    opacity: 1;
-  }
-  10% {
-    background: white;
-    opacity: 1;
-  }
-  15% {
     background: black;
-    opacity: 1;
+    opacity: 0;
   }
   100% {
     background: black;

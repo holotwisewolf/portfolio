@@ -43,6 +43,28 @@ interface ExplosionModeContextType {
   setConnectorSpacing: (spacing: number) => void
   edgeMargin: number
   setEdgeMargin: (margin: number) => void
+  connectorAttract: number
+  setConnectorAttract: (attract: number) => void
+  connectorAttractBase: number
+  setConnectorAttractBase: (base: number) => void
+  connectorAttractRangeNormal: number
+  setConnectorAttractRangeNormal: (range: number) => void
+  connectorAttractRangeCrystal: number
+  setConnectorAttractRangeCrystal: (range: number) => void
+  connectorRepelStrength: number
+  setConnectorRepelStrength: (strength: number) => void
+  connectorRepelRange: number
+  setConnectorRepelRange: (range: number) => void
+  targetSeekForce: number
+  setTargetSeekForce: (force: number) => void
+  edgeRepelForceNormal: number
+  setEdgeRepelForceNormal: (force: number) => void
+  edgeRepelForceUrgent: number
+  setEdgeRepelForceUrgent: (force: number) => void
+  edgeUrgent: number
+  setEdgeUrgent: (urgent: number) => void
+  edgeMomentumReaction: number
+  setEdgeMomentumReaction: (reaction: number) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -178,6 +200,94 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return 15
   })
 
+  const [connectorAttract, setConnectorAttract] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorAttract')
+      return saved ? parseFloat(saved) : 0.003
+    }
+    return 0.003
+  })
+
+  const [connectorAttractBase, setConnectorAttractBase] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorAttractBase')
+      return saved ? parseFloat(saved) : 0.0625
+    }
+    return 0.0625
+  })
+
+  const [connectorAttractRangeNormal, setConnectorAttractRangeNormal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorAttractRangeNormal')
+      return saved ? parseInt(saved) : 360
+    }
+    return 360
+  })
+
+  const [connectorAttractRangeCrystal, setConnectorAttractRangeCrystal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorAttractRangeCrystal')
+      return saved ? parseInt(saved) : 180
+    }
+    return 180
+  })
+
+  const [connectorRepelStrength, setConnectorRepelStrength] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorRepelStrength')
+      return saved ? parseFloat(saved) : 0.03
+    }
+    return 0.03
+  })
+
+  const [connectorRepelRange, setConnectorRepelRange] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectorRepelRange')
+      return saved ? parseInt(saved) : 96
+    }
+    return 96
+  })
+
+  const [targetSeekForce, setTargetSeekForce] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('targetSeekForce')
+      return saved ? parseFloat(saved) : 0.2
+    }
+    return 0.2
+  })
+
+  const [edgeRepelForceNormal, setEdgeRepelForceNormal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('edgeRepelForceNormal')
+      return saved ? parseFloat(saved) : 0.03
+    }
+    return 0.03
+  })
+
+  const [edgeRepelForceUrgent, setEdgeRepelForceUrgent] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('edgeRepelForceUrgent')
+      return saved ? parseFloat(saved) : 0.06
+    }
+    return 0.06
+  })
+
+  const [edgeUrgent, setEdgeUrgent] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('edgeUrgent')
+      return saved ? parseInt(saved) : 10
+    }
+    return 10
+  })
+
+  const [edgeMomentumReaction, setEdgeMomentumReaction] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('edgeMomentumReaction')
+      return saved ? parseFloat(saved) : 0.5
+    }
+    return 0.5
+  })
+
   // Handlers with localStorage
   const handleSetExplosionMode = (mode: 'space' | 'radial') => {
     setExplosionMode(mode)
@@ -259,6 +369,61 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('edgeMargin', margin.toString())
   }
 
+  const handleSetConnectorAttract = (attract: number) => {
+    setConnectorAttract(attract)
+    localStorage.setItem('connectorAttract', attract.toString())
+  }
+
+  const handleSetConnectorAttractBase = (base: number) => {
+    setConnectorAttractBase(base)
+    localStorage.setItem('connectorAttractBase', base.toString())
+  }
+
+  const handleSetConnectorAttractRangeNormal = (range: number) => {
+    setConnectorAttractRangeNormal(range)
+    localStorage.setItem('connectorAttractRangeNormal', range.toString())
+  }
+
+  const handleSetConnectorAttractRangeCrystal = (range: number) => {
+    setConnectorAttractRangeCrystal(range)
+    localStorage.setItem('connectorAttractRangeCrystal', range.toString())
+  }
+
+  const handleSetConnectorRepelStrength = (strength: number) => {
+    setConnectorRepelStrength(strength)
+    localStorage.setItem('connectorRepelStrength', strength.toString())
+  }
+
+  const handleSetConnectorRepelRange = (range: number) => {
+    setConnectorRepelRange(range)
+    localStorage.setItem('connectorRepelRange', range.toString())
+  }
+
+  const handleSetTargetSeekForce = (force: number) => {
+    setTargetSeekForce(force)
+    localStorage.setItem('targetSeekForce', force.toString())
+  }
+
+  const handleSetEdgeRepelForceNormal = (force: number) => {
+    setEdgeRepelForceNormal(force)
+    localStorage.setItem('edgeRepelForceNormal', force.toString())
+  }
+
+  const handleSetEdgeRepelForceUrgent = (force: number) => {
+    setEdgeRepelForceUrgent(force)
+    localStorage.setItem('edgeRepelForceUrgent', force.toString())
+  }
+
+  const handleSetEdgeUrgent = (urgent: number) => {
+    setEdgeUrgent(urgent)
+    localStorage.setItem('edgeUrgent', urgent.toString())
+  }
+
+  const handleSetEdgeMomentumReaction = (reaction: number) => {
+    setEdgeMomentumReaction(reaction)
+    localStorage.setItem('edgeMomentumReaction', reaction.toString())
+  }
+
   return (
     <ExplosionModeContext.Provider value={{
       explosionMode,
@@ -292,7 +457,29 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       connectorSpacing,
       setConnectorSpacing: handleSetConnectorSpacing,
       edgeMargin,
-      setEdgeMargin: handleSetEdgeMargin
+      setEdgeMargin: handleSetEdgeMargin,
+      connectorAttract,
+      setConnectorAttract: handleSetConnectorAttract,
+      connectorAttractBase,
+      setConnectorAttractBase: handleSetConnectorAttractBase,
+      connectorAttractRangeNormal,
+      setConnectorAttractRangeNormal: handleSetConnectorAttractRangeNormal,
+      connectorAttractRangeCrystal,
+      setConnectorAttractRangeCrystal: handleSetConnectorAttractRangeCrystal,
+      connectorRepelStrength,
+      setConnectorRepelStrength: handleSetConnectorRepelStrength,
+      connectorRepelRange,
+      setConnectorRepelRange: handleSetConnectorRepelRange,
+      targetSeekForce,
+      setTargetSeekForce: handleSetTargetSeekForce,
+      edgeRepelForceNormal,
+      setEdgeRepelForceNormal: handleSetEdgeRepelForceNormal,
+      edgeRepelForceUrgent,
+      setEdgeRepelForceUrgent: handleSetEdgeRepelForceUrgent,
+      edgeUrgent,
+      setEdgeUrgent: handleSetEdgeUrgent,
+      edgeMomentumReaction,
+      setEdgeMomentumReaction: handleSetEdgeMomentumReaction
     }}>
       {children}
     </ExplosionModeContext.Provider>

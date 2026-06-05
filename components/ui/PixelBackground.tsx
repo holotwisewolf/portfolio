@@ -53,13 +53,26 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     attract,
     connectionDistance,
     connectorSpacing,
-    edgeMargin
+    edgeMargin,
+    connectorAttract,
+    connectorAttractBase,
+    connectorAttractRangeNormal,
+    connectorAttractRangeCrystal,
+    connectorRepelStrength,
+    connectorRepelRange,
+    targetSeekForce,
+    edgeRepelForceNormal,
+    edgeRepelForceUrgent,
+    edgeUrgent,
+    edgeMomentumReaction
   } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
   const prevSettingsRef = useRef(
     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
-    `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}`
+    `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
+    `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
+    `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}`
   )
 
   useEffect(() => {
@@ -70,13 +83,15 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   useEffect(() => {
     const currentSettings =
       `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
-      `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}`
+      `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
+      `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
+      `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction])
 
   useEffect(() => {
     if (!mounted) return
@@ -114,9 +129,18 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
     // Connector mesh settings (from context)
     const CONNECTOR_SPACING = connectorSpacing
-    const CONNECTOR_ATTRACT = 0.003  // Weaker attraction to prevent clumping
+    const CONNECTOR_ATTRACT = connectorAttract
+    const CONNECTOR_ATTRACT_BASE = connectorAttractBase
+    const CONNECTOR_ATTRACT_RANGE_NORMAL = connectorAttractRangeNormal
+    const CONNECTOR_ATTRACT_RANGE_CRYSTAL = connectorAttractRangeCrystal
+    const CONNECTOR_REPEL_STRENGTH = connectorRepelStrength
+    const CONNECTOR_REPEL_RANGE = connectorRepelRange
+    const TARGET_SEEK_FORCE = targetSeekForce
     const EDGE_MARGIN = edgeMargin
-    const EDGE_URGENT = 10 // Threshold for stronger push when very close
+    const EDGE_URGENT = edgeUrgent
+    const EDGE_REPEL_FORCE_NORMAL = edgeRepelForceNormal
+    const EDGE_REPEL_FORCE_URGENT = edgeRepelForceUrgent
+    const EDGE_MOMENTUM_REACTION = edgeMomentumReaction
 
     // Local crowd control system
     const HARD_CAP = 7              // 7+ neighbors = instant explosion (was 6)
@@ -851,8 +875,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // Drift toward lowest density area (add to velocity, don't replace)
               // Reduced force for calmer movement, with damping
               const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
-              p.vx = (p.vx + (dx / d) * 0.2 * densityMultiplier) * DAMPING
-              p.vy = (p.vy + (dy / d) * 0.2 * densityMultiplier) * DAMPING
+              p.vx = (p.vx + (dx / d) * TARGET_SEEK_FORCE * densityMultiplier) * DAMPING
+              p.vy = (p.vy + (dy / d) * TARGET_SEEK_FORCE * densityMultiplier) * DAMPING
             }
           } else {
             // NOT breaking free - apply mesh network forces
@@ -864,28 +888,28 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             if (p.x < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.x
-              const force = dist > EDGE_URGENT ? 0.03 : 0.06 // 0.06 when within 10px of edge
+              const force = dist > EDGE_URGENT ? EDGE_REPEL_FORCE_NORMAL : EDGE_REPEL_FORCE_URGENT
               // Opposite reaction: add velocity pushing INTO the edge (negative vx = moving left toward edge)
-              const momentumReaction = p.vx < 0 ? -p.vx * 0.5 : 0 // 50% of incoming velocity as opposite force
+              const momentumReaction = p.vx < 0 ? -p.vx * EDGE_MOMENTUM_REACTION : 0
               ax += dist * force + momentumReaction
             } else if (p.x > canvas.width - EDGE_MARGIN) {
               const dist = p.x - (canvas.width - EDGE_MARGIN)
-              const force = dist > EDGE_URGENT ? 0.03 : 0.06
+              const force = dist > EDGE_URGENT ? EDGE_REPEL_FORCE_NORMAL : EDGE_REPEL_FORCE_URGENT
               // Opposite reaction: add velocity pushing INTO the edge (positive vx = moving right toward edge)
-              const momentumReaction = p.vx > 0 ? p.vx * 0.5 : 0
+              const momentumReaction = p.vx > 0 ? p.vx * EDGE_MOMENTUM_REACTION : 0
               ax -= dist * force + momentumReaction
             }
             if (p.y < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.y
-              const force = dist > EDGE_URGENT ? 0.03 : 0.06
+              const force = dist > EDGE_URGENT ? EDGE_REPEL_FORCE_NORMAL : EDGE_REPEL_FORCE_URGENT
               // Opposite reaction: add velocity pushing INTO the edge (negative vy = moving up toward edge)
-              const momentumReaction = p.vy < 0 ? -p.vy * 0.5 : 0
+              const momentumReaction = p.vy < 0 ? -p.vy * EDGE_MOMENTUM_REACTION : 0
               ay += dist * force + momentumReaction
             } else if (p.y > canvas.height - EDGE_MARGIN) {
               const dist = p.y - (canvas.height - EDGE_MARGIN)
-              const force = dist > EDGE_URGENT ? 0.03 : 0.06
+              const force = dist > EDGE_URGENT ? EDGE_REPEL_FORCE_NORMAL : EDGE_REPEL_FORCE_URGENT
               // Opposite reaction: add velocity pushing INTO the edge (positive vy = moving down toward edge)
-              const momentumReaction = p.vy > 0 ? p.vy * 0.5 : 0
+              const momentumReaction = p.vy > 0 ? p.vy * EDGE_MOMENTUM_REACTION : 0
               ay -= dist * force + momentumReaction
             }
 
@@ -930,23 +954,22 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 const crystalRepelMult = p._isCrystallized ? 0.3 : 1.0 // 70% weaker repulsion during crystal
 
                 // CRYSTAL MODE: Lower attraction threshold so connectors organize faster
-                // Normal: >360px, Crystal: >180px (pulls from closer distance)
-                const crystalThreshold = p._isCrystallized ? CONNECTOR_SPACING * 1.5 : CONNECTOR_SPACING * 3.0
+                // Normal: connectorAttractRangeNormal, Crystal: connectorAttractRangeCrystal
+                const crystalThreshold = p._isCrystallized ? CONNECTOR_ATTRACT_RANGE_CRYSTAL : CONNECTOR_ATTRACT_RANGE_NORMAL
                 if (d > crystalThreshold) {
                   // Too far - VERY WEAK attract normally, STRONG during crystal
-                  // 8x weaker than original, also increased threshold to 360px
                   // COOLDOWN: Even weaker after break-free (prevents snap-back)
                   const cooldownFactor = p._breakFreeCooldown > 0 ? 0.2 : 1.0 // 80% weaker during cooldown
                   // During cooldown OR crystal: ignore densityFactor for stronger attraction
                   const divisor = (p._breakFreeCooldown > 0 || p._isCrystallized) ? 1.0 : densityFactor
-                  const strength = CONNECTOR_ATTRACT * 0.0625 * (1 - Math.min(d / 700, 1)) / divisor * cooldownFactor * crystalAttractMult
+                  const strength = CONNECTOR_ATTRACT * CONNECTOR_ATTRACT_BASE * (1 - Math.min(d / 700, 1)) / divisor * cooldownFactor * crystalAttractMult
                   ax += (dx / d) * strength
                   ay += (dy / d) * strength
-                } else if (d < CONNECTOR_SPACING * 0.8) {
-                  // Too close - repel (weakened, spacing increased to 96px)
+                } else if (d < CONNECTOR_REPEL_RANGE) {
+                  // Too close - repel
                   // During crystal: much weaker repulsion so connectors can cluster tighter
-                  ax -= (dx / d) * 0.03 * densityFactor * crystalRepelMult
-                  ay -= (dy / d) * 0.03 * densityFactor * crystalRepelMult
+                  ax -= (dx / d) * CONNECTOR_REPEL_STRENGTH * densityFactor * crystalRepelMult
+                  ay -= (dy / d) * CONNECTOR_REPEL_STRENGTH * densityFactor * crystalRepelMult
                 }
                 // At optimal spacing (96-360px) - no force, free to drift
                 // During crystal: this optimal range shrinks as connectors pull together
@@ -1087,7 +1110,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction])
 
   if (!mounted) return null
 

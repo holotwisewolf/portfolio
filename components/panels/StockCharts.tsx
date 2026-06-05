@@ -143,14 +143,49 @@ export default function StockCharts() {
   }, [])
 
   return (
-    <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3">
+    <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3" suppressHydrationWarning>
       {/* Panel Label */}
       <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Stats
       </div>
 
+      {/* Dev Activity Block */}
+      <div className="flex-1">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
+
+        {/* Activity Dots - right under header */}
+        <div className="mb-3">
+          <div className="text-[9px] text-gray-700 mb-1">Commit activity (35 days)</div>
+          <ActivityGrid dots={35} commits={commitActivity} />
+        </div>
+
+        <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
+        <StatRow label="FOLLOWERS" value={githubStats.followers.toString()} valueClass="text-white" />
+
+        {/* Language Bars */}
+        <div className="mb-4 mt-6">
+          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages in repos</div>
+          <LanguageBars languages={languages} />
+        </div>
+
+        {/* Stack Tags */}
+        <div className="mb-3">
+          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Stack</div>
+          <div className="flex flex-wrap gap-1">
+            {['React', 'Next.js', 'Node', 'Supabase', 'Figma'].map((tag) => (
+              <span
+                key={tag}
+                className="border border-gray-700 text-gray-300 text-[9px] px-2 py-0.5"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Market Watch Block */}
-      <div className="mb-3">
+      <div className="mt-auto">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-1">Market watch</div>
 
         {loading ? (
@@ -220,57 +255,23 @@ export default function StockCharts() {
               )
             })}
 
-            <StatRow
-              label="VIX"
-              value={`${vix.toFixed(1)} ${vix > previousVix ? '▲' : vix < previousVix ? '▼' : '→'}`}
-              valueClass={vix > 20 ? 'text-red-400' : 'text-green-400'}
-            />
+            {/* VIX with separate arrow and word colors */}
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-gray-400 text-[10px]">VIX</span>
+              <span className="text-sm">
+                <span className={vix > 20 ? 'text-red-400' : 'text-green-400'}>{vix.toFixed(1)}</span>
+                <span className={vix > previousVix ? 'text-red-400' : vix < previousVix ? 'text-green-400' : 'text-gray-500'}>
+                  {' '}{vix > previousVix ? '▲' : vix < previousVix ? '▼' : '→'}
+                </span>
+              </span>
+            </div>
             <StatRow
               label="MARKET"
               value={marketOpen ? 'OPEN' : 'CLOSED'}
-              valueClass={marketOpen ? 'text-white' : 'text-gray-600'}
+              valueClass={marketOpen ? 'text-green-400' : 'text-gray-600'}
             />
-
-            <div className="text-[9px] text-gray-700 italic mt-2">
-              wanna-be quant. paper trading only.
-            </div>
           </>
         )}
-      </div>
-
-      {/* Dev Activity Block */}
-      <div className="flex-1">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
-
-        {/* Activity Dots - right under header */}
-        <div className="mb-3">
-          <div className="text-[9px] text-gray-700 mb-1">Commit activity (35 days)</div>
-          <ActivityGrid dots={35} commits={commitActivity} />
-        </div>
-
-        <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
-        <StatRow label="FOLLOWERS" value={githubStats.followers.toString()} valueClass="text-white" />
-
-        {/* Language Bars */}
-        <div className="mb-3">
-          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages in repos</div>
-          <LanguageBars languages={languages} />
-        </div>
-
-        {/* Stack Tags */}
-        <div className="mb-3">
-          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Stack</div>
-          <div className="flex flex-wrap gap-1">
-            {['React', 'Next.js', 'Node', 'Supabase', 'Figma'].map((tag) => (
-              <span
-                key={tag}
-                className="border border-gray-700 text-gray-300 text-[9px] px-2 py-0.5"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )

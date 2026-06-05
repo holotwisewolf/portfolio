@@ -40,22 +40,23 @@ All these settings persist to localStorage and take effect immediately (no page 
 
 ## Connector Mesh Settings
 
+**All of these are now adjustable in Advanced Settings → Mesh Network section**
+
 | Variable | Value | Description | Category |
 |----------|-------|-------------|----------|
 | `CONNECTOR_SPACING` | 120 | Optimal distance between connectors | Distance |
 | `CONNECTOR_ATTRACT` | 0.003 | Connector-to-connector base attraction | Force |
-| `connectorAttract.base` | 0.0625 | Connector mesh attraction multiplier | Force |
-| `connectorAttract.range.normal` | >360px | Attraction range normally | Distance |
-| `connectorAttract.range.crystal` | >180px | Attraction range during crystal | Distance |
-| `connectorRepel.strength` | 0.03 | Connector-to-connector repulsion | Force |
-| `connectorRepel.range` | <96px | Repulsion range (< CONNECTOR_SPACING * 0.8) | Distance |
-| `targetSeekForce` | 0.2 | Force toward target when breaking free | Force |
-| `densityRadius` | 150px | Radius for density calculations | Distance |
+| `CONNECTOR_ATTRACT_BASE` | 0.0625 | Connector mesh attraction multiplier | Force |
+| `CONNECTOR_ATTRACT_RANGE_NORMAL` | 360 | Attraction range normally | Distance |
+| `CONNECTOR_ATTRACT_RANGE_CRYSTAL` | 180 | Attraction range during crystal | Distance |
+| `CONNECTOR_REPEL_STRENGTH` | 0.03 | Connector-to-connector repulsion | Force |
+| `CONNECTOR_REPEL_RANGE` | 96 | Repulsion range | Distance |
+| `TARGET_SEEK_FORCE` | 0.2 | Force toward target when breaking free | Force |
 | `EDGE_MARGIN` | 15px | Distance from edge for repulsion to activate | Distance |
-| `edgeRepelForce.normal` | 0.03 | Connector edge repulsion (10-15px from edge) | Force |
-| `edgeRepelForce.urgent` | 0.06 | Connector edge repulsion (0-10px from edge) | Force |
+| `EDGE_REPEL_FORCE_NORMAL` | 0.03 | Connector edge repulsion (normal zone) | Force |
+| `EDGE_REPEL_FORCE_URGENT` | 0.06 | Connector edge repulsion (urgent zone) | Force |
 | `EDGE_URGENT` | 10px | Threshold for urgent stronger push | Distance |
-| `edgeMomentumReaction` | 0.5 (50%) | Opposite reaction factor from incoming velocity | Multiplier |
+| `EDGE_MOMENTUM_REACTION` | 0.5 (50%) | Opposite reaction factor from incoming velocity | Multiplier |
 
 ### Edge Repulsion Mechanics
 

@@ -20,7 +20,7 @@ registerWindowContent('about', About)
 registerWindowContent('admin', Admin)
 registerWindowContent('terminalnav', TerminalNav)
 registerWindowContent('settings', Settings)
-registerWindowContent('advanced-settings', AdvancedSettings)
+registerWindowContent('advanced-physics-settings', AdvancedSettings)
 
 const GRID_SIZE = 100
 const ICON_WIDTH = 64

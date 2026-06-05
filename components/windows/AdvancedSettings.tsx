@@ -13,13 +13,25 @@ export default function AdvancedSettings() {
     attract, setAttract,
     connectionDistance, setConnectionDistance,
     connectorSpacing, setConnectorSpacing,
-    edgeMargin, setEdgeMargin
+    edgeMargin, setEdgeMargin,
+    connectorAttract, setConnectorAttract,
+    connectorAttractBase, setConnectorAttractBase,
+    connectorAttractRangeNormal, setConnectorAttractRangeNormal,
+    connectorAttractRangeCrystal, setConnectorAttractRangeCrystal,
+    connectorRepelStrength, setConnectorRepelStrength,
+    connectorRepelRange, setConnectorRepelRange,
+    targetSeekForce, setTargetSeekForce,
+    edgeRepelForceNormal, setEdgeRepelForceNormal,
+    edgeRepelForceUrgent, setEdgeRepelForceUrgent,
+    edgeUrgent, setEdgeUrgent,
+    edgeMomentumReaction, setEdgeMomentumReaction
   } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState({
-    particles: true,
-    physics: true,
-    connectors: true
+    particles: false,
+    physics: false,
+    connectors: false,
+    mesh: false
   })
 
   const resetToDefaults = () => {
@@ -32,246 +44,200 @@ export default function AdvancedSettings() {
     setConnectionDistance(130)
     setConnectorSpacing(120)
     setEdgeMargin(15)
+    setConnectorAttract(0.003)
+    setConnectorAttractBase(0.0625)
+    setConnectorAttractRangeNormal(360)
+    setConnectorAttractRangeCrystal(180)
+    setConnectorRepelStrength(0.03)
+    setConnectorRepelRange(96)
+    setTargetSeekForce(0.2)
+    setEdgeRepelForceNormal(0.03)
+    setEdgeRepelForceUrgent(0.06)
+    setEdgeUrgent(10)
+    setEdgeMomentumReaction(0.5)
   }
+
+  // Helper for number input with fixed width
+  const NumberInput = ({ value, onChange, min, max, step, className = '' }: {
+    value: number
+    onChange: (v: number) => void
+    min: number
+    max: number
+    step: number
+    className?: string
+  }) => (
+    <input
+      type="number"
+      min={min}
+      max={max}
+      step={step}
+      value={value}
+      onChange={(e) => onChange(parseFloat(e.target.value) || min)}
+      className={`bg-black border border-gray-700 text-white px-2 py-1 w-20 text-[10px] focus:border-white focus:outline-none ${className}`}
+    />
+  )
 
   return (
     <div className="h-full bg-black font-mono text-xs p-4 flex flex-col">
-      {/* Navigation Header */}
-      <div className="border-b border-white pb-2 mb-4">
-        <div
-          onClick={() => setExpanded({ particles: true, physics: true, connectors: true })}
-          className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1"
-        >
-          <span className="text-green-400">{'>'}</span>
-          <span className="text-white">Advanced Physics</span>
-        </div>
+      {/* Header */}
+      <div className="text-[10px] tracking-wider text-white uppercase border-b border-gray-800 pb-2 mb-4">
+        Advanced Physics Settings
       </div>
 
-      {/* Settings */}
-      <div className="flex-1 overflow-y-auto space-y-4">
+      {/* Navigation */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Navigation</div>
+
         {/* Particles Section */}
-        <div className="border border-gray-700 p-3">
+        <div>
           <div
             onClick={() => setExpanded({ ...expanded, particles: !expanded.particles })}
-            className="flex items-center justify-between cursor-pointer hover:bg-white/10 px-2 py-1 mb-3"
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
           >
-            <div className="text-gray-400 text-[9px] tracking-widest uppercase">Particles</div>
-            <span className="text-gray-500">{expanded.particles ? '▼' : '▶'}</span>
+            <span className="text-gray-800">&gt;</span> particles
           </div>
 
-          {expanded.particles && (
-            <div className="space-y-3">
-              {/* Particle Count */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Count</span>
-                  <span className="text-green-400">{particleCount}</span>
-                </div>
-                <input
-                  type="range"
-                  min="50"
-                  max="300"
-                  step="10"
-                  value={particleCount}
-                  onChange={(e) => setParticleCount(parseInt(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  50 (sparse) — 300 (dense)
-                </div>
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${expanded.particles ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="pl-4 py-2 space-y-2">
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Count</span>
+                <NumberInput value={particleCount} onChange={setParticleCount} min={50} max={300} step={10} />
               </div>
-
-              {/* Connector Ratio */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Connector Ratio</span>
-                  <span className="text-green-400">{Math.round(connectorRatio * 100)}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.05"
-                  max="0.25"
-                  step="0.01"
-                  value={connectorRatio}
-                  onChange={(e) => setConnectorRatio(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  5% — 25%
-                </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Connector Ratio</span>
+                <NumberInput value={connectorRatio} onChange={setConnectorRatio} min={0.05} max={0.25} step={0.01} />
+              </div>
+              <div className="text-gray-500 text-[10px]">
+                50-300 particles | 5%-25% connectors
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Physics Section */}
-        <div className="border border-gray-700 p-3">
+        <div>
           <div
             onClick={() => setExpanded({ ...expanded, physics: !expanded.physics })}
-            className="flex items-center justify-between cursor-pointer hover:bg-white/10 px-2 py-1 mb-3"
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
           >
-            <div className="text-gray-400 text-[9px] tracking-widest uppercase">Physics</div>
-            <span className="text-gray-500">{expanded.physics ? '▼' : '▶'}</span>
+            <span className="text-gray-800">&gt;</span> physics
           </div>
 
-          {expanded.physics && (
-            <div className="space-y-3">
-              {/* Max Speed */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Max Speed</span>
-                  <span className="text-green-400">{maxSpeed.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.1"
-                  max="2.0"
-                  step="0.1"
-                  value={maxSpeed}
-                  onChange={(e) => setMaxSpeed(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  0.1 (slow) — 2.0 (fast)
-                </div>
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${expanded.physics ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="pl-4 py-2 space-y-2">
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Max Speed</span>
+                <NumberInput value={maxSpeed} onChange={setMaxSpeed} min={0.1} max={2.0} step={0.1} />
               </div>
-
-              {/* Damping */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Damping</span>
-                  <span className="text-green-400">{damping.toFixed(2)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.90"
-                  max="0.99"
-                  step="0.01"
-                  value={damping}
-                  onChange={(e) => setDamping(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  0.90 (slippery) — 0.99 (sticky)
-                </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Damping</span>
+                <NumberInput value={damping} onChange={setDamping} min={0.90} max={0.99} step={0.01} />
               </div>
-
-              {/* Cluster Radius */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Cluster Radius</span>
-                  <span className="text-green-400">{clusterRadius}</span>
-                </div>
-                <input
-                  type="range"
-                  min="30"
-                  max="100"
-                  step="5"
-                  value={clusterRadius}
-                  onChange={(e) => setClusterRadius(parseInt(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  30px (tight) — 100px (loose)
-                </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Cluster Radius</span>
+                <NumberInput value={clusterRadius} onChange={setClusterRadius} min={30} max={100} step={5} />
               </div>
-
-              {/* Attraction Strength */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Attraction</span>
-                  <span className="text-green-400">{attract.toFixed(3)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.001"
-                  max="0.02"
-                  step="0.001"
-                  value={attract}
-                  onChange={(e) => setAttract(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  0.001 (weak) — 0.02 (strong)
-                </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Attraction</span>
+                <NumberInput value={attract} onChange={setAttract} min={0.001} max={0.02} step={0.001} />
               </div>
-
-              {/* Connection Distance */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Connection Distance</span>
-                  <span className="text-green-400">{connectionDistance}</span>
-                </div>
-                <input
-                  type="range"
-                  min="50"
-                  max="200"
-                  step="10"
-                  value={connectionDistance}
-                  onChange={(e) => setConnectionDistance(parseInt(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  50px (sparse) — 200px (dense web)
-                </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Connection Distance</span>
+                <NumberInput value={connectionDistance} onChange={setConnectionDistance} min={50} max={200} step={10} />
+              </div>
+              <div className="text-gray-500 text-[10px]">
+                Speed: 0.1-2.0 | Damping: 0.90-0.99 | Radius: 30-100px
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Connectors Section */}
-        <div className="border border-gray-700 p-3">
+        <div>
           <div
             onClick={() => setExpanded({ ...expanded, connectors: !expanded.connectors })}
-            className="flex items-center justify-between cursor-pointer hover:bg-white/10 px-2 py-1 mb-3"
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
           >
-            <div className="text-gray-400 text-[9px] tracking-widest uppercase">Connectors</div>
-            <span className="text-gray-500">{expanded.connectors ? '▼' : '▶'}</span>
+            <span className="text-gray-800">&gt;</span> connectors
           </div>
 
-          {expanded.connectors && (
-            <div className="space-y-3">
-              {/* Connector Spacing */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Spacing</span>
-                  <span className="text-green-400">{connectorSpacing}</span>
-                </div>
-                <input
-                  type="range"
-                  min="50"
-                  max="200"
-                  step="10"
-                  value={connectorSpacing}
-                  onChange={(e) => setConnectorSpacing(parseInt(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  50px (tight) — 200px (loose)
-                </div>
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${expanded.connectors ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="pl-4 py-2 space-y-2">
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Spacing</span>
+                <NumberInput value={connectorSpacing} onChange={setConnectorSpacing} min={50} max={200} step={10} />
               </div>
-
-              {/* Edge Margin */}
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-300">Edge Margin</span>
-                  <span className="text-green-400">{edgeMargin}</span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  step="5"
-                  value={edgeMargin}
-                  onChange={(e) => setEdgeMargin(parseInt(e.target.value))}
-                  className="w-full h-1 bg-gray-800 appearance-none cursor-pointer"
-                />
-                <div className="text-gray-500 text-[10px] mt-1">
-                  5px (close to edge) — 50px (far from edge)
-                </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Edge Margin</span>
+                <NumberInput value={edgeMargin} onChange={setEdgeMargin} min={5} max={50} step={5} />
+              </div>
+              <div className="text-gray-500 text-[10px]">
+                Spacing: 50-200px | Margin: 5-50px from edge
               </div>
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* Mesh Section */}
+        <div>
+          <div
+            onClick={() => setExpanded({ ...expanded, mesh: !expanded.mesh })}
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          >
+            <span className="text-gray-800">&gt;</span> mesh network
+          </div>
+
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${expanded.mesh ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="pl-4 py-2 space-y-2">
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Base Attract</span>
+                <NumberInput value={connectorAttract} onChange={setConnectorAttract} min={0.001} max={0.01} step={0.001} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Attract Multiplier</span>
+                <NumberInput value={connectorAttractBase} onChange={setConnectorAttractBase} min={0.01} max={0.2} step={0.01} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Attract Range (Normal)</span>
+                <NumberInput value={connectorAttractRangeNormal} onChange={setConnectorAttractRangeNormal} min={200} max={500} step={20} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Attract Range (Crystal)</span>
+                <NumberInput value={connectorAttractRangeCrystal} onChange={setConnectorAttractRangeCrystal} min={100} max={300} step={10} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Repel Strength</span>
+                <NumberInput value={connectorRepelStrength} onChange={setConnectorRepelStrength} min={0.01} max={0.1} step={0.01} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Repel Range</span>
+                <NumberInput value={connectorRepelRange} onChange={setConnectorRepelRange} min={50} max={150} step={10} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Target Force</span>
+                <NumberInput value={targetSeekForce} onChange={setTargetSeekForce} min={0.1} max={0.5} step={0.05} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Edge Force (Normal)</span>
+                <NumberInput value={edgeRepelForceNormal} onChange={setEdgeRepelForceNormal} min={0.01} max={0.1} step={0.01} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Edge Force (Urgent)</span>
+                <NumberInput value={edgeRepelForceUrgent} onChange={setEdgeRepelForceUrgent} min={0.02} max={0.2} step={0.01} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Edge Urgent Zone</span>
+                <NumberInput value={edgeUrgent} onChange={setEdgeUrgent} min={5} max={20} step={1} />
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Momentum Reaction</span>
+                <NumberInput value={edgeMomentumReaction} onChange={setEdgeMomentumReaction} min={0.1} max={1.0} step={0.1} />
+              </div>
+              <div className="text-gray-500 text-[10px]">
+                Mesh network physics for connector behavior
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -279,7 +245,7 @@ export default function AdvancedSettings() {
       <div className="border-t border-gray-700 pt-2 mt-4">
         <button
           onClick={resetToDefaults}
-          className="w-full px-4 py-2 border border-gray-600 text-gray-400 hover:bg-white hover:text-black transition-colors text-[10px]"
+          className="w-full px-4 py-1.5 border border-gray-600 text-gray-400 hover:bg-white hover:text-black transition-colors text-[10px]"
         >
           Reset to Defaults
         </button>
