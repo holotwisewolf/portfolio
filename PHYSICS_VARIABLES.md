@@ -47,19 +47,19 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `connectorRepel.range` | <96px | Repulsion range (< CONNECTOR_SPACING * 0.8) | Distance |
 | `targetSeekForce` | 0.2 | Force toward target when breaking free | Force |
 | `densityRadius` | 150px | Radius for density calculations | Distance |
-| `EDGE_MARGIN` | 15px | Distance from edge for repulsion to activate | Distance |
-| `edgeRepelForce.normal` | 0.02 | Connector edge repulsion (5-15px from edge) | Force |
-| `edgeRepelForce.urgent` | 0.06 | Connector edge repulsion (0-5px from edge) | Force |
-| `EDGE_URGENT` | 5px | Threshold for urgent stronger push | Distance |
+| `EDGE_MARGIN` | 20px | Distance from edge for repulsion to activate | Distance |
+| `edgeRepelForce.normal` | 0.03 | Connector edge repulsion (10-20px from edge) | Force |
+| `edgeRepelForce.urgent` | 0.06 | Connector edge repulsion (0-10px from edge) | Force |
+| `EDGE_URGENT` | 10px | Threshold for urgent stronger push | Distance |
 
 ### Edge Repulsion Mechanics
 
 Connectors have proactive edge avoidance to prevent lining up along screen borders:
 
-- **15px margin**: Repulsion activates when connector is within 15px of any edge
+- **20px margin**: Repulsion activates when connector is within 20px of any edge
 - **Two-zone force**:
-  - **5-15px from edge**: `0.02 × distance` (gentle push)
-  - **0-5px from edge**: `0.06 × distance` (3x stronger, urgent push)
+  - **10-20px from edge**: `0.03 × distance` (gentle push)
+  - **0-10px from edge**: `0.06 × distance` (2x stronger, urgent push)
 - **Applies to**: Connectors only, when NOT in break-free mode
 - **Purpose**: Prevents connectors from clustering along edges while maintaining natural movement near borders
 
