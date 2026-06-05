@@ -595,10 +595,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           }
 
           // ZEN MODE: Random chance to enter content state regardless of fitness
-          // 15% chance per frame to check, lasts 5-10 seconds, creates calm content state
+          // 3% chance per frame to check, lasts 5-10 seconds, creates calm content state
           // Check settings: connectorState controls zen triggers
           const canZen = connectorState === 'auto' || connectorState === 'zen-only'
-          if (!p._isZenMode && canZen && Math.random() < 0.15) {
+          if (!p._isZenMode && canZen && Math.random() < 0.03) {
             p._isZenMode = true
             p._zenModeTimer = 300 + Math.random() * 300 // 5-10 seconds
           }
@@ -897,7 +897,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
         // Position updates
         // TIME SLOW: Apply to position during grace period, not velocity
-        // CONNECTORS move at full speed during grace period (fast af)
+        // CONNECTORS move at 0.8x speed during grace period (faster than regular particles)
         // FRAME FREEZE: Skip position updates entirely (glow still calculated above)
         // ZEN MODE: Connectors in content state move extra slow (0.4x speed)
         if (frameFreezeEnabled) {
@@ -906,8 +906,11 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         } else if (p._isConnector && p._isZenMode) {
           p.x += p.vx * 0.4  // Extra slow movement for zen mode connectors
           p.y += p.vy * 0.4
+        } else if (inGracePeriod && p._isConnector) {
+          p.x += p.vx * 0.8  // 80% speed for connectors during grace period
+          p.y += p.vy * 0.8
         } else if (inGracePeriod) {
-          p.x += p.vx * 0.6  // 60% speed for all particles during grace period
+          p.x += p.vx * 0.6  // 60% speed for regular particles during grace period
           p.y += p.vy * 0.6
         } else {
           p.x += p.vx
