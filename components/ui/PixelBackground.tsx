@@ -102,6 +102,17 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const GRACE_MIN_DURATION = 120   // 2 seconds minimum
     const GRACE_MAX_DURATION = 720   // 12 seconds maximum
 
+    // Zen mode settings
+    const ZEN_TRIGGER_CHANCE = 0.03  // 3% per frame chance to enter zen mode
+    const ZEN_MIN_DURATION = 300     // 5 seconds minimum
+    const ZEN_MAX_DURATION = 600     // 10 seconds maximum
+
+    // Crystallization settings
+    const CRYSTAL_TRIGGER_CHANCE = 0.025  // 2.5% per frame chance to crystallize
+    const CRYSTAL_MIN_DURATION = 180      // 3 seconds minimum
+    const CRYSTAL_MAX_DURATION = 720      // 12 seconds maximum
+    const CRYSTAL_MIN_CONNECTORS = 5      // Minimum connectors nearby to trigger
+
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
     const COOLDOWN_FRAMES = 80  // ~1.3 seconds immunity (shorter for more connections)
@@ -573,10 +584,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             p._isCrystallized = true
             p._crystallizeTimer = 999999 // Effectively infinite
             p._isZenMode = true // Crystallized connectors are also zen-calm (no wobble)
-          } else if (!p._isCrystallized && !p._isZenMode && canCrystallize && connectorDensity >= 5 && Math.random() < 0.025) { // 2.5% per frame
+          } else if (!p._isCrystallized && !p._isZenMode && canCrystallize && connectorDensity >= CRYSTAL_MIN_CONNECTORS && Math.random() < CRYSTAL_TRIGGER_CHANCE) {
             // ENABLED mode: Random chance to crystallize
             p._isCrystallized = true
-            p._crystallizeTimer = 180 + Math.random() * 540 // 3-12 seconds
+            p._crystallizeTimer = CRYSTAL_MIN_DURATION + Math.random() * (CRYSTAL_MAX_DURATION - CRYSTAL_MIN_DURATION)
             p._isZenMode = true // Crystallized connectors are also zen-calm (no wobble)
           }
 
@@ -595,12 +606,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           }
 
           // ZEN MODE: Random chance to enter content state regardless of fitness
-          // 3% chance per frame to check, lasts 5-10 seconds, creates calm content state
+          // ZEN_TRIGGER_CHANCE per frame to check, lasts ZEN_MIN_DURATION to ZEN_MAX_DURATION, creates calm content state
           // Check settings: connectorState controls zen triggers
           const canZen = connectorState === 'auto' || connectorState === 'zen-only'
-          if (!p._isZenMode && canZen && Math.random() < 0.03) {
+          if (!p._isZenMode && canZen && Math.random() < ZEN_TRIGGER_CHANCE) {
             p._isZenMode = true
-            p._zenModeTimer = 300 + Math.random() * 300 // 5-10 seconds
+            p._zenModeTimer = ZEN_MIN_DURATION + Math.random() * (ZEN_MAX_DURATION - ZEN_MIN_DURATION)
           }
 
           // Tick zen mode timer

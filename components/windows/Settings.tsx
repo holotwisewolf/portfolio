@@ -167,7 +167,7 @@ export default function Settings() {
                 </div>
                 <div className="text-gray-500 text-[10px]">
                   {connectorState === 'auto'
-                    ? 'Random zen (15%) and crystal (2.5%) triggers'
+                    ? 'Random zen (3%) and crystal (2.5%) triggers'
                     : connectorState === 'zen-only'
                     ? 'Only zen mode triggers enabled'
                     : connectorState === 'crystal-only'
