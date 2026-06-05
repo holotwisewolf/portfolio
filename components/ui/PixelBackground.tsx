@@ -838,27 +838,26 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // EDGE REPULSION: Push connectors away from screen edges (connectors only)
             // Prevents connectors from lining up along edges
-            const EDGE_MARGIN = 50
-            const edgeRepelForce = 0.03
-            const EDGE_URGENT = 15 // Very close to edge - stronger push
+            const EDGE_MARGIN = 25
+            const EDGE_URGENT = 15 // Threshold for stronger push when very close
 
             if (p.x < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.x
-              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
-              ax += dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0) // 3x stronger when touching edge
+              const force = dist > EDGE_URGENT ? 0.02 : 0.04 // 0.04 when within 15px of edge
+              ax += dist * force
             } else if (p.x > canvas.width - EDGE_MARGIN) {
               const dist = p.x - (canvas.width - EDGE_MARGIN)
-              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
-              ax -= dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0)
+              const force = dist > EDGE_URGENT ? 0.02 : 0.04
+              ax -= dist * force
             }
             if (p.y < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.y
-              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
-              ay += dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0)
+              const force = dist > EDGE_URGENT ? 0.02 : 0.04
+              ay += dist * force
             } else if (p.y > canvas.height - EDGE_MARGIN) {
               const dist = p.y - (canvas.height - EDGE_MARGIN)
-              const isUrgent = dist > EDGE_MARGIN - EDGE_URGENT
-              ay -= dist * edgeRepelForce * (isUrgent ? 3.0 : 1.0)
+              const force = dist > EDGE_URGENT ? 0.02 : 0.04
+              ay -= dist * force
             }
 
             // Part 1: VERY gentle push away from regular particles (don't affect clusters)
