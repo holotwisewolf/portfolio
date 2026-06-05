@@ -838,25 +838,25 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // EDGE REPULSION: Push connectors away from screen edges (connectors only)
             // Prevents connectors from lining up along edges
-            const EDGE_MARGIN = 25
-            const EDGE_URGENT = 15 // Threshold for stronger push when very close
+            const EDGE_MARGIN = 15
+            const EDGE_URGENT = 5 // Threshold for stronger push when very close
 
             if (p.x < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.x
-              const force = dist > EDGE_URGENT ? 0.02 : 0.04 // 0.04 when within 15px of edge
+              const force = dist > EDGE_URGENT ? 0.015 : 0.03 // 0.03 when within 5px of edge
               ax += dist * force
             } else if (p.x > canvas.width - EDGE_MARGIN) {
               const dist = p.x - (canvas.width - EDGE_MARGIN)
-              const force = dist > EDGE_URGENT ? 0.02 : 0.04
+              const force = dist > EDGE_URGENT ? 0.015 : 0.03
               ax -= dist * force
             }
             if (p.y < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.y
-              const force = dist > EDGE_URGENT ? 0.02 : 0.04
+              const force = dist > EDGE_URGENT ? 0.015 : 0.03
               ay += dist * force
             } else if (p.y > canvas.height - EDGE_MARGIN) {
               const dist = p.y - (canvas.height - EDGE_MARGIN)
-              const force = dist > EDGE_URGENT ? 0.02 : 0.04
+              const force = dist > EDGE_URGENT ? 0.015 : 0.03
               ay -= dist * force
             }
 
