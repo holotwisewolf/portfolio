@@ -25,7 +25,12 @@ export default function AdvancedSettings() {
     edgeRepelForceUrgent, setEdgeRepelForceUrgent,
     edgeUrgent, setEdgeUrgent,
     edgeMomentumReaction, setEdgeMomentumReaction,
-    spaceFinderRatio, setSpaceFinderRatio
+    spaceFinderRatio, setSpaceFinderRatio,
+    cursorInteractionMode, setCursorInteractionMode,
+    cursorRippleEnabled, setCursorRippleEnabled,
+    cursorConnectParticles, setCursorConnectParticles,
+    windowAttractParticles, setWindowAttractParticles,
+    windowCollideParticles, setWindowCollideParticles
   } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState({
@@ -154,6 +159,52 @@ export default function AdvancedSettings() {
               <div className="text-gray-500 text-[10px]">
                 Speed: 0.1-2.0 | Damping: 0.90-0.99 | Radius: 30-100px
               </div>
+
+              {/* Cursor Interactions subsection */}
+              <div className="mt-4 pt-2 border-t border-gray-900">
+                <div className="text-gray-500 text-[10px] mb-2">CURSOR INTERACTIONS</div>
+
+                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                  <span className="text-gray-400">Cursor Mode</span>
+                  <select
+                    value={cursorInteractionMode}
+                    onChange={(e) => setCursorInteractionMode(e.target.value as 'none' | 'attract' | 'collide')}
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20"
+                  >
+                    <option value="none">None</option>
+                    <option value="attract">Attract</option>
+                    <option value="collide">Collide</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                  <span className="text-gray-400">Ripple on Click</span>
+                  <button
+                    onClick={() => setCursorRippleEnabled(!cursorRippleEnabled)}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      cursorRippleEnabled
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
+                  >
+                    {cursorRippleEnabled ? 'On' : 'Off'}
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                  <span className="text-gray-400">Connect Particles</span>
+                  <button
+                    onClick={() => setCursorConnectParticles(!cursorConnectParticles)}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      cursorConnectParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
+                  >
+                    {cursorConnectParticles ? 'On' : 'Off'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -179,6 +230,39 @@ export default function AdvancedSettings() {
               </div>
               <div className="text-gray-500 text-[10px]">
                 Spacing: 50-200px | Margin: 5-50px from edge
+              </div>
+
+              {/* Window Interactions subsection */}
+              <div className="mt-4 pt-2 border-t border-gray-900">
+                <div className="text-gray-500 text-[10px] mb-2">WINDOW INTERACTIONS</div>
+
+                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                  <span className="text-gray-400">Attract Particles</span>
+                  <button
+                    onClick={() => setWindowAttractParticles(!windowAttractParticles)}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      windowAttractParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
+                  >
+                    {windowAttractParticles ? 'On' : 'Off'}
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                  <span className="text-gray-400">Collide Particles</span>
+                  <button
+                    onClick={() => setWindowCollideParticles(!windowCollideParticles)}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      windowCollideParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
+                  >
+                    {windowCollideParticles ? 'On' : 'Off'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
