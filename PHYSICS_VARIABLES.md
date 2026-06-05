@@ -39,9 +39,14 @@ All these settings persist to localStorage and take effect immediately (no page 
 | Variable | Value | Description | Category |
 |----------|-------|-------------|----------|
 | `CONNECTOR_SPACING` | 120 | Optimal distance between connectors | Distance |
-| `CONNECTOR_ATTRACT` | 0.003 | Connector-to-connector attraction | Force |
+| `CONNECTOR_ATTRACT` | 0.003 | Connector-to-connector base attraction | Force |
+| `connectorAttract.base` | 0.0625 | Connector mesh attraction multiplier | Force |
+| `connectorAttract.range.normal` | >360px | Attraction range normally | Distance |
+| `connectorAttract.range.crystal` | >180px | Attraction range during crystal | Distance |
+| `connectorRepel.strength` | 0.03 | Connector-to-connector repulsion | Force |
+| `connectorRepel.range` | <96px | Repulsion range (< CONNECTOR_SPACING * 0.8) | Distance |
+| `targetSeekForce` | 0.2 | Force toward target when breaking free | Force |
 | `densityRadius` | 150px | Radius for density calculations | Distance |
-| `targetSeekForce` | 0.1 | Force toward target when breaking free | Force |
 
 ---
 
@@ -61,13 +66,14 @@ All these settings persist to localStorage and take effect immediately (no page 
 
 | Variable | Value | Description | Category |
 |----------|-------|-------------|----------|
-| `CRYSTAL_TRIGGER_CHANCE` | 0.025 (2.5%) | Per frame chance to crystallize | Probability |
+| `CRYSTAL_TRIGGER_CHANCE` | 0.025 (2.5%) | Per frame chance to crystallize (enabled mode) | Probability |
 | `CRYSTAL_MIN_DURATION` | 180 (3s) | Minimum crystal mode frames | Time |
 | `CRYSTAL_MAX_DURATION` | 720 (12s) | Maximum crystal mode frames | Time |
-| `CRYSTAL_MIN_CONNECTORS` | 5 | Minimum connectors nearby to trigger | Threshold |
-| `CRYSTAL_CONST_MIN_CONNECTORS` | 3 | For constant mode (lower threshold) | Threshold |
+| `CRYSTAL_MIN_CONNECTORS` | 5 | Minimum connectors nearby to trigger (enabled mode) | Threshold |
+| `CRYSTAL_CONST_MIN_CONNECTORS` | 3 | Minimum connectors nearby to trigger (constant mode) | Threshold |
 | `crystalAttractMult` | 8.0x | Mesh attraction multiplier during crystal | Multiplier |
 | `crystalRepelMult` | 0.3x (70%) | Mesh repulsion reduction during crystal | Multiplier |
+| `crystalDensityFactor.ignored` | true | Density factor ignored during crystal | Optimization |
 
 ---
 
@@ -204,3 +210,4 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `connectorBrightness.3` | 0.5 | 20% of connectors | Visual |
 | `densityGlow.divisor` | 6 | Neighbors count for max glow | Threshold |
 | `densityGlow.bonus` | 0.5 | Max brightness bonus from density | Visual |
+
