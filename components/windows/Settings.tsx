@@ -9,6 +9,7 @@ type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
 type Preset = 'conservative' | 'balanced' | 'chaotic'
+type CursorInteractionMode = 'none' | 'attract' | 'collide'
 
 export default function Settings() {
   const {
@@ -35,12 +36,24 @@ export default function Settings() {
     clusterRadius,
     setClusterRadius,
     connectorSpacing,
-    setConnectorSpacing
+    setConnectorSpacing,
+    cursorInteractionMode,
+    setCursorInteractionMode,
+    cursorRippleEnabled,
+    setCursorRippleEnabled,
+    cursorConnectParticles,
+    setCursorConnectParticles,
+    windowAttractParticles,
+    setWindowAttractParticles,
+    windowCollideParticles,
+    setWindowCollideParticles
   } = useContext(ExplosionModeContext)!
 
   const openWindow = useWindowStore((state) => state.openWindow)
 
-  const [expanded, setExpanded] = useState(false) // Default collapsed
+  const [expanded, setExpanded] = useState(false) // Default collapsed for bg particles
+  const [cursorExpanded, setCursorExpanded] = useState(false) // Cursor interactions section
+  const [windowExpanded, setWindowExpanded] = useState(false) // Window interactions section
   const [currentPreset, setCurrentPreset] = useState<Preset>('balanced')
 
   // Detect current preset from settings values
@@ -340,6 +353,133 @@ export default function Settings() {
 
               <div className="text-gray-600 text-[10px]">
                 Changes take effect on toggle
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Cursor Interactions - expandable with animation */}
+        <div
+          onClick={() => setCursorExpanded(!cursorExpanded)}
+          className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+        >
+          <span className="text-gray-800">
+            &gt;
+          </span>{' '}
+          cursor interactions
+        </div>
+
+        {/* Animated expansion for cursor interactions */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-out ${
+            cursorExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="pl-4 py-2 space-y-2">
+            {/* Cursor Mode */}
+            <div className="border border-gray-800 p-2">
+              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Mode</div>
+              <div className="flex items-center justify-between">
+                <div className="text-gray-300 text-[10px]">
+                  {cursorInteractionMode === 'none'
+                    ? 'No cursor interaction'
+                    : cursorInteractionMode === 'attract'
+                    ? 'Particles swarm toward cursor'
+                    : 'Cursor pushes particles on contact'}
+                </div>
+                <select
+                  value={cursorInteractionMode}
+                  onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
+                  className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                >
+                  <option value="none">None</option>
+                  <option value="attract">Attract</option>
+                  <option value="collide">Collide</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Cursor Ripple */}
+            <div className="border border-gray-800 p-2">
+              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Ripple</div>
+              <div className="flex items-center justify-between">
+                <div className="text-gray-300 text-[10px]">
+                  Click to create burst wave
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setCursorRippleEnabled(!cursorRippleEnabled); }}
+                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                >
+                  {cursorRippleEnabled ? 'Enabled' : 'Disabled'}
+                </button>
+              </div>
+            </div>
+
+            {/* Cursor Connections */}
+            <div className="border border-gray-800 p-2">
+              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Connections</div>
+              <div className="flex items-center justify-between">
+                <div className="text-gray-300 text-[10px]">
+                  Draw lines to nearby particles
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setCursorConnectParticles(!cursorConnectParticles); }}
+                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                >
+                  {cursorConnectParticles ? 'Enabled' : 'Disabled'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Icons Interaction - expandable with animation */}
+        <div
+          onClick={() => setWindowExpanded(!windowExpanded)}
+          className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+        >
+          <span className="text-gray-800">
+            &gt;
+          </span>{' '}
+          desktop icons interaction
+        </div>
+
+        {/* Animated expansion for window interactions */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-out ${
+            windowExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="pl-4 py-2 space-y-2">
+            {/* Window Attract */}
+            <div className="border border-gray-800 p-2">
+              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Attract Particles</div>
+              <div className="flex items-center justify-between">
+                <div className="text-gray-300 text-[10px]">
+                  Particles gather around windows
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setWindowAttractParticles(!windowAttractParticles); }}
+                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                >
+                  {windowAttractParticles ? 'Enabled' : 'Disabled'}
+                </button>
+              </div>
+            </div>
+
+            {/* Window Collide */}
+            <div className="border border-gray-800 p-2">
+              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Collide Particles</div>
+              <div className="flex items-center justify-between">
+                <div className="text-gray-300 text-[10px]">
+                  Windows push particles when dragged
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setWindowCollideParticles(!windowCollideParticles); }}
+                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                >
+                  {windowCollideParticles ? 'Enabled' : 'Disabled'}
+                </button>
               </div>
             </div>
           </div>
