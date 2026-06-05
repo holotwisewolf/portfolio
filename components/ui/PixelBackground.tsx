@@ -839,7 +839,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // EDGE REPULSION: Push connectors away from screen edges (connectors only)
             // Prevents connectors from lining up along edges
             // Combines opposite reaction (velocity toward edge) + repulsion force
-            const EDGE_MARGIN = 20
+            const EDGE_MARGIN = 15
             const EDGE_URGENT = 10 // Threshold for stronger push when very close
 
             if (p.x < EDGE_MARGIN) {

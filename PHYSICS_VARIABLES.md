@@ -47,8 +47,8 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `connectorRepel.range` | <96px | Repulsion range (< CONNECTOR_SPACING * 0.8) | Distance |
 | `targetSeekForce` | 0.2 | Force toward target when breaking free | Force |
 | `densityRadius` | 150px | Radius for density calculations | Distance |
-| `EDGE_MARGIN` | 20px | Distance from edge for repulsion to activate | Distance |
-| `edgeRepelForce.normal` | 0.03 | Connector edge repulsion (10-20px from edge) | Force |
+| `EDGE_MARGIN` | 15px | Distance from edge for repulsion to activate | Distance |
+| `edgeRepelForce.normal` | 0.03 | Connector edge repulsion (10-15px from edge) | Force |
 | `edgeRepelForce.urgent` | 0.06 | Connector edge repulsion (0-10px from edge) | Force |
 | `EDGE_URGENT` | 10px | Threshold for urgent stronger push | Distance |
 | `edgeMomentumReaction` | 0.5 (50%) | Opposite reaction factor from incoming velocity | Multiplier |
@@ -57,9 +57,9 @@ All these settings persist to localStorage and take effect immediately (no page 
 
 Connectors have proactive edge avoidance to prevent lining up along screen borders:
 
-- **20px margin**: Repulsion activates when connector is within 20px of any edge
+- **15px margin**: Repulsion activates when connector is within 15px of any edge
 - **Two-zone force**:
-  - **10-20px from edge**: `0.03 × distance` (gentle push)
+  - **10-15px from edge**: `0.03 × distance` (gentle push)
   - **0-10px from edge**: `0.06 × distance` (2x stronger, urgent push)
 - **Opposite reaction**: Adds 50% of incoming velocity as repulsion force
   - If connector is moving toward edge at velocity 0.5, adds 0.25 extra push back
