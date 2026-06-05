@@ -38,10 +38,10 @@ interface PixelBackgroundProps {
 export default function PixelBackground({ explosionMode = 'space' }: PixelBackgroundProps) {
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { graceMode, frameFreezeEnabled, crystalMode, connectorState } = useContext(ExplosionModeContext)!
+  const { graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
-  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}`)
+  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}`)
 
   useEffect(() => {
     setMounted(true)
@@ -49,13 +49,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
   // Save particle positions when settings change (for seamless transitions)
   useEffect(() => {
-    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}`
+    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled])
 
   useEffect(() => {
     if (!mounted) return
@@ -898,9 +898,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
 
             // Apply mesh network forces with damping (connectors need friction too)
-            const fitnessFactor = 1 - (fitness * 0.7) // High fitness = 0.3x force, low fitness = 1.0x force
+            // CALMNESS: When disabled, no force reduction (both factors = 1.0)
+            const fitnessFactor = calmnessEnabled ? (1 - (fitness * 0.7)) : 1.0 // High fitness = 0.3x force when enabled
             // ZEN MODE: Additional calmness factor - 0.2x force when content regardless of fitness
-            const zenFactor = p._isZenMode ? 0.2 : 1.0
+            const zenFactor = calmnessEnabled && p._isZenMode ? 0.2 : 1.0
             p.vx = (p.vx + ax * fitnessFactor * zenFactor) * DAMPING
             p.vy = (p.vy + ay * fitnessFactor * zenFactor) * DAMPING
           }
@@ -1009,7 +1010,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled])
 
   if (!mounted) return null
 

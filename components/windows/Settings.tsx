@@ -18,7 +18,9 @@ export default function Settings() {
     crystalMode,
     setCrystalMode,
     connectorState,
-    setConnectorState
+    setConnectorState,
+    calmnessEnabled,
+    setCalmnessEnabled
   } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState(true)
@@ -185,6 +187,31 @@ export default function Settings() {
                 <option value="crystal-only">Crystal Only</option>
                 <option value="none">None</option>
               </select>
+            </div>
+          </div>
+
+          {/* Calmness */}
+          <div className="border border-gray-700 p-3">
+            <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-3">
+              Calmness
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-gray-300">
+                <div className="mb-1">
+                  <span className="text-white">Status:</span> {calmnessEnabled ? 'ENABLED' : 'DISABLED'}
+                </div>
+                <div className="text-gray-500 text-[10px]">
+                  {calmnessEnabled
+                    ? 'Fitness-based and zen calmness active'
+                    : 'No calmness - full force always'}
+                </div>
+              </div>
+              <button
+                onClick={() => setCalmnessEnabled(!calmnessEnabled)}
+                className="px-4 py-2 border border-white hover:bg-white hover:text-black transition-colors"
+              >
+                {calmnessEnabled ? 'Disable' : 'Enable'}
+              </button>
             </div>
           </div>
         </div>

@@ -17,6 +17,8 @@ interface ExplosionModeContextType {
   setCrystalMode: (mode: CrystalMode) => void
   connectorState: ConnectorState
   setConnectorState: (state: ConnectorState) => void
+  calmnessEnabled: boolean
+  setCalmnessEnabled: (enabled: boolean) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -62,6 +64,14 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return 'auto'
   })
 
+  const [calmnessEnabled, setCalmnessEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('calmnessEnabled')
+      return saved !== 'false' // Default true
+    }
+    return true
+  })
+
   const handleSetExplosionMode = (mode: 'space' | 'radial') => {
     setExplosionMode(mode)
     localStorage.setItem('explosionMode', mode)
@@ -87,6 +97,11 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('connectorState', state)
   }
 
+  const handleSetCalmnessEnabled = (enabled: boolean) => {
+    setCalmnessEnabled(enabled)
+    localStorage.setItem('calmnessEnabled', enabled.toString())
+  }
+
   return (
     <ExplosionModeContext.Provider value={{
       explosionMode,
@@ -98,7 +113,9 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       crystalMode,
       setCrystalMode: handleSetCrystalMode,
       connectorState,
-      setConnectorState: handleSetConnectorState
+      setConnectorState: handleSetConnectorState,
+      calmnessEnabled,
+      setCalmnessEnabled: handleSetCalmnessEnabled
     }}>
       {children}
     </ExplosionModeContext.Provider>
