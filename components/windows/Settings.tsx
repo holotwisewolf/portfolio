@@ -2,11 +2,14 @@
 
 import { useContext, useState } from 'react'
 import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
+import { useWindowStore } from '@/components/window-manager/useWindows'
+import AdvancedSettings from './AdvancedSettings'
 
 type GraceMode = 'enabled' | 'disabled' | 'constant'
 type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
+type Preset = 'conservative' | 'balanced' | 'chaotic'
 
 export default function Settings() {
   const {
@@ -23,10 +26,50 @@ export default function Settings() {
     calmnessEnabled,
     setCalmnessEnabled,
     connectorHighlight,
-    setConnectorHighlight
+    setConnectorHighlight,
+    particleCount,
+    setParticleCount,
+    maxSpeed,
+    setMaxSpeed,
+    attract,
+    setAttract,
+    clusterRadius,
+    setClusterRadius,
+    connectorSpacing,
+    setConnectorSpacing
   } = useContext(ExplosionModeContext)!
 
+  const openWindow = useWindowStore((state) => state.openWindow)
+
   const [expanded, setExpanded] = useState(true)
+  const [currentPreset, setCurrentPreset] = useState<Preset>('balanced')
+
+  const applyPreset = (preset: Preset) => {
+    setCurrentPreset(preset)
+    switch (preset) {
+      case 'conservative':
+        setParticleCount(100)
+        setMaxSpeed(0.5)
+        setAttract(0.004)
+        setClusterRadius(40)
+        setConnectorSpacing(150)
+        break
+      case 'balanced':
+        setParticleCount(150)
+        setMaxSpeed(0.8)
+        setAttract(0.006)
+        setClusterRadius(55)
+        setConnectorSpacing(120)
+        break
+      case 'chaotic':
+        setParticleCount(200)
+        setMaxSpeed(1.2)
+        setAttract(0.01)
+        setClusterRadius(70)
+        setConnectorSpacing(100)
+        break
+    }
+  }
 
   const toggleExplosionMode = () => {
     const newMode = explosionMode === 'space' ? 'radial' : 'space'
@@ -250,8 +293,55 @@ export default function Settings() {
       )}
 
       {/* Footer */}
-      <div className="border-t border-gray-700 pt-2 mt-4 text-gray-600 text-[10px]">
-        Changes take effect on toggle
+      <div className="border-t border-gray-700 pt-2 mt-4 space-y-3">
+        {/* Presets */}
+        <div>
+          <div className="text-gray-500 text-[10px] mb-2">PRESETS</div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => applyPreset('conservative')}
+              className={`px-3 py-1 border text-[10px] transition-colors ${
+                currentPreset === 'conservative'
+                  ? 'border-green-400 text-green-400'
+                  : 'border-gray-600 text-gray-400 hover:bg-white hover:text-black'
+              }`}
+            >
+              Conservative
+            </button>
+            <button
+              onClick={() => applyPreset('balanced')}
+              className={`px-3 py-1 border text-[10px] transition-colors ${
+                currentPreset === 'balanced'
+                  ? 'border-green-400 text-green-400'
+                  : 'border-gray-600 text-gray-400 hover:bg-white hover:text-black'
+              }`}
+            >
+              Balanced
+            </button>
+            <button
+              onClick={() => applyPreset('chaotic')}
+              className={`px-3 py-1 border text-[10px] transition-colors ${
+                currentPreset === 'chaotic'
+                  ? 'border-green-400 text-green-400'
+                  : 'border-gray-600 text-gray-400 hover:bg-white hover:text-black'
+              }`}
+            >
+              Chaotic
+            </button>
+          </div>
+        </div>
+
+        {/* Advanced Settings Button */}
+        <button
+          onClick={() => openWindow('advanced-settings')}
+          className="w-full px-4 py-2 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px]"
+        >
+          Advanced Settings →
+        </button>
+
+        <div className="text-gray-600 text-[10px]">
+          Changes take effect on toggle
+        </div>
       </div>
     </div>
   )

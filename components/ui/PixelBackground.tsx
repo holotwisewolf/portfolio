@@ -38,10 +38,29 @@ interface PixelBackgroundProps {
 export default function PixelBackground({ explosionMode = 'space' }: PixelBackgroundProps) {
   const [mounted, setMounted] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight } = useContext(ExplosionModeContext)!
+  const {
+    graceMode,
+    frameFreezeEnabled,
+    crystalMode,
+    connectorState,
+    calmnessEnabled,
+    connectorHighlight,
+    particleCount,
+    connectorRatio,
+    maxSpeed,
+    damping,
+    clusterRadius,
+    attract,
+    connectionDistance,
+    connectorSpacing,
+    edgeMargin
+  } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
-  const prevSettingsRef = useRef(`${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}`)
+  const prevSettingsRef = useRef(
+    `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
+    `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}`
+  )
 
   useEffect(() => {
     setMounted(true)
@@ -49,13 +68,15 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
   // Save particle positions when settings change (for seamless transitions)
   useEffect(() => {
-    const currentSettings = `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}`
+    const currentSettings =
+      `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
+      `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin])
 
   useEffect(() => {
     if (!mounted) return
@@ -80,21 +101,22 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.observe(canvas.parentElement)
     }
 
-    // Particle configuration
-    const particleCount = 150         // More particles for more activity
-    const CLUSTER_RADIUS = 55         // Wider attraction zone for more clustering
-    const ATTRACT = 0.006            // Stronger attraction for more cluster formation
-    const DAMPING = 0.98             // Smoother, longer-lasting glides
-    const MAX_SPEED = 0.8            // Faster speed for more movement
-    const CONNECTION_DISTANCE = 130   // Increased for more web connections
+    // Particle configuration (from context)
+    const CLUSTER_RADIUS = clusterRadius
+    const ATTRACT = attract
+    const DAMPING = damping
+    const MAX_SPEED = maxSpeed
+    const CONNECTION_DISTANCE = connectionDistance
     const CLOSE_REPEL_DIST = 12      // Close-range repulsion distance
     const SPACE_SCAN_RADIUS = 200    // Radius for space-finder explosion scan
     const DENSITY_SEARCH_RADIUS = 150 // Radius for density calculations
     const TARGET_PROXIMITY = 30      // Minimum distance before reaching target
 
-    // Connector mesh settings
-    const CONNECTOR_SPACING = 120    // Optimal distance between connectors
+    // Connector mesh settings (from context)
+    const CONNECTOR_SPACING = connectorSpacing
     const CONNECTOR_ATTRACT = 0.003  // Weaker attraction to prevent clumping
+    const EDGE_MARGIN = edgeMargin
+    const EDGE_URGENT = 10 // Threshold for stronger push when very close
 
     // Local crowd control system
     const HARD_CAP = 7              // 7+ neighbors = instant explosion (was 6)
@@ -129,6 +151,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
     // Initialize particles
     const particles: Particle[] = []
+    const connectorCount = Math.floor(particleCount * connectorRatio)
     for (let i = 0; i < particleCount; i++) {
       // Random connector brightness: 0.2 (25%), 0.25 (25%), 0.3 (30%), 0.5 (20%)
       const brightnessRoll = Math.random()
@@ -147,7 +170,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
         _clusterTimer: 0,
-        _isConnector: (i % 20 >= 18), // 10% are permanent bridge connectors (2 out of 20)
+        _isConnector: i >= particleCount - connectorCount, // Last N particles are connectors
         _connectorTarget: null,
         _breakFreeTimer: 0,
         _shortBreakTimer: 90, // ~1.5 seconds before 40% break chance (was 120)
@@ -838,8 +861,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // EDGE REPULSION: Push connectors away from screen edges (connectors only)
             // Prevents connectors from lining up along edges
             // Combines opposite reaction (velocity toward edge) + repulsion force
-            const EDGE_MARGIN = 15
-            const EDGE_URGENT = 10 // Threshold for stronger push when very close
 
             if (p.x < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.x
@@ -1066,7 +1087,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin])
 
   if (!mounted) return null
 

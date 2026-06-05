@@ -9,6 +9,7 @@ import About from '../windows/About'
 import Admin from '../windows/Admin'
 import TerminalNav from '../windows/TerminalNav'
 import Settings from '../windows/Settings'
+import AdvancedSettings from '../windows/AdvancedSettings'
 import ContextMenu from './ContextMenu'
 
 // Register all window contents
@@ -19,6 +20,7 @@ registerWindowContent('about', About)
 registerWindowContent('admin', Admin)
 registerWindowContent('terminalnav', TerminalNav)
 registerWindowContent('settings', Settings)
+registerWindowContent('advanced-settings', AdvancedSettings)
 
 const GRID_SIZE = 100
 const ICON_WIDTH = 64
