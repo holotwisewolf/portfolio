@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useContext } from 'react'
 import { ExplosionModeContext } from '@/contexts/ExplosionModeContext'
+import { useWindowStore } from '@/components/window-manager/useWindows'
 
 interface Particle {
   x: number
@@ -65,15 +66,28 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     edgeRepelForceUrgent,
     edgeUrgent,
     edgeMomentumReaction,
-    spaceFinderRatio
+    spaceFinderRatio,
+    cursorInteractionMode,
+    cursorRippleEnabled,
+    cursorConnectParticles,
+    windowAttractParticles,
+    windowCollideParticles
   } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
+
+  // Cursor interaction refs
+  const mousePos = useRef({ x: 0, y: 0 })
+  const mouseDownRef = useRef(false)
+  const rippleActiveRef = useRef(false)
+  const ripplePosRef = useRef({ x: 0, y: 0, frame: 0 })
+
   const prevSettingsRef = useRef(
     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
-    `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}`
+    `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
+    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${windowAttractParticles}-${windowCollideParticles}`
   )
 
   useEffect(() => {
@@ -86,13 +100,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
-      `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}`
+      `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
+      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${windowAttractParticles}-${windowCollideParticles}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, windowAttractParticles, windowCollideParticles])
 
   useEffect(() => {
     if (!mounted) return
@@ -116,6 +131,27 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     if (canvas.parentElement) {
       resizeObserver.observe(canvas.parentElement)
     }
+
+    // Cursor event listeners for interactions
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY }
+    }
+
+    const handleMouseDown = (e: MouseEvent) => {
+      mouseDownRef.current = true
+      if (cursorRippleEnabled) {
+        rippleActiveRef.current = true
+        ripplePosRef.current = { x: e.clientX, y: e.clientY, frame: 0 }
+      }
+    }
+
+    const handleMouseUp = () => {
+      mouseDownRef.current = false
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousedown', handleMouseDown)
+    window.addEventListener('mouseup', handleMouseUp)
 
     // Particle configuration (from context)
     const CLUSTER_RADIUS = clusterRadius
@@ -167,6 +203,20 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     // Explosion settings
     const EXPLOSION_FORCE = 3.5
     const COOLDOWN_FRAMES = 80  // ~1.3 seconds immunity (shorter for more connections)
+
+    // Cursor interaction constants
+    const CURSOR_RANGE = 150          // Distance for cursor interaction
+    const CURSOR_FORCE = 0.05         // Attraction strength
+    const COLLISION_RADIUS = 20       // Cursor physical collision
+    const RIPPLE_SPEED = 8            // Pixels per frame
+    const RIPPLE_WIDTH = 30           // Wave thickness
+    const RIPPLE_FORCE = 0.3          // Outward push strength
+    const RIPPLE_DURATION = 60        // Frames (~1 second)
+
+    // Window interaction constants
+    const WINDOW_MARGIN = 50          // Buffer around windows
+    const WINDOW_ATTRACT_FORCE = 0.03 // Attraction to windows
+    const WINDOW_COLLIDE_FORCE = 0.15 // Collision force from windows
 
     // Grace period state (probabilistic)
     let inGracePeriod = false
@@ -223,6 +273,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       return Math.sqrt(dx * dx + dy * dy)
     }
 
+    // Distance from particle to a point (for cursor/window interactions)
+    const distToPoint = (p: Particle, px: number, py: number) => {
+      const dx = p.x - px
+      const dy = p.y - py
+      return Math.sqrt(dx * dx + dy * dy)
+    }
+
     // Probability-based explosion force
     const getRandomBlastForce = (): { radial: number; spaceFinder: number } => {
       const roll = Math.random()
@@ -247,6 +304,15 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     }
 
     const update = () => {
+      // Update ripple animation
+      if (rippleActiveRef.current) {
+        ripplePosRef.current.frame++
+        if (ripplePosRef.current.frame > RIPPLE_DURATION) {
+          rippleActiveRef.current = false
+          ripplePosRef.current.frame = 0
+        }
+      }
+
       // Restore saved positions if settings changed (particles stay in place)
       if (savedPositionsRef.current) {
         for (let i = 0; i < particles.length && i < savedPositionsRef.current.length; i++) {
@@ -605,6 +671,95 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         if (inGracePeriod && p._clusterTimer === 0) {
           p.vx += (Math.random() - 0.5) * 0.005  // Much smaller than normal
           p.vy += (Math.random() - 0.5) * 0.005
+        }
+
+        // Cursor interactions (attract/collide modes)
+        if (cursorInteractionMode !== 'none' && p._clusterTimer === 0) {
+          const dx = p.x - mousePos.current.x
+          const dy = p.y - mousePos.current.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+
+          if (dist < CURSOR_RANGE) {
+            if (cursorInteractionMode === 'attract') {
+              // Pull toward cursor with falloff
+              const force = CURSOR_FORCE * (1 - dist / CURSOR_RANGE)
+              p.vx -= (dx / dist) * force
+              p.vy -= (dy / dist) * force
+            } else if (cursorInteractionMode === 'collide') {
+              // Push away if overlapping
+              if (dist < COLLISION_RADIUS && dist > 0) {
+                const pushForce = (COLLISION_RADIUS - dist) / COLLISION_RADIUS
+                p.vx += (dx / dist) * pushForce * 0.5
+                p.vy += (dy / dist) * pushForce * 0.5
+              }
+            }
+          }
+        }
+
+        // Ripple effect (expanding ring on click)
+        if (cursorRippleEnabled && rippleActiveRef.current && p._clusterTimer === 0) {
+          const dx = p.x - ripplePosRef.current.x
+          const dy = p.y - ripplePosRef.current.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const rippleFrame = ripplePosRef.current.frame
+          const ringRadius = rippleFrame * RIPPLE_SPEED
+
+          // Check if particle is within the ripple ring
+          const ringDist = Math.abs(dist - ringRadius)
+          if (ringDist < RIPPLE_WIDTH && dist > 0) {
+            // Apply outward force
+            const rippleForce = RIPPLE_FORCE * (1 - ringDist / RIPPLE_WIDTH)
+            p.vx += (dx / dist) * rippleForce
+            p.vy += (dy / dist) * rippleForce
+          }
+        }
+
+        // Window interactions (attract/collide with open windows)
+        if ((windowAttractParticles || windowCollideParticles) && p._clusterTimer === 0) {
+          const windows = useWindowStore.getState().windows
+          for (const windowId in windows) {
+            const win = windows[windowId]
+            if (!win.isOpen || win.isMinimized) continue
+
+            const winCenterX = win.position.x + win.size.width / 2
+            const winCenterY = win.position.y + win.size.height / 2
+            const winLeft = win.position.x - WINDOW_MARGIN
+            const winRight = win.position.x + win.size.width + WINDOW_MARGIN
+            const winTop = win.position.y - WINDOW_MARGIN
+            const winBottom = win.position.y + win.size.height + WINDOW_MARGIN
+
+            // Check if particle is near window
+            if (p.x >= winLeft && p.x <= winRight && p.y >= winTop && p.y <= winBottom) {
+              const dx = p.x - winCenterX
+              const dy = p.y - winCenterY
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1
+
+              if (windowAttractParticles) {
+                // Pull toward window center
+                p.vx -= (dx / dist) * WINDOW_ATTRACT_FORCE
+                p.vy -= (dy / dist) * WINDOW_ATTRACT_FORCE
+              }
+
+              if (windowCollideParticles) {
+                // Push away from window edges
+                const edgeDistX = Math.min(p.x - winLeft, winRight - p.x)
+                const edgeDistY = Math.min(p.y - winTop, winBottom - p.y)
+                const minEdgeDist = Math.min(edgeDistX, edgeDistY)
+
+                if (minEdgeDist < WINDOW_MARGIN && minEdgeDist > 0) {
+                  if (edgeDistX < edgeDistY) {
+                    // Push horizontally
+                    const dir = p.x < winCenterX ? -1 : 1
+                    p.vx += dir * WINDOW_COLLIDE_FORCE * (1 - minEdgeDist / WINDOW_MARGIN)
+                  } else {
+                    // Push vertically
+                    const dir = p.y < winCenterY ? -1 : 1
+                    p.vy += dir * WINDOW_COLLIDE_FORCE * (1 - minEdgeDist / WINDOW_MARGIN)
+                  }
+                }
+              }
+            }
+          }
         }
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
@@ -1061,6 +1216,23 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         }
       }
 
+      // Draw cursor connection lines (web-style from cursor to nearby particles)
+      if (cursorConnectParticles) {
+        for (let i = 0; i < particleCount; i++) {
+          const p = particles[i]
+          const d = distToPoint(p, mousePos.current.x, mousePos.current.y)
+          if (d < CONNECTION_DISTANCE) {
+            const opacity = (1 - d / CONNECTION_DISTANCE) * 0.5
+            ctx.beginPath()
+            ctx.moveTo(mousePos.current.x, mousePos.current.y)
+            ctx.lineTo(p.x, p.y)
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+            ctx.lineWidth = 0.5
+            ctx.stroke()
+          }
+        }
+      }
+
       // Draw particles
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i]
@@ -1110,10 +1282,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousedown', handleMouseDown)
+      window.removeEventListener('mouseup', handleMouseUp)
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorRippleEnabled])
 
   if (!mounted) return null
 
