@@ -51,6 +51,7 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `edgeRepelForce.normal` | 0.03 | Connector edge repulsion (10-20px from edge) | Force |
 | `edgeRepelForce.urgent` | 0.06 | Connector edge repulsion (0-10px from edge) | Force |
 | `EDGE_URGENT` | 10px | Threshold for urgent stronger push | Distance |
+| `edgeMomentumReaction` | 0.5 (50%) | Opposite reaction factor from incoming velocity | Multiplier |
 
 ### Edge Repulsion Mechanics
 
@@ -60,6 +61,10 @@ Connectors have proactive edge avoidance to prevent lining up along screen borde
 - **Two-zone force**:
   - **10-20px from edge**: `0.03 × distance` (gentle push)
   - **0-10px from edge**: `0.06 × distance` (2x stronger, urgent push)
+- **Opposite reaction**: Adds 50% of incoming velocity as repulsion force
+  - If connector is moving toward edge at velocity 0.5, adds 0.25 extra push back
+  - Creates realistic "bounce" effect before hitting the actual wall
+  - Faster approach = stronger opposite reaction
 - **Applies to**: Connectors only, when NOT in break-free mode
 - **Purpose**: Prevents connectors from clustering along edges while maintaining natural movement near borders
 

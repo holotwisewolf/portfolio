@@ -838,26 +838,35 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
             // EDGE REPULSION: Push connectors away from screen edges (connectors only)
             // Prevents connectors from lining up along edges
+            // Combines opposite reaction (velocity toward edge) + repulsion force
             const EDGE_MARGIN = 20
             const EDGE_URGENT = 10 // Threshold for stronger push when very close
 
             if (p.x < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.x
               const force = dist > EDGE_URGENT ? 0.03 : 0.06 // 0.06 when within 10px of edge
-              ax += dist * force
+              // Opposite reaction: add velocity pushing INTO the edge (negative vx = moving left toward edge)
+              const momentumReaction = p.vx < 0 ? -p.vx * 0.5 : 0 // 50% of incoming velocity as opposite force
+              ax += dist * force + momentumReaction
             } else if (p.x > canvas.width - EDGE_MARGIN) {
               const dist = p.x - (canvas.width - EDGE_MARGIN)
               const force = dist > EDGE_URGENT ? 0.03 : 0.06
-              ax -= dist * force
+              // Opposite reaction: add velocity pushing INTO the edge (positive vx = moving right toward edge)
+              const momentumReaction = p.vx > 0 ? p.vx * 0.5 : 0
+              ax -= dist * force + momentumReaction
             }
             if (p.y < EDGE_MARGIN) {
               const dist = EDGE_MARGIN - p.y
               const force = dist > EDGE_URGENT ? 0.03 : 0.06
-              ay += dist * force
+              // Opposite reaction: add velocity pushing INTO the edge (negative vy = moving up toward edge)
+              const momentumReaction = p.vy < 0 ? -p.vy * 0.5 : 0
+              ay += dist * force + momentumReaction
             } else if (p.y > canvas.height - EDGE_MARGIN) {
               const dist = p.y - (canvas.height - EDGE_MARGIN)
               const force = dist > EDGE_URGENT ? 0.03 : 0.06
-              ay -= dist * force
+              // Opposite reaction: add velocity pushing INTO the edge (positive vy = moving down toward edge)
+              const momentumReaction = p.vy > 0 ? p.vy * 0.5 : 0
+              ay -= dist * force + momentumReaction
             }
 
             // Part 1: VERY gentle push away from regular particles (don't affect clusters)
