@@ -31,6 +31,10 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `CLUSTER_RADIUS` | 55 | Attraction zone for regular clusters | Distance |
 | `ATTRACT` | 0.006 | Cluster attraction strength | Force |
 | `CONNECTION_DISTANCE` | 130 | Max distance for web connections | Distance |
+| `CLOSE_REPEL_DIST` | 12px | Close-range repulsion distance for particles | Distance |
+| `SPACE_SCAN_RADIUS` | 200px | Radius for space-finder explosion scan | Distance |
+| `DENSITY_SEARCH_RADIUS` | 150px | Radius for all density calculations | Distance |
+| `TARGET_PROXIMITY` | 30px | Minimum distance before reaching break-free target | Distance |
 
 ---
 
@@ -224,10 +228,7 @@ Connectors have proactive edge avoidance to prevent lining up along screen borde
 |----------|-------|-------------|----------|
 | `particleSize.small` | 2px | 70% of particles | Visual |
 | `particleSize.large` | 3px | 30% of particles | Visual |
-| `connectorBrightness.0` | 0.2 | 25% of connectors | Visual |
-| `connectorBrightness.1` | 0.25 | 25% of connectors | Visual |
-| `connectorBrightness.2` | 0.3 | 30% of connectors | Visual |
-| `connectorBrightness.3` | 0.5 | 20% of connectors | Visual |
+| `connectorBrightness` | 0.2-0.5 | Randomized: 0.2 (25%), 0.25 (25%), 0.3 (30%), 0.5 (20%) | Visual |
 | `densityGlow.divisor` | 6 | Neighbors count for max glow | Threshold |
 | `densityGlow.bonus` | 0.5 | Max brightness bonus from density | Visual |
 

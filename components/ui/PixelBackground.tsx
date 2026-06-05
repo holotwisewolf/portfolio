@@ -21,7 +21,7 @@ interface Particle {
   _localDensity: number         // Nearby connector count for redistribution
   _gracePeriodTimer: number     // Grace period for hard cap (10% chance, ~3 sec)
   _bounceCount: number          // Consecutive wall bounces (for corner escape)
-  _connectorBrightness: number  // 0.15 (common) or 0.4 (rare) - fixed glow unaffected by density
+  _connectorBrightness: number  // 0.2-0.5 (randomized) - fixed glow unaffected by density
   _stayTimer: number            // Frames spent in current area (for auto-break-free)
   _socialBattery: number        // 0-100: drains in crowds, recharges alone (extrovert/introvert cycle)
   _breakFreeCooldown: number    // Frames until mesh attraction fully restored
@@ -87,6 +87,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const DAMPING = 0.98             // Smoother, longer-lasting glides
     const MAX_SPEED = 0.8            // Faster speed for more movement
     const CONNECTION_DISTANCE = 130   // Increased for more web connections
+    const CLOSE_REPEL_DIST = 12      // Close-range repulsion distance
+    const SPACE_SCAN_RADIUS = 200    // Radius for space-finder explosion scan
+    const DENSITY_SEARCH_RADIUS = 150 // Radius for density calculations
+    const TARGET_PROXIMITY = 30      // Minimum distance before reaching target
 
     // Connector mesh settings
     const CONNECTOR_SPACING = 120    // Optimal distance between connectors
@@ -315,7 +319,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             if (isSpaceFinder) {
               // Space-finder: drift toward empty space
               let avoidX = 0, avoidY = 0, closeCount = 0
-              const scanRadius = 200
 
               for (let j = 0; j < particleCount; j++) {
                 if (i === j) continue
@@ -324,8 +327,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 const dy = p2.y - q.y
                 const d = Math.sqrt(dx * dx + dy * dy)
 
-                if (d < scanRadius && d > 0) {
-                  const weight = (scanRadius - d) / scanRadius
+                if (d < SPACE_SCAN_RADIUS && d > 0) {
+                  const weight = (SPACE_SCAN_RADIUS - d) / SPACE_SCAN_RADIUS
                   avoidX += (dx / d) * weight
                   avoidY += (dy / d) * weight
                   closeCount++
@@ -523,7 +526,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
 
             // Balanced close-range repulsion
-            if (d < 12 && d > 0) {
+            if (d < CLOSE_REPEL_DIST && d > 0) {
               ax -= (dx / d) * 0.15
               ay -= (dy / d) * 0.15
             }
@@ -562,7 +565,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           for (let j = 0; j < particleCount; j++) {
             if (i === j) continue
             const d = dist(p, particles[j])
-            if (d < 150) p._localDensity++ // Count nearby particles within 150px
+            if (d < DENSITY_SEARCH_RADIUS) p._localDensity++ // Count nearby particles within search radius
           }
 
           // Calculate CONNECTOR-ONLY density for mesh crowding detection
@@ -570,7 +573,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           for (let j = 0; j < particleCount; j++) {
             if (i === j || !particles[j]._isConnector) continue // Only connectors
             const d = dist(p, particles[j])
-            if (d < 150) connectorDensity++ // Count nearby connectors within 150px
+            if (d < DENSITY_SEARCH_RADIUS) connectorDensity++ // Count nearby connectors within search radius
           }
 
           // CRYSTALLIZATION: Small chance to enter crystal mode when enough connectors nearby
@@ -634,7 +637,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 const dx = gx - particles[j].x
                 const dy = gy - particles[j].y
                 const d = Math.sqrt(dx * dx + dy * dy)
-                if (d < 150) density++ // Use same radius as local density (150px)
+                if (d < DENSITY_SEARCH_RADIUS) density++ // Use same radius as local density
               }
               if (density < globalMinDensity) {
                 globalMinDensity = density
@@ -715,10 +718,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           } else {
             p._stayTimer = Math.max(0, p._stayTimer - 2) // Cool down faster when area is good
           }
-
-          // GLOBAL AWARENESS: Compare current situation to global optimum
-          // If there's a significantly better spot elsewhere, pressure to move
-          const densityGap = p._localDensity - globalMinDensity // How much better is the emptiest area?
 
           // Check for break-free chances (FITNESS-AWARE)
           // Uses CONNECTOR density - mesh-specific pressure
@@ -825,7 +824,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             const d = Math.sqrt(dx * dx + dy * dy) || 1
 
             // Skip if too close to target (prevent NaN)
-            if (d >= 30) {
+            if (d >= TARGET_PROXIMITY) {
               // Drift toward lowest density area (add to velocity, don't replace)
               // Reduced force for calmer movement, with damping
               const densityMultiplier = p._localDensity >= 5 ? 1.5 : 1.0
@@ -878,7 +877,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               const d = Math.sqrt(dx * dx + dy * dy)
 
               // Very gentle avoidance - just enough to find empty space
-              if (d > 0 && d < 200) {
+              if (d > 0 && d < SPACE_SCAN_RADIUS) {
                 const weight = 1 / (d + 1)
                 ax += (dx / d) * weight * 0.02
                 ay += (dy / d) * weight * 0.02
