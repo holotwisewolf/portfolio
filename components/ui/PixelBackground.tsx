@@ -217,7 +217,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const COLLISION_RADIUS = 20       // Cursor physical collision
     const RIPPLE_SPEED = 4            // Pixels per frame (slower for better visual)
     const RIPPLE_WIDTH = 20           // Wave thickness
-    const RIPPLE_FORCE = 0.08         // Outward push strength (much weaker)
+    const RIPPLE_FORCE = 0.04         // Outward push strength (even weaker)
     const RIPPLE_DURATION = 90        // Frames (~1.5 seconds)
 
     // Window interaction constants
@@ -1228,12 +1228,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         for (const ripple of ripplesRef.current) {
           if (ripple.frame < 0) continue // Wave hasn't started yet
           const radius = ripple.frame * RIPPLE_SPEED
-          const opacity = (1 - ripple.frame / RIPPLE_DURATION) * 0.5 * (1 - ripple.wave * 0.25)
+          const opacity = (1 - ripple.frame / RIPPLE_DURATION) * 0.8 * (1 - ripple.wave * 0.2)
           if (opacity > 0) {
             ctx.beginPath()
             ctx.arc(ripple.x, ripple.y, radius, 0, Math.PI * 2)
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
-            ctx.lineWidth = 1
+            ctx.lineWidth = 1.5
             ctx.stroke()
           }
         }

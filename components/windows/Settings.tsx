@@ -361,7 +361,7 @@ export default function Settings() {
         {/* Cursor Interactions - expandable with animation */}
         <div
           onClick={() => setCursorExpanded(!cursorExpanded)}
-          className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          className="py-1 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
         >
           <span className="text-gray-800">
             &gt;
