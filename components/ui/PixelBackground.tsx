@@ -71,7 +71,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     cursorRippleEnabled,
     cursorConnectParticles,
     cursorClickExplodeCluster,
-    connectionsBrighter,
+    connectionOpacity,
     iconAttractParticles,
     iconCollideParticles
   } = useContext(ExplosionModeContext)!
@@ -92,7 +92,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
     `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${cursorClickExplodeCluster}-${connectionsBrighter}-${iconAttractParticles}-${iconCollideParticles}`
+    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${cursorClickExplodeCluster}-${connectionOpacity}-${iconAttractParticles}-${iconCollideParticles}`
   )
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
       `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${cursorClickExplodeCluster}-${connectionsBrighter}-${iconAttractParticles}-${iconCollideParticles}`
+      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${cursorClickExplodeCluster}-${connectionOpacity}-${iconAttractParticles}-${iconCollideParticles}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
@@ -1322,8 +1322,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const q = particles[j]
           const d = dist(p, q)
           if (d < CONNECTION_DISTANCE) {
-            const baseOpacity = connectionsBrighter ? 0.6 : 0.3
-            const opacity = (1 - d / CONNECTION_DISTANCE) * baseOpacity
+            const opacity = (1 - d / CONNECTION_DISTANCE) * connectionOpacity
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(q.x, q.y)
@@ -1356,8 +1355,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const p = particles[i]
           const d = distToPoint(p, mousePos.current.x, mousePos.current.y)
           if (d < CONNECTION_DISTANCE) {
-            const baseOpacity = connectionsBrighter ? 0.8 : 0.5
-            const opacity = (1 - d / CONNECTION_DISTANCE) * baseOpacity
+            const opacity = (1 - d / CONNECTION_DISTANCE) * (connectionOpacity + 0.2)
             ctx.beginPath()
             ctx.moveTo(mousePos.current.x, mousePos.current.y)
             ctx.lineTo(p.x, p.y)

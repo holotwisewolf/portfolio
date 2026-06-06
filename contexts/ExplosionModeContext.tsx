@@ -80,8 +80,8 @@ interface ExplosionModeContextType {
   setCursorClickExplodeCluster: (enabled: boolean) => void
 
   // Visual settings
-  connectionsBrighter: boolean
-  setConnectionsBrighter: (enabled: boolean) => void
+  connectionOpacity: number
+  setConnectionOpacity: (opacity: number) => void
 
   // Desktop icon interactions
   iconAttractParticles: boolean
@@ -353,12 +353,12 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
   })
 
   // Visual settings
-  const [connectionsBrighter, setConnectionsBrighter] = useState(() => {
+  const [connectionOpacity, setConnectionOpacity] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('connectionsBrighter')
-      return saved === 'true'
+      const saved = localStorage.getItem('connectionOpacity')
+      return saved ? parseFloat(saved) : 0.3
     }
-    return false
+    return 0.3
   })
 
   // Window interaction settings
@@ -539,9 +539,9 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cursorClickExplodeCluster', enabled.toString())
   }
 
-  const handleSetConnectionsBrighter = (enabled: boolean) => {
-    setConnectionsBrighter(enabled)
-    localStorage.setItem('connectionsBrighter', enabled.toString())
+  const handleSetConnectionOpacity = (opacity: number) => {
+    setConnectionOpacity(opacity)
+    localStorage.setItem('connectionOpacity', opacity.toString())
   }
 
   const handleSetIconAttractParticles = (enabled: boolean) => {
@@ -620,8 +620,8 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setCursorConnectParticles: handleSetCursorConnectParticles,
       cursorClickExplodeCluster,
       setCursorClickExplodeCluster: handleSetCursorClickExplodeCluster,
-      connectionsBrighter,
-      setConnectionsBrighter: handleSetConnectionsBrighter,
+      connectionOpacity,
+      setConnectionOpacity: handleSetConnectionOpacity,
       iconAttractParticles,
       setIconAttractParticles: handleSetIconAttractParticles,
       iconCollideParticles,
