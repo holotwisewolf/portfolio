@@ -48,7 +48,9 @@ export default function Settings() {
     iconAttractParticles,
     setIconAttractParticles,
     iconCollideParticles,
-    setIconCollideParticles
+    setIconCollideParticles,
+    iconConnectParticles,
+    setIconConnectParticles
   } = useContext(ExplosionModeContext)!
 
   const openWindow = useWindowStore((state) => state.openWindow)
@@ -525,6 +527,26 @@ export default function Settings() {
                     }`}
                   >
                     {iconCollideParticles ? 'Enabled' : 'Disabled'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Icon Connect */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Connect Particles</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Draw lines to nearby particles
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIconConnectParticles(!iconConnectParticles); }}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      iconConnectParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
+                  >
+                    {iconConnectParticles ? 'Enabled' : 'Disabled'}
                   </button>
                 </div>
               </div>

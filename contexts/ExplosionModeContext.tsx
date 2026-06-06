@@ -88,6 +88,8 @@ interface ExplosionModeContextType {
   setIconAttractParticles: (enabled: boolean) => void
   iconCollideParticles: boolean
   setIconCollideParticles: (enabled: boolean) => void
+  iconConnectParticles: boolean
+  setIconConnectParticles: (enabled: boolean) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -378,6 +380,14 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return false
   })
 
+  const [iconConnectParticles, setIconConnectParticles] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('iconConnectParticles')
+      return saved === 'true'
+    }
+    return false
+  })
+
   // Handlers with localStorage
   const handleSetExplosionMode = (mode: 'space' | 'radial') => {
     setExplosionMode(mode)
@@ -554,6 +564,11 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('iconCollideParticles', enabled.toString())
   }
 
+  const handleSetIconConnectParticles = (enabled: boolean) => {
+    setIconConnectParticles(enabled)
+    localStorage.setItem('iconConnectParticles', enabled.toString())
+  }
+
   return (
     <ExplosionModeContext.Provider value={{
       explosionMode,
@@ -625,7 +640,9 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       iconAttractParticles,
       setIconAttractParticles: handleSetIconAttractParticles,
       iconCollideParticles,
-      setIconCollideParticles: handleSetIconCollideParticles
+      setIconCollideParticles: handleSetIconCollideParticles,
+      iconConnectParticles,
+      setIconConnectParticles: handleSetIconConnectParticles
     }}>
       {children}
     </ExplosionModeContext.Provider>

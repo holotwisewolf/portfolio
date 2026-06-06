@@ -73,7 +73,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     cursorClickExplodeCluster,
     connectionOpacity,
     iconAttractParticles,
-    iconCollideParticles
+    iconCollideParticles,
+    iconConnectParticles
   } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
@@ -94,7 +95,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
     `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}`
+    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}`
   )
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
       `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}`
+      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
@@ -119,7 +120,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         iconStatesRef.current.clear()
       }
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, iconAttractParticles, iconCollideParticles])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, iconAttractParticles, iconCollideParticles, iconConnectParticles])
 
   useEffect(() => {
     if (!mounted) return
@@ -662,7 +663,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       }
 
       // Update icon states (track positions and calculate velocity) - ONCE per frame
-      if (iconAttractParticles || iconCollideParticles) {
+      if (iconAttractParticles || iconCollideParticles || iconConnectParticles) {
         const iconElements = document.querySelectorAll('[data-desktop-icon]')
         const canvasRect = canvas.getBoundingClientRect()
 
@@ -1391,6 +1392,39 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
             ctx.lineWidth = 0.5
             ctx.stroke()
+          }
+        }
+      }
+
+      // Draw icon connection lines (from icon edges to nearby particles)
+      if (iconConnectParticles && iconStatesRef.current.size > 0) {
+        for (const [iconId, iconState] of iconStatesRef.current) {
+          for (let i = 0; i < particleCount; i++) {
+            const p = particles[i]
+
+            // Find nearest point on icon edge to particle
+            let nearestX = p.x
+            let nearestY = p.y
+            if (p.x < iconState.left) nearestX = iconState.left
+            else if (p.x > iconState.right) nearestX = iconState.right
+            if (p.y < iconState.top) nearestY = iconState.top
+            else if (p.y > iconState.bottom) nearestY = iconState.bottom
+
+            const dx = p.x - nearestX
+            const dy = p.y - nearestY
+            const d = Math.sqrt(dx * dx + dy * dy)
+
+            // Only connect if within range and particle is outside icon
+            const isOutside = p.x < iconState.left || p.x > iconState.right || p.y < iconState.top || p.y > iconState.bottom
+            if (d < CONNECTION_DISTANCE && isOutside) {
+              const opacity = (1 - d / CONNECTION_DISTANCE) * (connectionOpacity + 0.2)
+              ctx.beginPath()
+              ctx.moveTo(nearestX, nearestY)
+              ctx.lineTo(p.x, p.y)
+              ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+              ctx.lineWidth = 0.5
+              ctx.stroke()
+            }
           }
         }
       }
