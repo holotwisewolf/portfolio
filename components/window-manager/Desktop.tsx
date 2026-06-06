@@ -56,6 +56,7 @@ export default function Desktop() {
   const [clickCount, setClickCount] = useState(0)
   const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null)
   const [padding, setPadding] = useState({ top: 20, left: 20, right: 20, bottom: 20 })
+  const [isReady, setIsReady] = useState(false) // Prevents icon jump on initial load
 
   const desktopRef = useRef<HTMLDivElement>(null)
 
@@ -257,8 +258,12 @@ export default function Desktop() {
         left: horizPadding,
         right: horizPadding
       })
+
+      // Mark as ready after first calculation (prevents icon jump)
+      setIsReady(true)
     }
 
+    // Run immediately on mount
     updatePadding()
     window.addEventListener('resize', updatePadding)
     return () => window.removeEventListener('resize', updatePadding)
@@ -289,8 +294,8 @@ export default function Desktop() {
         />
       )}
 
-      {/* Icons */}
-      {icons.map((icon) => {
+      {/* Icons - only render after padding is calculated to prevent jump */}
+      {isReady && icons.map((icon) => {
         const isDragging = icon.id === draggingIcon
         const displayPosition = isDragging && currentPosition
           ? currentPosition

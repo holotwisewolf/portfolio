@@ -29,7 +29,6 @@ export default function AdvancedSettings() {
     cursorInteractionMode, setCursorInteractionMode,
     cursorRippleEnabled, setCursorRippleEnabled,
     cursorConnectParticles, setCursorConnectParticles,
-    cursorClickExplodeCluster, setCursorClickExplodeCluster,
     connectionOpacity, setConnectionOpacity,
     iconAttractParticles, setIconAttractParticles,
     iconCollideParticles, setIconCollideParticles
@@ -208,20 +207,6 @@ export default function AdvancedSettings() {
                     }`}
                   >
                     {cursorConnectParticles ? 'On' : 'Off'}
-                  </button>
-                </div>
-
-                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
-                  <span className="text-gray-400">Click Explodes</span>
-                  <button
-                    onClick={() => setCursorClickExplodeCluster(!cursorClickExplodeCluster)}
-                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
-                      cursorClickExplodeCluster
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
-                    }`}
-                  >
-                    {cursorClickExplodeCluster ? 'On' : 'Off'}
                   </button>
                 </div>
               </div>

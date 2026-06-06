@@ -43,6 +43,8 @@ export default function Settings() {
     setCursorRippleEnabled,
     cursorConnectParticles,
     setCursorConnectParticles,
+    cursorClickExplodeCluster,
+    setCursorClickExplodeCluster,
     iconAttractParticles,
     setIconAttractParticles,
     iconCollideParticles,
@@ -427,6 +429,22 @@ export default function Settings() {
                     className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
                   >
                     {cursorConnectParticles ? 'Enabled' : 'Disabled'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Click Explodes Cluster */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Click Explodes</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Click to explode nearby particles
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCursorClickExplodeCluster(!cursorClickExplodeCluster); }}
+                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                  >
+                    {cursorClickExplodeCluster ? 'Enabled' : 'Disabled'}
                   </button>
                 </div>
               </div>
