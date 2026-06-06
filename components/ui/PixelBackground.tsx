@@ -837,15 +837,32 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // Desktop icon interactions (attract/collide with icons on desktop)
         if ((iconAttractParticles || iconCollideParticles) && iconStatesRef.current.size > 0) {
           for (const [iconId, iconState] of iconStatesRef.current) {
-            // Attract: pull particles toward icon center
+            // Attract: pull particles toward nearest point on icon edge (solid object effect)
             if (iconAttractParticles) {
-              const dx = p.x - iconState.x
-              const dy = p.y - iconState.y
+              // Find nearest point on icon rectangle to particle
+              let nearestX = p.x
+              let nearestY = p.y
+
+              // Clamp to icon bounds to find edge point
+              if (p.x < iconState.left) nearestX = iconState.left
+              else if (p.x > iconState.right) nearestX = iconState.right
+
+              if (p.y < iconState.top) nearestY = iconState.top
+              else if (p.y > iconState.bottom) nearestY = iconState.bottom
+
+              const dx = p.x - nearestX
+              const dy = p.y - nearestY
               const dist = Math.sqrt(dx * dx + dy * dy) || 1
-              if (dist < 100) {
-                const force = ICON_ATTRACT_FORCE * (1 - dist / 100)
-                p.vx -= (dx / dist) * force
-                p.vy -= (dy / dist) * force
+
+              // Only attract if within range and not inside icon
+              if (dist < 100 && dist > 0) {
+                // Check if particle is outside the icon
+                const isOutside = p.x < iconState.left || p.x > iconState.right || p.y < iconState.top || p.y > iconState.bottom
+                if (isOutside) {
+                  const force = ICON_ATTRACT_FORCE * (1 - dist / 100)
+                  p.vx -= (dx / dist) * force
+                  p.vy -= (dy / dist) * force
+                }
               }
             }
 
