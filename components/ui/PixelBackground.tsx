@@ -141,12 +141,20 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const handleMouseDown = (e: MouseEvent) => {
       mouseDownRef.current = true
       if (cursorRippleEnabled) {
+        // Check if clicking on a desktop icon
+        const target = e.target as HTMLElement
+        const iconElement = target.closest('[data-desktop-icon]')
+        if (iconElement) {
+          // Don't create ripple when clicking on icons
+          return
+        }
+
         const rect = canvas.getBoundingClientRect()
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
-        // Create 3 concentric waves
-        for (let i = 0; i < 3; i++) {
-          ripplesRef.current.push({ x, y, frame: -i * 8, wave: i })
+        // Create 2 concentric waves (reduced from 3)
+        for (let i = 0; i < 2; i++) {
+          ripplesRef.current.push({ x, y, frame: -i * 10, wave: i })
         }
         ripplesCounterRef.current++
       }
@@ -215,10 +223,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const CURSOR_RANGE = 150          // Distance for cursor interaction
     const CURSOR_FORCE = 0.05         // Attraction strength
     const COLLISION_RADIUS = 20       // Cursor physical collision
-    const RIPPLE_SPEED = 4            // Pixels per frame (slower for better visual)
-    const RIPPLE_WIDTH = 20           // Wave thickness
-    const RIPPLE_FORCE = 0.04         // Outward push strength (even weaker)
-    const RIPPLE_DURATION = 90        // Frames (~1.5 seconds)
+    const RIPPLE_SPEED = 2            // Pixels per frame (much slower expansion)
+    const RIPPLE_WIDTH = 15           // Wave thickness (narrower)
+    const RIPPLE_FORCE = 0.03         // Outward push strength (weaker)
+    const RIPPLE_DURATION = 60        // Frames (~1 second)
 
     // Window interaction constants
     const WINDOW_MARGIN = 50          // Buffer around windows
