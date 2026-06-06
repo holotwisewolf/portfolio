@@ -259,7 +259,7 @@ export default function StockCharts() {
               <span className="text-gray-400 text-[10px]">VIX</span>
               <span className="text-sm">
                 <span className={vix > 20 ? 'text-red-400' : 'text-green-400'}>{vix.toFixed(1)}</span>
-                <span className={vix > previousVix ? 'text-red-400' : vix < previousVix ? 'text-green-400' : 'text-gray-500'}>
+                <span className={vix > previousVix ? 'text-green-400' : vix < previousVix ? 'text-red-400' : 'text-gray-500'}>
                   {' '}{vix > previousVix ? '▲' : vix < previousVix ? '▼' : '→'}
                 </span>
               </span>

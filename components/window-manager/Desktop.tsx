@@ -33,9 +33,8 @@ interface DesktopIcon {
   position: { x: number; y: number }
 }
 
-// Grid-aligned positions (GRID_SIZE=100, so positions at 0, 100, 200...)
-// Padding configuration (pixels)
-const PADDING = { top: 40, left: 20, right: 20, bottom: 100 }
+// Fixed padding for consistent spacing
+const PADDING = { top: 20, left: 20, right: 20, bottom: 20 }
 
 // Icons positioned on the grid within the padded area (start at 0,0 relative to usable area)
 const initialIcons: DesktopIcon[] = [
@@ -128,10 +127,13 @@ export default function Desktop() {
     const snapY = Math.round(relativeY / GRID_SIZE) * GRID_SIZE
 
     // Enforce boundaries (relative to usable area)
+    // Align to complete grid cells to avoid compression
     const minX = 0
-    const maxX = usableWidth - ICON_WIDTH
+    const maxGridCols = Math.floor((usableWidth - ICON_WIDTH) / GRID_SIZE)
+    const maxX = maxGridCols * GRID_SIZE
     const minY = 0
-    const maxY = usableHeight - ICON_HEIGHT
+    const maxGridRows = Math.floor((usableHeight - ICON_HEIGHT) / GRID_SIZE)
+    const maxY = maxGridRows * GRID_SIZE
 
     // Constrain position to usable area
     const constrainedX = Math.max(minX, Math.min(relativeX, maxX))

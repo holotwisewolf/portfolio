@@ -77,11 +77,11 @@ interface ExplosionModeContextType {
   cursorConnectParticles: boolean
   setCursorConnectParticles: (enabled: boolean) => void
 
-  // Window interactions
-  windowAttractParticles: boolean
-  setWindowAttractParticles: (enabled: boolean) => void
-  windowCollideParticles: boolean
-  setWindowCollideParticles: (enabled: boolean) => void
+  // Desktop icon interactions
+  iconAttractParticles: boolean
+  setIconAttractParticles: (enabled: boolean) => void
+  iconCollideParticles: boolean
+  setIconCollideParticles: (enabled: boolean) => void
 }
 
 const ExplosionModeContext = createContext<ExplosionModeContextType | undefined>(undefined)
@@ -339,17 +339,17 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
   })
 
   // Window interaction settings
-  const [windowAttractParticles, setWindowAttractParticles] = useState(() => {
+  const [iconAttractParticles, setIconAttractParticles] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('windowAttractParticles')
+      const saved = localStorage.getItem('iconAttractParticles')
       return saved === 'true'
     }
     return false
   })
 
-  const [windowCollideParticles, setWindowCollideParticles] = useState(() => {
+  const [iconCollideParticles, setIconCollideParticles] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('windowCollideParticles')
+      const saved = localStorage.getItem('iconCollideParticles')
       return saved === 'true'
     }
     return false
@@ -511,14 +511,14 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cursorConnectParticles', enabled.toString())
   }
 
-  const handleSetWindowAttractParticles = (enabled: boolean) => {
-    setWindowAttractParticles(enabled)
-    localStorage.setItem('windowAttractParticles', enabled.toString())
+  const handleSetIconAttractParticles = (enabled: boolean) => {
+    setIconAttractParticles(enabled)
+    localStorage.setItem('iconAttractParticles', enabled.toString())
   }
 
-  const handleSetWindowCollideParticles = (enabled: boolean) => {
-    setWindowCollideParticles(enabled)
-    localStorage.setItem('windowCollideParticles', enabled.toString())
+  const handleSetIconCollideParticles = (enabled: boolean) => {
+    setIconCollideParticles(enabled)
+    localStorage.setItem('iconCollideParticles', enabled.toString())
   }
 
   return (
@@ -585,10 +585,10 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setCursorRippleEnabled: handleSetCursorRippleEnabled,
       cursorConnectParticles,
       setCursorConnectParticles: handleSetCursorConnectParticles,
-      windowAttractParticles,
-      setWindowAttractParticles: handleSetWindowAttractParticles,
-      windowCollideParticles,
-      setWindowCollideParticles: handleSetWindowCollideParticles
+      iconAttractParticles,
+      setIconAttractParticles: handleSetIconAttractParticles,
+      iconCollideParticles,
+      setIconCollideParticles: handleSetIconCollideParticles
     }}>
       {children}
     </ExplosionModeContext.Provider>

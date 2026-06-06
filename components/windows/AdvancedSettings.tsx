@@ -29,8 +29,8 @@ export default function AdvancedSettings() {
     cursorInteractionMode, setCursorInteractionMode,
     cursorRippleEnabled, setCursorRippleEnabled,
     cursorConnectParticles, setCursorConnectParticles,
-    windowAttractParticles, setWindowAttractParticles,
-    windowCollideParticles, setWindowCollideParticles
+    iconAttractParticles, setIconAttractParticles,
+    iconCollideParticles, setIconCollideParticles
   } = useContext(ExplosionModeContext)!
 
   const [expanded, setExpanded] = useState({
@@ -234,33 +234,33 @@ export default function AdvancedSettings() {
 
               {/* Window Interactions subsection */}
               <div className="mt-4 pt-2 border-t border-gray-900">
-                <div className="text-gray-500 text-[10px] mb-2">WINDOW INTERACTIONS</div>
+                <div className="text-gray-500 text-[10px] mb-2">DESKTOP ICONS</div>
 
                 <div className="flex justify-between items-center border-b border-gray-900 pb-1">
                   <span className="text-gray-400">Attract Particles</span>
                   <button
-                    onClick={() => setWindowAttractParticles(!windowAttractParticles)}
+                    onClick={() => setIconAttractParticles(!iconAttractParticles)}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
-                      windowAttractParticles
+                      iconAttractParticles
                         ? 'bg-green-900 text-green-400 border border-green-700'
                         : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
                     }`}
                   >
-                    {windowAttractParticles ? 'On' : 'Off'}
+                    {iconAttractParticles ? 'On' : 'Off'}
                   </button>
                 </div>
 
                 <div className="flex justify-between items-center border-b border-gray-900 pb-1">
                   <span className="text-gray-400">Collide Particles</span>
                   <button
-                    onClick={() => setWindowCollideParticles(!windowCollideParticles)}
+                    onClick={() => setIconCollideParticles(!iconCollideParticles)}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
-                      windowCollideParticles
+                      iconCollideParticles
                         ? 'bg-green-900 text-green-400 border border-green-700'
                         : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
                     }`}
                   >
-                    {windowCollideParticles ? 'On' : 'Off'}
+                    {iconCollideParticles ? 'On' : 'Off'}
                   </button>
                 </div>
               </div>

@@ -70,8 +70,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     cursorInteractionMode,
     cursorRippleEnabled,
     cursorConnectParticles,
-    windowAttractParticles,
-    windowCollideParticles
+    iconAttractParticles,
+    iconCollideParticles
   } = useContext(ExplosionModeContext)!
   const particlesRef = useRef<Particle[] | null>(null)
   const savedPositionsRef = useRef<{ x: number; y: number; vx: number; vy: number }[] | null>(null)
@@ -81,13 +81,16 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   const mouseDownRef = useRef(false)
   const ripplesRef = useRef<Array<{ x: number; y: number; frame: number; wave: number }>>([])
   const ripplesCounterRef = useRef(0)
+  const collisionDebugRef = useRef({ count: 0, frame: 0 })
+  // Track icon positions and velocities for momentum transfer
+  const iconStatesRef = useRef<Map<string, { x: number; y: number; vx: number; vy: number; left: number; right: number; top: number; bottom: number }>>(new Map())
 
   const prevSettingsRef = useRef(
     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
     `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${windowAttractParticles}-${windowCollideParticles}`
+    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}`
   )
 
   useEffect(() => {
@@ -101,13 +104,18 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
       `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${windowAttractParticles}-${windowCollideParticles}`
+      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
       prevSettingsRef.current = currentSettings
+
+      // Clear icon states when toggling icon interactions to ensure fresh tracking
+      if (currentSettings.includes('iconAttractParticles=true') || currentSettings.includes('iconCollideParticles=true')) {
+        iconStatesRef.current.clear()
+      }
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, windowAttractParticles, windowCollideParticles])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, iconAttractParticles, iconCollideParticles])
 
   useEffect(() => {
     if (!mounted) return
@@ -152,10 +160,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         const rect = canvas.getBoundingClientRect()
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
-        // Create 2 concentric waves (reduced from 3)
-        for (let i = 0; i < 2; i++) {
-          ripplesRef.current.push({ x, y, frame: -i * 10, wave: i })
-        }
+        // Create single ripple wave
+        ripplesRef.current.push({ x, y, frame: 0, wave: 0 })
         ripplesCounterRef.current++
       }
     }
@@ -221,17 +227,17 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
     // Cursor interaction constants
     const CURSOR_RANGE = 150          // Distance for cursor interaction
-    const CURSOR_FORCE = 0.05         // Attraction strength
-    const COLLISION_RADIUS = 20       // Cursor physical collision
-    const RIPPLE_SPEED = 2            // Pixels per frame (much slower expansion)
-    const RIPPLE_WIDTH = 15           // Wave thickness (narrower)
-    const RIPPLE_FORCE = 0.03         // Outward push strength (weaker)
-    const RIPPLE_DURATION = 60        // Frames (~1 second)
+    const CURSOR_FORCE = 0.15         // Attraction strength (stronger)
+    const COLLISION_RADIUS = 30       // Cursor physical collision (larger)
+    const RIPPLE_SPEED = 2             // Pixels per frame (expansion speed)
+    const RIPPLE_MAX_RADIUS = 80       // Maximum expansion distance
+    const RIPPLE_WIDTH = 25             // Wave thickness
+    const RIPPLE_FORCE = 0.5            // Outward push strength
 
     // Window interaction constants
     const WINDOW_MARGIN = 50          // Buffer around windows
-    const WINDOW_ATTRACT_FORCE = 0.03 // Attraction to windows
-    const WINDOW_COLLIDE_FORCE = 0.15 // Collision force from windows
+    const ICON_ATTRACT_FORCE = 0.2 // Attraction to icons
+    const ICON_COLLIDE_FORCE = 2.0  // Collision force from icons (much stronger)
 
     // Grace period state (probabilistic)
     let inGracePeriod = false
@@ -319,10 +325,18 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     }
 
     const update = () => {
-      // Update ripple animations (multiple waves)
+      // Debug: log collision count every 60 frames
+      collisionDebugRef.current.frame++
+      if (collisionDebugRef.current.frame >= 60) {
+        console.log('Collision debug - icons:', document.querySelectorAll('[data-desktop-icon]').length, 'collisions/sec:', collisionDebugRef.current.count)
+        collisionDebugRef.current.count = 0
+        collisionDebugRef.current.frame = 0
+      }
+
+      // Update ripple animations
       ripplesRef.current = ripplesRef.current.filter(r => {
         r.frame++
-        return r.frame < RIPPLE_DURATION
+        return r.frame * RIPPLE_SPEED < RIPPLE_MAX_RADIUS
       })
 
       // Restore saved positions if settings changed (particles stay in place)
@@ -612,6 +626,58 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         })
       }
 
+      // Update icon states (track positions and calculate velocity) - ONCE per frame
+      if (iconAttractParticles || iconCollideParticles) {
+        const iconElements = document.querySelectorAll('[data-desktop-icon]')
+        const canvasRect = canvas.getBoundingClientRect()
+
+        // Debug: log when setting is enabled
+        if (iconElements.length > 0 && iconStatesRef.current.size === 0) {
+          console.log('Icon tracking STARTED - found', iconElements.length, 'icons')
+        }
+
+        const newIconStates = new Map<string, { x: number; y: number; vx: number; vy: number; left: number; right: number; top: number; bottom: number }>()
+        const currentIconStates = iconStatesRef.current
+
+        iconElements.forEach((iconEl) => {
+          const icon = iconEl as HTMLElement
+          const iconRect = icon.getBoundingClientRect()
+          const iconId = iconEl.textContent || 'unknown'
+
+          // Calculate icon center position
+          const iconCenterX = (iconRect.left + iconRect.right) / 2 - canvasRect.left
+          const iconCenterY = (iconRect.top + iconRect.bottom) / 2 - canvasRect.top
+
+          // Get previous position to calculate velocity
+          const prevState = currentIconStates.get(iconId)
+          const prevX = prevState?.x || iconCenterX
+          const prevY = prevState?.y || iconCenterY
+
+          // Calculate velocity (pixels per frame)
+          const vx = iconCenterX - prevX
+          const vy = iconCenterY - prevY
+
+          // Calculate icon bounds
+          const iconLeft = iconRect.left - canvasRect.left
+          const iconRight = iconRect.right - canvasRect.left
+          const iconTop = iconRect.top - canvasRect.top
+          const iconBottom = iconRect.bottom - canvasRect.top
+
+          newIconStates.set(iconId, {
+            x: iconCenterX,
+            y: iconCenterY,
+            vx,
+            vy,
+            left: iconLeft,
+            right: iconRight,
+            top: iconTop,
+            bottom: iconBottom
+          })
+        })
+
+        iconStatesRef.current = newIconStates
+      }
+
       // Physics and Movement Application
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i]
@@ -701,8 +767,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // Push away if overlapping
               if (dist < COLLISION_RADIUS && dist > 0) {
                 const pushForce = (COLLISION_RADIUS - dist) / COLLISION_RADIUS
-                p.vx += (dx / dist) * pushForce * 0.5
-                p.vy += (dy / dist) * pushForce * 0.5
+                p.vx += (dx / dist) * pushForce * 2
+                p.vy += (dy / dist) * pushForce * 2
               }
             }
           }
@@ -711,70 +777,76 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // Ripple effect (multiple expanding waves on click)
         if (cursorRippleEnabled && ripplesRef.current.length > 0 && p._clusterTimer === 0) {
           for (const ripple of ripplesRef.current) {
-            // Only apply force after wave starts (frame >= 0)
-            if (ripple.frame < 0) continue
-
             const dx = p.x - ripple.x
             const dy = p.y - ripple.y
             const dist = Math.sqrt(dx * dx + dy * dy)
-            const ringRadius = ripple.frame * RIPPLE_SPEED
+            const ringRadius = Math.min(ripple.frame * RIPPLE_SPEED, RIPPLE_MAX_RADIUS)
 
-            // Check if particle is within the ripple ring
+            // Check if particle is within the expanding ring
             const ringDist = Math.abs(dist - ringRadius)
-            if (ringDist < RIPPLE_WIDTH && dist > 0) {
-              // Apply outward force (weaker for outer waves)
-              const waveMultiplier = 1 - (ripple.wave * 0.25)
-              const rippleForce = RIPPLE_FORCE * (1 - ringDist / RIPPLE_WIDTH) * waveMultiplier
-              p.vx += (dx / dist) * rippleForce
-              p.vy += (dy / dist) * rippleForce
+            if (ringDist < RIPPLE_WIDTH && dist > 0 && ringRadius > 0) {
+              const force = RIPPLE_FORCE * (1 - ringDist / RIPPLE_WIDTH)
+              p.vx += (dx / dist) * force
+              p.vy += (dy / dist) * force
             }
           }
         }
 
         // Desktop icon interactions (attract/collide with icons on desktop)
-        if ((windowAttractParticles || windowCollideParticles) && p._clusterTimer === 0) {
-          // Query desktop icons from DOM
-          const iconElements = document.querySelectorAll('[data-desktop-icon]')
-          const canvasRect = canvas.getBoundingClientRect()
-
-          iconElements.forEach((iconEl) => {
-            const icon = iconEl as HTMLElement
-            const iconRect = icon.getBoundingClientRect()
-
-            // Convert icon position to canvas coordinates
-            const iconLeft = iconRect.left - canvasRect.left
-            const iconRight = iconRect.right - canvasRect.left
-            const iconTop = iconRect.top - canvasRect.top
-            const iconBottom = iconRect.bottom - canvasRect.bottom
-
-            // Check if particle is near icon (with margin)
-            const margin = 20
-            if (p.x >= iconLeft - margin && p.x <= iconRight + margin &&
-                p.y >= iconTop - margin && p.y <= iconBottom + margin) {
-
-              const iconCenterX = (iconLeft + iconRight) / 2
-              const iconCenterY = (iconTop + iconBottom) / 2
-              const dx = p.x - iconCenterX
-              const dy = p.y - iconCenterY
+        if ((iconAttractParticles || iconCollideParticles) && iconStatesRef.current.size > 0) {
+          for (const [iconId, iconState] of iconStatesRef.current) {
+            // Attract: pull particles toward icon center
+            if (iconAttractParticles) {
+              const dx = p.x - iconState.x
+              const dy = p.y - iconState.y
               const dist = Math.sqrt(dx * dx + dy * dy) || 1
-
-              if (windowAttractParticles) {
-                // Pull toward icon center
-                p.vx -= (dx / dist) * WINDOW_ATTRACT_FORCE
-                p.vy -= (dy / dist) * WINDOW_ATTRACT_FORCE
+              if (dist < 100) {
+                const force = ICON_ATTRACT_FORCE * (1 - dist / 100)
+                p.vx -= (dx / dist) * force
+                p.vy -= (dy / dist) * force
               }
+            }
 
-              if (windowCollideParticles) {
-                // Push away from icon
-                const pushDist = 40
-                if (dist < pushDist && dist > 0) {
-                  const force = (pushDist - dist) / pushDist
-                  p.vx += (dx / dist) * force * WINDOW_COLLIDE_FORCE
-                  p.vy += (dy / dist) * force * WINDOW_COLLIDE_FORCE
+            // Collide: treat icon as solid rectangular barrier with momentum transfer
+            if (iconCollideParticles) {
+              // Check if particle is inside or colliding with icon rectangle
+              if (p.x >= iconState.left && p.x <= iconState.right &&
+                  p.y >= iconState.top && p.y <= iconState.bottom) {
+                collisionDebugRef.current.count++
+
+                // Particle is inside - push to nearest edge and apply momentum
+                const distToLeft = p.x - iconState.left
+                const distToRight = iconState.right - p.x
+                const distToTop = p.y - iconState.top
+                const distToBottom = iconState.bottom - p.y
+
+                // Find nearest edge
+                const minDist = Math.min(distToLeft, distToRight, distToTop, distToBottom)
+
+                // Calculate icon velocity magnitude
+                const iconSpeed = Math.sqrt(iconState.vx * iconState.vx + iconState.vy * iconState.vy)
+                const momentumBoost = Math.min(iconSpeed * 0.5, 5) // Cap the boost
+
+                if (minDist === distToLeft) {
+                  p.x = iconState.left - 2
+                  // Bounce left + icon momentum to the left
+                  p.vx = -Math.abs(p.vx) * 0.9 - iconState.vx * 0.5 - momentumBoost
+                } else if (minDist === distToRight) {
+                  p.x = iconState.right + 2
+                  // Bounce right + icon momentum to the right
+                  p.vx = Math.abs(p.vx) * 0.9 + iconState.vx * 0.5 + momentumBoost
+                } else if (minDist === distToTop) {
+                  p.y = iconState.top - 2
+                  // Bounce up + icon momentum upward
+                  p.vy = -Math.abs(p.vy) * 0.9 - iconState.vy * 0.5 - momentumBoost
+                } else {
+                  p.y = iconState.bottom + 2
+                  // Bounce down + icon momentum downward
+                  p.vy = Math.abs(p.vy) * 0.9 + iconState.vy * 0.5 + momentumBoost
                 }
               }
             }
-          })
+          }
         }
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
@@ -1231,17 +1303,17 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         }
       }
 
-      // Draw ripple waves (concentric circles)
+      // Draw ripple expanding ring (stops at max radius)
       if (cursorRippleEnabled && ripplesRef.current.length > 0) {
         for (const ripple of ripplesRef.current) {
-          if (ripple.frame < 0) continue // Wave hasn't started yet
-          const radius = ripple.frame * RIPPLE_SPEED
-          const opacity = (1 - ripple.frame / RIPPLE_DURATION) * 0.8 * (1 - ripple.wave * 0.2)
+          const radius = Math.min(ripple.frame * RIPPLE_SPEED, RIPPLE_MAX_RADIUS)
+          const progress = radius / RIPPLE_MAX_RADIUS
+          const opacity = (1 - progress) * 0.7
           if (opacity > 0) {
             ctx.beginPath()
             ctx.arc(ripple.x, ripple.y, radius, 0, Math.PI * 2)
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
-            ctx.lineWidth = 1.5
+            ctx.lineWidth = 2
             ctx.stroke()
           }
         }

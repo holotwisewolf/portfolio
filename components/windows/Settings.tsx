@@ -43,10 +43,10 @@ export default function Settings() {
     setCursorRippleEnabled,
     cursorConnectParticles,
     setCursorConnectParticles,
-    windowAttractParticles,
-    setWindowAttractParticles,
-    windowCollideParticles,
-    setWindowCollideParticles
+    iconAttractParticles,
+    setIconAttractParticles,
+    iconCollideParticles,
+    setIconCollideParticles
   } = useContext(ExplosionModeContext)!
 
   const openWindow = useWindowStore((state) => state.openWindow)
@@ -159,8 +159,9 @@ export default function Settings() {
       <div className="flex-1 flex flex-col mt-4">
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Navigation</div>
 
-        {/* BG Particle - expandable with animation */}
+        {/* All navigation items in a single scrollable container */}
         <div className="flex-1 overflow-y-auto">
+          {/* BG Particle - expandable with animation */}
           <div
             onClick={() => setExpanded(!expanded)}
             className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
@@ -356,130 +357,130 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Cursor Interactions - expandable with animation */}
-        <div
-          onClick={() => setCursorExpanded(!cursorExpanded)}
-          className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
-        >
-          <span className="text-gray-800">
-            &gt;
-          </span>{' '}
-          cursor interactions
-        </div>
+          {/* Cursor Interactions - expandable with animation */}
+          <div
+            onClick={() => setCursorExpanded(!cursorExpanded)}
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          >
+            <span className="text-gray-800">
+              &gt;
+            </span>{' '}
+            cursor interactions
+          </div>
 
-        {/* Animated expansion for cursor interactions */}
-        <div
-          className={`overflow-hidden transition-all duration-300 ease-out ${
-            cursorExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="pl-4 py-2 space-y-2">
-            {/* Cursor Mode */}
-            <div className="border border-gray-800 p-2">
-              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Mode</div>
-              <div className="flex items-center justify-between">
-                <div className="text-gray-300 text-[10px]">
-                  {cursorInteractionMode === 'none'
-                    ? 'No cursor interaction'
-                    : cursorInteractionMode === 'attract'
-                    ? 'Particles swarm toward cursor'
-                    : 'Cursor pushes particles on contact'}
+          {/* Animated expansion for cursor interactions */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              cursorExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="pl-4 py-2 space-y-2">
+              {/* Cursor Mode */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Mode</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    {cursorInteractionMode === 'none'
+                      ? 'No cursor interaction'
+                      : cursorInteractionMode === 'attract'
+                      ? 'Particles swarm toward cursor'
+                      : 'Cursor pushes particles on contact'}
+                  </div>
+                  <select
+                    value={cursorInteractionMode}
+                    onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
+                    className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                  >
+                    <option value="none">None</option>
+                    <option value="attract">Attract</option>
+                    <option value="collide">Collide</option>
+                  </select>
                 </div>
-                <select
-                  value={cursorInteractionMode}
-                  onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
-                  className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
-                >
-                  <option value="none">None</option>
-                  <option value="attract">Attract</option>
-                  <option value="collide">Collide</option>
-                </select>
               </div>
-            </div>
 
-            {/* Cursor Ripple */}
-            <div className="border border-gray-800 p-2">
-              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Ripple</div>
-              <div className="flex items-center justify-between">
-                <div className="text-gray-300 text-[10px]">
-                  Click to create burst wave
+              {/* Cursor Ripple */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Ripple</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Click to create burst wave
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCursorRippleEnabled(!cursorRippleEnabled); }}
+                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                  >
+                    {cursorRippleEnabled ? 'Enabled' : 'Disabled'}
+                  </button>
                 </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setCursorRippleEnabled(!cursorRippleEnabled); }}
-                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
-                >
-                  {cursorRippleEnabled ? 'Enabled' : 'Disabled'}
-                </button>
               </div>
-            </div>
 
-            {/* Cursor Connections */}
-            <div className="border border-gray-800 p-2">
-              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Connections</div>
-              <div className="flex items-center justify-between">
-                <div className="text-gray-300 text-[10px]">
-                  Draw lines to nearby particles
+              {/* Cursor Connections */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Connections</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Draw lines to nearby particles
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCursorConnectParticles(!cursorConnectParticles); }}
+                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                  >
+                    {cursorConnectParticles ? 'Enabled' : 'Disabled'}
+                  </button>
                 </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setCursorConnectParticles(!cursorConnectParticles); }}
-                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
-                >
-                  {cursorConnectParticles ? 'Enabled' : 'Disabled'}
-                </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Desktop Icons Interaction - expandable with animation */}
-        <div
-          onClick={() => setWindowExpanded(!windowExpanded)}
-          className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
-        >
-          <span className="text-gray-800">
-            &gt;
-          </span>{' '}
-          icon interactions
-        </div>
+          {/* Desktop Icons Interaction - expandable with animation */}
+          <div
+            onClick={() => setWindowExpanded(!windowExpanded)}
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          >
+            <span className="text-gray-800">
+              &gt;
+            </span>{' '}
+            icon interactions
+          </div>
 
-        {/* Animated expansion for icon interactions */}
-        <div
-          className={`overflow-hidden transition-all duration-300 ease-out ${
-            windowExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="pl-4 py-2 space-y-2">
-            {/* Icon Attract */}
-            <div className="border border-gray-800 p-2">
-              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Attract Particles</div>
-              <div className="flex items-center justify-between">
-                <div className="text-gray-300 text-[10px]">
-                  Particles gather around icons
+          {/* Animated expansion for icon interactions */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              windowExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="pl-4 py-2 space-y-2">
+              {/* Icon Attract */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Attract Particles</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Particles gather around icons
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIconAttractParticles(!iconAttractParticles); }}
+                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                  >
+                    {iconAttractParticles ? 'Enabled' : 'Disabled'}
+                  </button>
                 </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setWindowAttractParticles(!windowAttractParticles); }}
-                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
-                >
-                  {windowAttractParticles ? 'Enabled' : 'Disabled'}
-                </button>
               </div>
-            </div>
 
-            {/* Icon Collide */}
-            <div className="border border-gray-800 p-2">
-              <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Collide Particles</div>
-              <div className="flex items-center justify-between">
-                <div className="text-gray-300 text-[10px]">
-                  Icons push particles away
+              {/* Icon Collide */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Collide Particles</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Icons push particles away
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIconCollideParticles(!iconCollideParticles); }}
+                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                  >
+                    {iconCollideParticles ? 'Enabled' : 'Disabled'}
+                  </button>
                 </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setWindowCollideParticles(!windowCollideParticles); }}
-                  className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
-                >
-                  {windowCollideParticles ? 'Enabled' : 'Disabled'}
-                </button>
               </div>
             </div>
           </div>
