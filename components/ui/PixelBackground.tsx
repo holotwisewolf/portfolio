@@ -1421,7 +1421,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorRippleEnabled])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorRippleEnabled, cursorClickExplodeCluster, cursorConnectParticles, cursorInteractionMode, connectionOpacity, iconAttractParticles, iconCollideParticles])
 
   if (!mounted) return null
 
