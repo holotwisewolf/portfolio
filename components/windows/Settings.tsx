@@ -192,7 +192,7 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleExplosionMode(); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className="px-2 py-1 text-[10px] w-20 bg-black border border-gray-700 text-gray-400 hover:border-white transition-colors"
                   >
                     Toggle
                   </button>
@@ -209,7 +209,7 @@ export default function Settings() {
                   <select
                     value={graceMode}
                     onChange={(e) => setGraceMode(e.target.value as GraceMode)}
-                    className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -227,7 +227,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setFrameFreezeEnabled(!frameFreezeEnabled); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      frameFreezeEnabled
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {frameFreezeEnabled ? 'Enabled' : 'Disabled'}
                   </button>
@@ -244,7 +248,7 @@ export default function Settings() {
                   <select
                     value={crystalMode}
                     onChange={(e) => setCrystalMode(e.target.value as CrystalMode)}
-                    className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -263,7 +267,7 @@ export default function Settings() {
                   <select
                     value={connectorState}
                     onChange={(e) => setConnectorState(e.target.value as ConnectorState)}
-                    className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20"
                   >
                     <option value="auto">Auto</option>
                     <option value="zen-only">Zen Only</option>
@@ -282,7 +286,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCalmnessEnabled(!calmnessEnabled); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      calmnessEnabled
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {calmnessEnabled ? 'Enabled' : 'Disabled'}
                   </button>
@@ -299,7 +307,7 @@ export default function Settings() {
                   <select
                     value={connectorHighlight}
                     onChange={(e) => setConnectorHighlight(e.target.value as ConnectorHighlight)}
-                    className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="red">Red</option>
@@ -392,7 +400,7 @@ export default function Settings() {
                   <select
                     value={cursorInteractionMode}
                     onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
-                    className="px-3 py-1.5 bg-black border border-white text-white hover:bg-white hover:text-black transition-colors cursor-pointer text-[10px] w-[80px]"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20"
                   >
                     <option value="none">None</option>
                     <option value="attract">Attract</option>
@@ -410,7 +418,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCursorRippleEnabled(!cursorRippleEnabled); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      cursorRippleEnabled
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {cursorRippleEnabled ? 'Enabled' : 'Disabled'}
                   </button>
@@ -426,7 +438,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCursorConnectParticles(!cursorConnectParticles); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      cursorConnectParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {cursorConnectParticles ? 'Enabled' : 'Disabled'}
                   </button>
@@ -442,7 +458,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCursorClickExplodeCluster(!cursorClickExplodeCluster); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      cursorClickExplodeCluster
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {cursorClickExplodeCluster ? 'Enabled' : 'Disabled'}
                   </button>
@@ -478,7 +498,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setIconAttractParticles(!iconAttractParticles); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      iconAttractParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {iconAttractParticles ? 'Enabled' : 'Disabled'}
                   </button>
@@ -494,7 +518,11 @@ export default function Settings() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setIconCollideParticles(!iconCollideParticles); }}
-                    className="px-3 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px] w-[80px]"
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      iconCollideParticles
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
                   >
                     {iconCollideParticles ? 'Enabled' : 'Disabled'}
                   </button>

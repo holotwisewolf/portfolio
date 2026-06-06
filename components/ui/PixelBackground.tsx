@@ -80,6 +80,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
   // Cursor interaction refs
   const mousePos = useRef({ x: 0, y: 0 })
+  const prevMousePos = useRef({ x: 0, y: 0 })
+  const mouseVelocity = useRef({ x: 0, y: 0 })
   const mouseDownRef = useRef(false)
   const ripplesRef = useRef<Array<{ x: number; y: number; frame: number; wave: number }>>([])
   const ripplesCounterRef = useRef(0)
@@ -92,7 +94,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
     `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${cursorClickExplodeCluster}-${connectionOpacity}-${iconAttractParticles}-${iconCollideParticles}`
+    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}`
   )
 
   useEffect(() => {
@@ -106,7 +108,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
       `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${cursorClickExplodeCluster}-${connectionOpacity}-${iconAttractParticles}-${iconCollideParticles}`
+      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
@@ -145,7 +147,13 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     // Cursor event listeners for interactions
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
+      prevMousePos.current = mousePos.current
       mousePos.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+      // Calculate cursor velocity
+      mouseVelocity.current = {
+        x: mousePos.current.x - prevMousePos.current.x,
+        y: mousePos.current.y - prevMousePos.current.y
+      }
     }
 
     const handleMouseDown = (e: MouseEvent) => {
@@ -794,11 +802,15 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               p.vx -= (dx / dist) * force
               p.vy -= (dy / dist) * force
             } else if (cursorInteractionMode === 'collide') {
-              // Push away if overlapping
+              // Momentum-based collision: push away with cursor velocity
               if (dist < COLLISION_RADIUS && dist > 0) {
+                const cursorSpeed = Math.sqrt(mouseVelocity.current.x ** 2 + mouseVelocity.current.y ** 2)
+                const momentumBoost = Math.min(cursorSpeed * 0.8, 8) // Cap momentum transfer
                 const pushForce = (COLLISION_RADIUS - dist) / COLLISION_RADIUS
-                p.vx += (dx / dist) * pushForce * 2
-                p.vy += (dy / dist) * pushForce * 2
+
+                // Push away from cursor + add cursor momentum
+                p.vx += (dx / dist) * pushForce * 2 + mouseVelocity.current.x * 0.5 + (dx > 0 ? momentumBoost : -momentumBoost)
+                p.vy += (dy / dist) * pushForce * 2 + mouseVelocity.current.y * 0.5 + (dy > 0 ? momentumBoost : -momentumBoost)
               }
             }
           }
@@ -1421,7 +1433,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       resizeObserver.disconnect()
       cancelAnimationFrame(animationId)
     }
-  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorRippleEnabled, cursorClickExplodeCluster, cursorConnectParticles, cursorInteractionMode, connectionOpacity, iconAttractParticles, iconCollideParticles])
+  }, [mounted, explosionMode, graceMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorRippleEnabled, cursorConnectParticles, cursorInteractionMode, iconAttractParticles, iconCollideParticles])
 
   if (!mounted) return null
 
