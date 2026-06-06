@@ -211,7 +211,7 @@ export default function Settings() {
                   <select
                     value={graceMode}
                     onChange={(e) => setGraceMode(e.target.value as GraceMode)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -250,7 +250,7 @@ export default function Settings() {
                   <select
                     value={crystalMode}
                     onChange={(e) => setCrystalMode(e.target.value as CrystalMode)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -269,7 +269,7 @@ export default function Settings() {
                   <select
                     value={connectorState}
                     onChange={(e) => setConnectorState(e.target.value as ConnectorState)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="auto">Auto</option>
                     <option value="zen-only">Zen Only</option>
@@ -309,7 +309,7 @@ export default function Settings() {
                   <select
                     value={connectorHighlight}
                     onChange={(e) => setConnectorHighlight(e.target.value as ConnectorHighlight)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="red">Red</option>
@@ -402,7 +402,7 @@ export default function Settings() {
                   <select
                     value={cursorInteractionMode}
                     onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
+                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="none">None</option>
                     <option value="attract">Attract</option>
