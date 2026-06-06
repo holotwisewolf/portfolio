@@ -76,6 +76,12 @@ interface ExplosionModeContextType {
   setCursorRippleEnabled: (enabled: boolean) => void
   cursorConnectParticles: boolean
   setCursorConnectParticles: (enabled: boolean) => void
+  cursorClickExplodeCluster: boolean
+  setCursorClickExplodeCluster: (enabled: boolean) => void
+
+  // Visual settings
+  connectionsBrighter: boolean
+  setConnectionsBrighter: (enabled: boolean) => void
 
   // Desktop icon interactions
   iconAttractParticles: boolean
@@ -338,6 +344,23 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return false
   })
 
+  const [cursorClickExplodeCluster, setCursorClickExplodeCluster] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('cursorClickExplodeCluster')
+      return saved === 'true'
+    }
+    return false
+  })
+
+  // Visual settings
+  const [connectionsBrighter, setConnectionsBrighter] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('connectionsBrighter')
+      return saved === 'true'
+    }
+    return false
+  })
+
   // Window interaction settings
   const [iconAttractParticles, setIconAttractParticles] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -511,6 +534,16 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cursorConnectParticles', enabled.toString())
   }
 
+  const handleSetCursorClickExplodeCluster = (enabled: boolean) => {
+    setCursorClickExplodeCluster(enabled)
+    localStorage.setItem('cursorClickExplodeCluster', enabled.toString())
+  }
+
+  const handleSetConnectionsBrighter = (enabled: boolean) => {
+    setConnectionsBrighter(enabled)
+    localStorage.setItem('connectionsBrighter', enabled.toString())
+  }
+
   const handleSetIconAttractParticles = (enabled: boolean) => {
     setIconAttractParticles(enabled)
     localStorage.setItem('iconAttractParticles', enabled.toString())
@@ -585,6 +618,10 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setCursorRippleEnabled: handleSetCursorRippleEnabled,
       cursorConnectParticles,
       setCursorConnectParticles: handleSetCursorConnectParticles,
+      cursorClickExplodeCluster,
+      setCursorClickExplodeCluster: handleSetCursorClickExplodeCluster,
+      connectionsBrighter,
+      setConnectionsBrighter: handleSetConnectionsBrighter,
       iconAttractParticles,
       setIconAttractParticles: handleSetIconAttractParticles,
       iconCollideParticles,

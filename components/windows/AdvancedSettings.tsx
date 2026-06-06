@@ -29,6 +29,8 @@ export default function AdvancedSettings() {
     cursorInteractionMode, setCursorInteractionMode,
     cursorRippleEnabled, setCursorRippleEnabled,
     cursorConnectParticles, setCursorConnectParticles,
+    cursorClickExplodeCluster, setCursorClickExplodeCluster,
+    connectionsBrighter, setConnectionsBrighter,
     iconAttractParticles, setIconAttractParticles,
     iconCollideParticles, setIconCollideParticles
   } = useContext(ExplosionModeContext)!
@@ -37,7 +39,8 @@ export default function AdvancedSettings() {
     particles: false,
     physics: false,
     connectors: false,
-    mesh: false
+    mesh: false,
+    visual: false
   })
 
   const resetToDefaults = () => {
@@ -204,6 +207,20 @@ export default function AdvancedSettings() {
                     {cursorConnectParticles ? 'On' : 'Off'}
                   </button>
                 </div>
+
+                <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                  <span className="text-gray-400">Click Explodes</span>
+                  <button
+                    onClick={() => setCursorClickExplodeCluster(!cursorClickExplodeCluster)}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      cursorClickExplodeCluster
+                        ? 'bg-green-900 text-green-400 border border-green-700'
+                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                    }`}
+                  >
+                    {cursorClickExplodeCluster ? 'On' : 'Off'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -325,6 +342,37 @@ export default function AdvancedSettings() {
               </div>
               <div className="text-gray-500 text-[10px]">
                 Mesh network physics for connector behavior
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Visual Section */}
+        <div>
+          <div
+            onClick={() => setExpanded({ ...expanded, visual: !expanded.visual })}
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          >
+            <span className="text-gray-800">&gt;</span> visual
+          </div>
+
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${expanded.visual ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="pl-4 py-2 space-y-2">
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-gray-400">Brighter Connections</span>
+                <button
+                  onClick={() => setConnectionsBrighter(!connectionsBrighter)}
+                  className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                    connectionsBrighter
+                      ? 'bg-green-900 text-green-400 border border-green-700'
+                      : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                  }`}
+                >
+                  {connectionsBrighter ? 'On' : 'Off'}
+                </button>
+              </div>
+              <div className="text-gray-500 text-[10px]">
+                Increase visibility of connection lines
               </div>
             </div>
           </div>
