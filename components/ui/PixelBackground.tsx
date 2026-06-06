@@ -657,11 +657,14 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const vx = iconCenterX - prevX
           const vy = iconCenterY - prevY
 
-          // Calculate icon bounds
-          const iconLeft = iconRect.left - canvasRect.left
-          const iconRight = iconRect.right - canvasRect.left
-          const iconTop = iconRect.top - canvasRect.top
-          const iconBottom = iconRect.bottom - canvasRect.top
+          // Calculate icon bounds (exclude button padding p-2=8px)
+          // Visual icon is the inner 48px box, not the padded button edges
+          const BUTTON_PADDING = 8
+          const ICON_BOX_SIZE = 48
+          const iconLeft = iconRect.left - canvasRect.left + BUTTON_PADDING
+          const iconRight = iconRect.right - canvasRect.left - BUTTON_PADDING
+          const iconTop = iconRect.top - canvasRect.top + BUTTON_PADDING
+          const iconBottom = iconRect.top - canvasRect.top + BUTTON_PADDING + ICON_BOX_SIZE
 
           newIconStates.set(iconId, {
             x: iconCenterX,
