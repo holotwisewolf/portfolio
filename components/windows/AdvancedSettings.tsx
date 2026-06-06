@@ -63,6 +63,7 @@ export default function AdvancedSettings() {
     setEdgeUrgent(10)
     setEdgeMomentumReaction(0.5)
     setSpaceFinderRatio(0.3)
+    setConnectionOpacity(0.3)
   }
 
   // Helper for number input with fixed width
