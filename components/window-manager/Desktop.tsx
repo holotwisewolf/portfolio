@@ -243,19 +243,19 @@ export default function Desktop() {
       const maxRows = Math.max(0, Math.floor((rect.height - 2 * MIN_PADDING - ICON_HEIGHT) / GRID_SIZE) + 1)
       const maxCols = Math.max(0, Math.floor((rect.width - 2 * MIN_PADDING - ICON_WIDTH) / GRID_SIZE) + 1)
 
-      // Total space needed for those rows/cols
-      const gridHeight = maxRows * GRID_SIZE
-      const gridWidth = maxCols * GRID_SIZE
+      // Total space needed (including the last icon's height for vertical)
+      const gridHeight = maxRows * GRID_SIZE + (ICON_HEIGHT - GRID_SIZE)
+      const gridWidth = maxCols * GRID_SIZE + (ICON_WIDTH - GRID_SIZE)
 
-      // Calculate padding to center the grid
-      const vertPadding = Math.floor((rect.height - gridHeight) / 2)
-      const horizPadding = Math.floor((rect.width - gridWidth) / 2)
+      // Equal padding on both sides (use single value for each axis)
+      const vertPadding = Math.round((rect.height - gridHeight) / 2)
+      const horizPadding = Math.round((rect.width - gridWidth) / 2)
 
       setPadding({
         top: vertPadding,
+        bottom: vertPadding,
         left: horizPadding,
-        right: horizPadding,
-        bottom: vertPadding
+        right: horizPadding
       })
     }
 
