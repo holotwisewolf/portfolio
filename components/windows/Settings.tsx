@@ -441,22 +441,22 @@ export default function Settings() {
           <span className="text-gray-800">
             &gt;
           </span>{' '}
-          desktop icons interaction
+          icon interactions
         </div>
 
-        {/* Animated expansion for window interactions */}
+        {/* Animated expansion for icon interactions */}
         <div
           className={`overflow-hidden transition-all duration-300 ease-out ${
             windowExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <div className="pl-4 py-2 space-y-2">
-            {/* Window Attract */}
+            {/* Icon Attract */}
             <div className="border border-gray-800 p-2">
               <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Attract Particles</div>
               <div className="flex items-center justify-between">
                 <div className="text-gray-300 text-[10px]">
-                  Particles gather around windows
+                  Particles gather around icons
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setWindowAttractParticles(!windowAttractParticles); }}
@@ -467,12 +467,12 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Window Collide */}
+            {/* Icon Collide */}
             <div className="border border-gray-800 p-2">
               <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Collide Particles</div>
               <div className="flex items-center justify-between">
                 <div className="text-gray-300 text-[10px]">
-                  Windows push particles when dragged
+                  Icons push particles away
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); setWindowCollideParticles(!windowCollideParticles); }}

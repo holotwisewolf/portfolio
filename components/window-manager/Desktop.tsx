@@ -269,6 +269,7 @@ export default function Desktop() {
         return (
           <button
             key={icon.id}
+            data-desktop-icon="true"
             onMouseDown={(e) => handleIconMouseDown(e, icon)}
             onClick={(e) => handleIconClick(e, icon)}
             onContextMenu={(e) => handleContextMenu(e, icon.id)}

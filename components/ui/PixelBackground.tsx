@@ -79,8 +79,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   // Cursor interaction refs
   const mousePos = useRef({ x: 0, y: 0 })
   const mouseDownRef = useRef(false)
-  const rippleActiveRef = useRef(false)
-  const ripplePosRef = useRef({ x: 0, y: 0, frame: 0 })
+  const ripplesRef = useRef<Array<{ x: number; y: number; frame: number; wave: number }>>([])
+  const ripplesCounterRef = useRef(0)
 
   const prevSettingsRef = useRef(
     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
@@ -134,14 +134,21 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
     // Cursor event listeners for interactions
     const handleMouseMove = (e: MouseEvent) => {
-      mousePos.current = { x: e.clientX, y: e.clientY }
+      const rect = canvas.getBoundingClientRect()
+      mousePos.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
 
     const handleMouseDown = (e: MouseEvent) => {
       mouseDownRef.current = true
       if (cursorRippleEnabled) {
-        rippleActiveRef.current = true
-        ripplePosRef.current = { x: e.clientX, y: e.clientY, frame: 0 }
+        const rect = canvas.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        // Create 3 concentric waves
+        for (let i = 0; i < 3; i++) {
+          ripplesRef.current.push({ x, y, frame: -i * 8, wave: i })
+        }
+        ripplesCounterRef.current++
       }
     }
 
@@ -208,10 +215,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const CURSOR_RANGE = 150          // Distance for cursor interaction
     const CURSOR_FORCE = 0.05         // Attraction strength
     const COLLISION_RADIUS = 20       // Cursor physical collision
-    const RIPPLE_SPEED = 8            // Pixels per frame
-    const RIPPLE_WIDTH = 30           // Wave thickness
-    const RIPPLE_FORCE = 0.3          // Outward push strength
-    const RIPPLE_DURATION = 60        // Frames (~1 second)
+    const RIPPLE_SPEED = 4            // Pixels per frame (slower for better visual)
+    const RIPPLE_WIDTH = 20           // Wave thickness
+    const RIPPLE_FORCE = 0.08         // Outward push strength (much weaker)
+    const RIPPLE_DURATION = 90        // Frames (~1.5 seconds)
 
     // Window interaction constants
     const WINDOW_MARGIN = 50          // Buffer around windows
@@ -304,14 +311,11 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     }
 
     const update = () => {
-      // Update ripple animation
-      if (rippleActiveRef.current) {
-        ripplePosRef.current.frame++
-        if (ripplePosRef.current.frame > RIPPLE_DURATION) {
-          rippleActiveRef.current = false
-          ripplePosRef.current.frame = 0
-        }
-      }
+      // Update ripple animations (multiple waves)
+      ripplesRef.current = ripplesRef.current.filter(r => {
+        r.frame++
+        return r.frame < RIPPLE_DURATION
+      })
 
       // Restore saved positions if settings changed (particles stay in place)
       if (savedPositionsRef.current) {
@@ -696,70 +700,73 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           }
         }
 
-        // Ripple effect (expanding ring on click)
-        if (cursorRippleEnabled && rippleActiveRef.current && p._clusterTimer === 0) {
-          const dx = p.x - ripplePosRef.current.x
-          const dy = p.y - ripplePosRef.current.y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          const rippleFrame = ripplePosRef.current.frame
-          const ringRadius = rippleFrame * RIPPLE_SPEED
+        // Ripple effect (multiple expanding waves on click)
+        if (cursorRippleEnabled && ripplesRef.current.length > 0 && p._clusterTimer === 0) {
+          for (const ripple of ripplesRef.current) {
+            // Only apply force after wave starts (frame >= 0)
+            if (ripple.frame < 0) continue
 
-          // Check if particle is within the ripple ring
-          const ringDist = Math.abs(dist - ringRadius)
-          if (ringDist < RIPPLE_WIDTH && dist > 0) {
-            // Apply outward force
-            const rippleForce = RIPPLE_FORCE * (1 - ringDist / RIPPLE_WIDTH)
-            p.vx += (dx / dist) * rippleForce
-            p.vy += (dy / dist) * rippleForce
+            const dx = p.x - ripple.x
+            const dy = p.y - ripple.y
+            const dist = Math.sqrt(dx * dx + dy * dy)
+            const ringRadius = ripple.frame * RIPPLE_SPEED
+
+            // Check if particle is within the ripple ring
+            const ringDist = Math.abs(dist - ringRadius)
+            if (ringDist < RIPPLE_WIDTH && dist > 0) {
+              // Apply outward force (weaker for outer waves)
+              const waveMultiplier = 1 - (ripple.wave * 0.25)
+              const rippleForce = RIPPLE_FORCE * (1 - ringDist / RIPPLE_WIDTH) * waveMultiplier
+              p.vx += (dx / dist) * rippleForce
+              p.vy += (dy / dist) * rippleForce
+            }
           }
         }
 
-        // Window interactions (attract/collide with open windows)
+        // Desktop icon interactions (attract/collide with icons on desktop)
         if ((windowAttractParticles || windowCollideParticles) && p._clusterTimer === 0) {
-          const windows = useWindowStore.getState().windows
-          for (const windowId in windows) {
-            const win = windows[windowId]
-            if (!win.isOpen || win.isMinimized) continue
+          // Query desktop icons from DOM
+          const iconElements = document.querySelectorAll('[data-desktop-icon]')
+          const canvasRect = canvas.getBoundingClientRect()
 
-            const winCenterX = win.position.x + win.size.width / 2
-            const winCenterY = win.position.y + win.size.height / 2
-            const winLeft = win.position.x - WINDOW_MARGIN
-            const winRight = win.position.x + win.size.width + WINDOW_MARGIN
-            const winTop = win.position.y - WINDOW_MARGIN
-            const winBottom = win.position.y + win.size.height + WINDOW_MARGIN
+          iconElements.forEach((iconEl) => {
+            const icon = iconEl as HTMLElement
+            const iconRect = icon.getBoundingClientRect()
 
-            // Check if particle is near window
-            if (p.x >= winLeft && p.x <= winRight && p.y >= winTop && p.y <= winBottom) {
-              const dx = p.x - winCenterX
-              const dy = p.y - winCenterY
+            // Convert icon position to canvas coordinates
+            const iconLeft = iconRect.left - canvasRect.left
+            const iconRight = iconRect.right - canvasRect.left
+            const iconTop = iconRect.top - canvasRect.top
+            const iconBottom = iconRect.bottom - canvasRect.bottom
+
+            // Check if particle is near icon (with margin)
+            const margin = 20
+            if (p.x >= iconLeft - margin && p.x <= iconRight + margin &&
+                p.y >= iconTop - margin && p.y <= iconBottom + margin) {
+
+              const iconCenterX = (iconLeft + iconRight) / 2
+              const iconCenterY = (iconTop + iconBottom) / 2
+              const dx = p.x - iconCenterX
+              const dy = p.y - iconCenterY
               const dist = Math.sqrt(dx * dx + dy * dy) || 1
 
               if (windowAttractParticles) {
-                // Pull toward window center
+                // Pull toward icon center
                 p.vx -= (dx / dist) * WINDOW_ATTRACT_FORCE
                 p.vy -= (dy / dist) * WINDOW_ATTRACT_FORCE
               }
 
               if (windowCollideParticles) {
-                // Push away from window edges
-                const edgeDistX = Math.min(p.x - winLeft, winRight - p.x)
-                const edgeDistY = Math.min(p.y - winTop, winBottom - p.y)
-                const minEdgeDist = Math.min(edgeDistX, edgeDistY)
-
-                if (minEdgeDist < WINDOW_MARGIN && minEdgeDist > 0) {
-                  if (edgeDistX < edgeDistY) {
-                    // Push horizontally
-                    const dir = p.x < winCenterX ? -1 : 1
-                    p.vx += dir * WINDOW_COLLIDE_FORCE * (1 - minEdgeDist / WINDOW_MARGIN)
-                  } else {
-                    // Push vertically
-                    const dir = p.y < winCenterY ? -1 : 1
-                    p.vy += dir * WINDOW_COLLIDE_FORCE * (1 - minEdgeDist / WINDOW_MARGIN)
-                  }
+                // Push away from icon
+                const pushDist = 40
+                if (dist < pushDist && dist > 0) {
+                  const force = (pushDist - dist) / pushDist
+                  p.vx += (dx / dist) * force * WINDOW_COLLIDE_FORCE
+                  p.vy += (dy / dist) * force * WINDOW_COLLIDE_FORCE
                 }
               }
             }
-          }
+          })
         }
 
         // Bridge connector behavior: form dynamic mesh network in empty spaces
@@ -1211,6 +1218,22 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             ctx.lineTo(q.x, q.y)
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
             ctx.lineWidth = 0.5
+            ctx.stroke()
+          }
+        }
+      }
+
+      // Draw ripple waves (concentric circles)
+      if (cursorRippleEnabled && ripplesRef.current.length > 0) {
+        for (const ripple of ripplesRef.current) {
+          if (ripple.frame < 0) continue // Wave hasn't started yet
+          const radius = ripple.frame * RIPPLE_SPEED
+          const opacity = (1 - ripple.frame / RIPPLE_DURATION) * 0.5 * (1 - ripple.wave * 0.25)
+          if (opacity > 0) {
+            ctx.beginPath()
+            ctx.arc(ripple.x, ripple.y, radius, 0, Math.PI * 2)
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+            ctx.lineWidth = 1
             ctx.stroke()
           }
         }
