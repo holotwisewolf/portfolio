@@ -116,7 +116,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       prevSettingsRef.current = currentSettings
 
       // Clear icon states when toggling icon interactions to ensure fresh tracking
-      if (currentSettings.includes('iconAttractParticles=true') || currentSettings.includes('iconCollideParticles=true')) {
+      if (currentSettings.includes('iconAttractParticles=true') || currentSettings.includes('iconCollideParticles=true') || currentSettings.includes('iconConnectParticles=true')) {
         iconStatesRef.current.clear()
       }
     }
@@ -272,7 +272,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
     // Window interaction constants
     const WINDOW_MARGIN = 50          // Buffer around windows
-    const ICON_ATTRACT_FORCE = 0.2 // Attraction to icons
+    const ICON_ATTRACT_FORCE = 0.08 // Attraction to icons (weaker)
     const ICON_COLLIDE_FORCE = 2.0  // Collision force from icons (much stronger)
 
     // Grace period state (probabilistic)
