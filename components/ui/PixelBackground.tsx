@@ -389,40 +389,40 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       return indices.sort((a, b) => a - b).join('-')
     }
 
-    const update = () => {
-      // Helper: Check if line segment intersects rectangle
-      const lineIntersectsRect = (x1: number, y1: number, x2: number, y2: number, rectLeft: number, rectTop: number, rectRight: number, rectBottom: number): boolean => {
-        // Check if either endpoint is inside the rectangle
-        if ((x1 >= rectLeft && x1 <= rectRight && y1 >= rectTop && y1 <= rectBottom) ||
-            (x2 >= rectLeft && x2 <= rectRight && y2 >= rectTop && y2 <= rectBottom)) {
-          return true
-        }
-
-        // Check if line intersects any of the four rectangle edges
-        // Horizontal edges (top and bottom)
-        const intersectsHorizontal = (y: number) => {
-          const t = (y - y1) / (y2 - y1 || 1)
-          if (t >= 0 && t <= 1) {
-            const x = x1 + t * (x2 - x1)
-            return x >= rectLeft && x <= rectRight
-          }
-          return false
-        }
-
-        // Vertical edges (left and right)
-        const intersectsVertical = (x: number) => {
-          const t = (x - x1) / (x2 - x1 || 1)
-          if (t >= 0 && t <= 1) {
-            const y = y1 + t * (y2 - y1)
-            return y >= rectTop && y <= rectBottom
-          }
-          return false
-        }
-
-        return intersectsHorizontal(rectTop) || intersectsHorizontal(rectBottom) ||
-               intersectsVertical(rectLeft) || intersectsVertical(rectRight)
+    // Helper: Check if line segment intersects rectangle (shared by update and draw)
+    const lineIntersectsRect = (x1: number, y1: number, x2: number, y2: number, rectLeft: number, rectTop: number, rectRight: number, rectBottom: number): boolean => {
+      // Check if either endpoint is inside the rectangle
+      if ((x1 >= rectLeft && x1 <= rectRight && y1 >= rectTop && y1 <= rectBottom) ||
+          (x2 >= rectLeft && x2 <= rectRight && y2 >= rectTop && y2 <= rectBottom)) {
+        return true
       }
 
+      // Check if line intersects any of the four rectangle edges
+      // Horizontal edges (top and bottom)
+      const intersectsHorizontal = (y: number) => {
+        const t = (y - y1) / (y2 - y1 || 1)
+        if (t >= 0 && t <= 1) {
+          const x = x1 + t * (x2 - x1)
+          return x >= rectLeft && x <= rectRight
+        }
+        return false
+      }
+
+      // Vertical edges (left and right)
+      const intersectsVertical = (x: number) => {
+        const t = (x - x1) / (x2 - x1 || 1)
+        if (t >= 0 && t <= 1) {
+          const y = y1 + t * (y2 - y1)
+          return y >= rectTop && y <= rectBottom
+        }
+        return false
+      }
+
+      return intersectsHorizontal(rectTop) || intersectsHorizontal(rectBottom) ||
+             intersectsVertical(rectLeft) || intersectsVertical(rectRight)
+    }
+
+    const update = () => {
       // Debug: log collision count every 60 frames
       collisionDebugRef.current.frame++
       if (collisionDebugRef.current.frame >= 60) {
