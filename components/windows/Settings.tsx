@@ -10,6 +10,9 @@ type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
 type Preset = 'conservative' | 'balanced' | 'chaotic'
 type CursorInteractionMode = 'none' | 'attract' | 'collide'
+type WoozyMode = 'disabled' | 'enabled' | 'extreme'
+type DiscoMode = 'disabled' | 'enabled' | 'extreme'
+type ParticleShape = 'square' | 'circle' | 'triangle' | 'pentagon' | 'hexagon'
 
 export default function Settings() {
   const {
@@ -50,7 +53,13 @@ export default function Settings() {
     iconCollideParticles,
     setIconCollideParticles,
     iconConnectParticles,
-    setIconConnectParticles
+    setIconConnectParticles,
+    discoMode,
+    setDiscoMode,
+    woozyMode,
+    setWoozyMode,
+    particleShape,
+    setParticleShape
   } = useContext(ExplosionModeContext)!
 
   const openWindow = useWindowStore((state) => state.openWindow)
@@ -58,7 +67,9 @@ export default function Settings() {
   const [expanded, setExpanded] = useState(false) // Default collapsed for bg particles
   const [cursorExpanded, setCursorExpanded] = useState(false) // Cursor interactions section
   const [windowExpanded, setWindowExpanded] = useState(false) // Window interactions section
+  const [visualExpanded, setVisualExpanded] = useState(false) // Visual effects section
   const [currentPreset, setCurrentPreset] = useState<Preset>('balanced')
+  const [selectFocused, setSelectFocused] = useState(false) // Track if any select is focused
 
   // Detect current preset from settings values
   useEffect(() => {
@@ -143,6 +154,28 @@ export default function Settings() {
         <div className="text-gray-700 mb-0.5">$ connector-highlight</div>
         <div className="text-gray-400 mb-1 text-[10px]">→ Color overlay (red/yellow/cyan) for visibility</div>
 
+        <div className="text-gray-700 mb-0.5">$ cursor-interactions</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ None: cursor doesn't affect particles</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Push: momentum-based collision (faster = stronger)</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles drawn to cursor</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Ripple: visual trail on movement</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Connect: lines from cursor to particles</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Click Explode: click triggers explosion</div>
+
+        <div className="text-gray-700 mb-0.5">$ icon-interactions</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles drawn to icon edges (solid object)</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Collide: icons act as physical walls</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Connect: lines from icon edges to particles</div>
+
+        <div className="text-gray-700 mb-0.5">$ visual-effects</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disco Mode: rainbow particle colors</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: colored lines between same-colored particles</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Extreme: every connection line gets random colors</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Particle Shape: square, circle, triangle, pentagon, hexagon</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Woozy Mode: particles pulse in size</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: smooth pulsing (0.8-1.4x)</div>
+        <div className="text-gray-400 mb-1 text-[10px]">→ Extreme: 40%/frame for random explosions (2-16x)</div>
+
         <div className="text-gray-700 mb-0.5">$ advanced-settings</div>
         <div className="text-gray-400 mb-0.5 text-[10px]">→ Fine-tune 21 physics variables: particle count,</div>
         <div className="text-gray-400 mb-0.5 text-[10px]">→ max speed, attraction force, mesh network,</div>
@@ -164,7 +197,7 @@ export default function Settings() {
         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Navigation</div>
 
         {/* All navigation items in a single scrollable container */}
-        <div className="flex-1 overflow-y-auto">
+        <div className={`flex-1 ${selectFocused ? 'overflow-visible' : 'overflow-y-auto'}`}>
           {/* BG Particle - expandable with animation */}
           <div
             onClick={() => setExpanded(!expanded)}
@@ -366,6 +399,91 @@ export default function Settings() {
 
               <div className="text-gray-600 text-[10px]">
                 Changes take effect on toggle
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Effects - expandable with animation */}
+          <div
+            onClick={() => setVisualExpanded(!visualExpanded)}
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          >
+            <span className="text-gray-800">
+              &gt;
+            </span>{' '}
+            visual effects
+          </div>
+
+          {/* Animated expansion for visual effects */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              visualExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="pl-4 py-2 space-y-2">
+              {/* Disco Mode */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Disco Mode</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Rainbow particles, flashing colors
+                  </div>
+                  <select
+                    value={discoMode}
+                    onChange={(e) => { e.stopPropagation(); setDiscoMode(e.target.value as DiscoMode); }}
+                    onFocus={() => setSelectFocused(true)}
+                    onBlur={() => setSelectFocused(false)}
+                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                  >
+                    <option value="disabled">Disabled</option>
+                    <option value="enabled">Enabled</option>
+                    <option value="extreme">Extreme</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Woozy Mode */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Woozy Mode</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Particles pulse and change size
+                  </div>
+                  <select
+                    value={woozyMode}
+                    onChange={(e) => { e.stopPropagation(); setWoozyMode(e.target.value as WoozyMode); }}
+                    onFocus={() => setSelectFocused(true)}
+                    onBlur={() => setSelectFocused(false)}
+                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                  >
+                    <option value="disabled">Disabled</option>
+                    <option value="enabled">Enabled</option>
+                    <option value="extreme">Extreme</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Particle Shape */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Particle Shape</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-300 text-[10px]">
+                    Shape of particles
+                  </div>
+                  <select
+                    value={particleShape}
+                    onChange={(e) => { e.stopPropagation(); setParticleShape(e.target.value as ParticleShape); }}
+                    onFocus={() => setSelectFocused(true)}
+                    onBlur={() => setSelectFocused(false)}
+                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                  >
+                    <option value="square">Square</option>
+                    <option value="circle">Circle</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="pentagon">Pentagon</option>
+                    <option value="hexagon">Hexagon</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

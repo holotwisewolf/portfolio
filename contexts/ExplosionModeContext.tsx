@@ -7,6 +7,9 @@ type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
 type CursorInteractionMode = 'none' | 'attract' | 'collide'
+type WoozyMode = 'disabled' | 'enabled' | 'extreme'
+type DiscoMode = 'disabled' | 'enabled' | 'extreme'
+type ParticleShape = 'square' | 'circle' | 'triangle' | 'pentagon' | 'hexagon'
 
 interface ExplosionModeContextType {
   // Basic settings
@@ -82,6 +85,12 @@ interface ExplosionModeContextType {
   // Visual settings
   connectionOpacity: number
   setConnectionOpacity: (opacity: number) => void
+  discoMode: DiscoMode
+  setDiscoMode: (mode: DiscoMode) => void
+  woozyMode: WoozyMode
+  setWoozyMode: (mode: WoozyMode) => void
+  particleShape: ParticleShape
+  setParticleShape: (shape: ParticleShape) => void
 
   // Desktop icon interactions
   iconAttractParticles: boolean
@@ -363,6 +372,30 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return 0.3
   })
 
+  const [discoMode, setDiscoMode] = useState<DiscoMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('discoMode') as DiscoMode | null
+      return saved || 'disabled'
+    }
+    return 'disabled'
+  })
+
+  const [woozyMode, setWoozyMode] = useState<WoozyMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('woozyMode') as WoozyMode | null
+      return saved || 'disabled'
+    }
+    return 'disabled'
+  })
+
+  const [particleShape, setParticleShape] = useState<ParticleShape>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('particleShape') as ParticleShape | null
+      return saved || 'square'
+    }
+    return 'square'
+  })
+
   // Window interaction settings
   const [iconAttractParticles, setIconAttractParticles] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -554,6 +587,21 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('connectionOpacity', opacity.toString())
   }
 
+  const handleSetDiscoMode = (mode: DiscoMode) => {
+    setDiscoMode(mode)
+    localStorage.setItem('discoMode', mode)
+  }
+
+  const handleSetWoozyMode = (mode: WoozyMode) => {
+    setWoozyMode(mode)
+    localStorage.setItem('woozyMode', mode)
+  }
+
+  const handleSetParticleShape = (shape: ParticleShape) => {
+    setParticleShape(shape)
+    localStorage.setItem('particleShape', shape)
+  }
+
   const handleSetIconAttractParticles = (enabled: boolean) => {
     setIconAttractParticles(enabled)
     localStorage.setItem('iconAttractParticles', enabled.toString())
@@ -637,6 +685,12 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setCursorClickExplodeCluster: handleSetCursorClickExplodeCluster,
       connectionOpacity,
       setConnectionOpacity: handleSetConnectionOpacity,
+      discoMode,
+      setDiscoMode: handleSetDiscoMode,
+      woozyMode,
+      setWoozyMode: handleSetWoozyMode,
+      particleShape,
+      setParticleShape: handleSetParticleShape,
       iconAttractParticles,
       setIconAttractParticles: handleSetIconAttractParticles,
       iconCollideParticles,

@@ -30,6 +30,11 @@ interface Particle {
   _crystallizeTimer: number    // Frames until crystal mode ends
   _isZenMode: boolean          // In content/zen state (regardless of fitness)
   _zenModeTimer: number        // Frames until zen mode ends
+  _discoHue: number            // Current hue for disco mode (0-360)
+  _discoTargetHue: number     // Target hue to transition to
+  _discoChangeTimer: number   // Frames until next color change
+  _woozyExtremeMult: number    // Current size multiplier for extreme woozy
+  _woozyExtremeTimer: number   // Frames until extreme effect ends
 }
 
 interface PixelBackgroundProps {
@@ -72,6 +77,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     cursorConnectParticles,
     cursorClickExplodeCluster,
     connectionOpacity,
+    discoMode,
+    woozyMode,
+    particleShape,
     iconAttractParticles,
     iconCollideParticles,
     iconConnectParticles
@@ -89,6 +97,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   const collisionDebugRef = useRef({ count: 0, frame: 0 })
   // Track icon positions and velocities for momentum transfer
   const iconStatesRef = useRef<Map<string, { x: number; y: number; vx: number; vy: number; left: number; right: number; top: number; bottom: number }>>(new Map())
+  const discoModeRef = useRef(discoMode)
+  const woozyModeRef = useRef(woozyMode)
+  const particleShapeRef = useRef(particleShape)
 
   const prevSettingsRef = useRef(
     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
@@ -121,6 +132,19 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       }
     }
   }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, iconAttractParticles, iconCollideParticles, iconConnectParticles])
+
+  // Sync visual mode refs for instant updates without recreating animation loop
+  useEffect(() => {
+    discoModeRef.current = discoMode
+  }, [discoMode])
+
+  useEffect(() => {
+    woozyModeRef.current = woozyMode
+  }, [woozyMode])
+
+  useEffect(() => {
+    particleShapeRef.current = particleShape
+  }, [particleShape])
 
   useEffect(() => {
     if (!mounted) return
@@ -318,7 +342,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _isCrystallized: false,  // Not in crystal mode initially
         _crystallizeTimer: 0,    // No crystal timer initially
         _isZenMode: false,       // Not in zen mode initially
-        _zenModeTimer: 0         // No zen timer initially
+        _zenModeTimer: 0,        // No zen timer initially
+        _discoHue: Math.random() * 360,  // Random starting hue
+        _discoTargetHue: Math.random() * 360,  // Random target hue
+        _discoChangeTimer: Math.random() * 120 + 60,  // 1-3 seconds until first change
+        _woozyExtremeMult: 1,  // Start at normal size
+        _woozyExtremeTimer: 0   // No extreme effect initially
       })
     }
 
@@ -361,6 +390,39 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     }
 
     const update = () => {
+      // Helper: Check if line segment intersects rectangle
+      const lineIntersectsRect = (x1: number, y1: number, x2: number, y2: number, rectLeft: number, rectTop: number, rectRight: number, rectBottom: number): boolean => {
+        // Check if either endpoint is inside the rectangle
+        if ((x1 >= rectLeft && x1 <= rectRight && y1 >= rectTop && y1 <= rectBottom) ||
+            (x2 >= rectLeft && x2 <= rectRight && y2 >= rectTop && y2 <= rectBottom)) {
+          return true
+        }
+
+        // Check if line intersects any of the four rectangle edges
+        // Horizontal edges (top and bottom)
+        const intersectsHorizontal = (y: number) => {
+          const t = (y - y1) / (y2 - y1 || 1)
+          if (t >= 0 && t <= 1) {
+            const x = x1 + t * (x2 - x1)
+            return x >= rectLeft && x <= rectRight
+          }
+          return false
+        }
+
+        // Vertical edges (left and right)
+        const intersectsVertical = (x: number) => {
+          const t = (x - x1) / (x2 - x1 || 1)
+          if (t >= 0 && t <= 1) {
+            const y = y1 + t * (y2 - y1)
+            return y >= rectTop && y <= rectBottom
+          }
+          return false
+        }
+
+        return intersectsHorizontal(rectTop) || intersectsHorizontal(rectBottom) ||
+               intersectsVertical(rectLeft) || intersectsVertical(rectRight)
+      }
+
       // Debug: log collision count every 60 frames
       collisionDebugRef.current.frame++
       if (collisionDebugRef.current.frame >= 60) {
@@ -737,6 +799,65 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // Use neighbor count from earlier pass (for glow rendering)
         p._neighbors = neighborCounts[i]
 
+        // Disco mode: smooth color transitions at random intervals
+        if (discoModeRef.current) {
+          if (p._discoChangeTimer > 0) {
+            p._discoChangeTimer--
+          } else {
+            // Timer expired, pick new target hue
+            p._discoTargetHue = Math.random() * 360
+            p._discoChangeTimer = Math.random() * 120 + 30  // 0.5-2.5 seconds until next change
+          }
+
+          // Smoothly transition current hue toward target
+          const hueDiff = p._discoTargetHue - p._discoHue
+          if (Math.abs(hueDiff) > 0.5) {
+            // Handle wrap-around (e.g., going from 350 to 10)
+            let adjustedDiff = hueDiff
+            if (adjustedDiff > 180) adjustedDiff -= 360
+            if (adjustedDiff < -180) adjustedDiff += 360
+            p._discoHue += adjustedDiff * 0.05  // 5% transition speed per frame
+            // Normalize to 0-360
+            if (p._discoHue < 0) p._discoHue += 360
+            if (p._discoHue >= 360) p._discoHue -= 360
+          }
+        }
+
+        // Woozy extreme mode: random size explosions
+        if (woozyModeRef.current === 'extreme') {
+          // Decrease timer
+          if (p._woozyExtremeTimer > 0) {
+            p._woozyExtremeTimer--
+          } else if (p._woozyExtremeMult > 1) {
+            // Timer expired, return to normal size
+            p._woozyExtremeMult = 1
+          } else {
+            // Not in extreme state, chance to trigger
+            const roll = Math.random()
+            if (roll < 0.02) {
+              // 2% chance: 16x (very rare)
+              p._woozyExtremeMult = 16
+              p._woozyExtremeTimer = 30  // 0.5 seconds
+            } else if (roll < 0.05) {
+              // 3% chance: 8x (rare)
+              p._woozyExtremeMult = 8
+              p._woozyExtremeTimer = 40  // ~0.7 seconds
+            } else if (roll < 0.10) {
+              // 5% chance: 6x
+              p._woozyExtremeMult = 6
+              p._woozyExtremeTimer = 50  // ~0.8 seconds
+            } else if (roll < 0.20) {
+              // 10% chance: 4x
+              p._woozyExtremeMult = 4
+              p._woozyExtremeTimer = 60  // 1 second
+            } else if (roll < 0.40) {
+              // 20% chance: 2x (most common)
+              p._woozyExtremeMult = 2
+              p._woozyExtremeTimer = 90  // 1.5 seconds
+            }
+          }
+        }
+
         // Only apply gravity if this specific particle is NOT immune/dispersing
         // Connectors have their own mesh network physics, skip normal attraction
         // SKIP ALL forces during grace period (time slow)
@@ -860,9 +981,23 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 // Check if particle is outside the icon
                 const isOutside = p.x < iconState.left || p.x > iconState.right || p.y < iconState.top || p.y > iconState.bottom
                 if (isOutside) {
+                  // Orbital motion: add both radial (attraction) and tangential (orbit) forces
                   const force = ICON_ATTRACT_FORCE * (1 - dist / 100)
-                  p.vx -= (dx / dist) * force
-                  p.vy -= (dy / dist) * force
+                  const radialX = dx / dist
+                  const radialY = dy / dist
+
+                  // Tangential direction (perpendicular to radial, for orbit)
+                  // Use -dy, dx for counter-clockwise orbit
+                  const tangentX = -dy / dist
+                  const tangentY = dx / dist
+
+                  // Radial component: pull toward icon (weaker)
+                  p.vx -= radialX * force * 0.3
+                  p.vy -= radialY * force * 0.3
+
+                  // Tangential component: push sideways (stronger for orbit)
+                  p.vx += tangentX * force * 0.7
+                  p.vy += tangentY * force * 0.7
                 }
               }
             }
@@ -1352,11 +1487,44 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const q = particles[j]
           const d = dist(p, q)
           if (d < CONNECTION_DISTANCE) {
+            // Check if icon is in the way (line-of-sight blocking) when collide is enabled
+            let blockedByIcon = false
+            if (iconCollideParticles && iconStatesRef.current.size > 0) {
+              for (const [, iconState] of iconStatesRef.current) {
+                if (lineIntersectsRect(p.x, p.y, q.x, q.y, iconState.left, iconState.top, iconState.right, iconState.bottom)) {
+                  blockedByIcon = true
+                  break
+                }
+              }
+            }
+            if (blockedByIcon) continue
+
             const opacity = (1 - d / CONNECTION_DISTANCE) * connectionOpacity
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(q.x, q.y)
-            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+
+            // Disco mode: colored connector lines
+            if (discoModeRef.current === 'enabled') {
+              // Check if particles have similar hues (same color)
+              const hueDiff = Math.abs(p._discoHue - q._discoHue)
+              const hueSimilar = hueDiff < 15 || hueDiff > 345  // Within 15 degrees = similar color
+              if (hueSimilar) {
+                // Use the particle's color for the line (boosted visibility)
+                const boostedOpacity = Math.min(opacity * 2, 1)
+                ctx.strokeStyle = `hsla(${p._discoHue}, 100%, 65%, ${boostedOpacity})`
+              } else {
+                // Different colors, use white or blend
+                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`
+              }
+            } else if (discoModeRef.current === 'extreme') {
+              // Every connection line gets a random color (more vibrant and visible)
+              const randomHue = (Date.now() / 5 + i * 17 + j * 23) % 360
+              const boostedOpacity = Math.min(opacity * 3, 1) // Boost visibility
+              ctx.strokeStyle = `hsla(${randomHue}, 100%, 65%, ${boostedOpacity})`
+            } else {
+              ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+            }
             ctx.lineWidth = 0.5
             ctx.stroke()
           }
@@ -1434,7 +1602,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         const p = particles[i]
         const density = Math.min(p._neighbors / 6, 1)
         let alpha = p.base + density * 0.5
-        const size = p.size + (density > 0.5 ? 1 : 0)
+        let size = p.size + (density > 0.5 ? 1 : 0)
 
         // Connector particles get extra brightness bonus (influenced by density like regular particles)
         if (p._isConnector) {
@@ -1462,8 +1630,66 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           }
         }
 
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
-        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), size, size)
+        // Woozy mode: size variation
+        let particleSize = size
+        if (woozyModeRef.current === 'enabled') {
+          const pulse = Math.sin(Date.now() / 200 + i * 0.5) * 0.5 + 0.5
+          particleSize = size * (0.8 + pulse * 0.6) // 0.8x to 1.4x size
+        } else if (woozyModeRef.current === 'extreme') {
+          // Use extreme multiplier from update loop
+          particleSize = size * p._woozyExtremeMult
+        }
+
+        // Disco mode: rainbow colors with smooth transitions
+        if (discoModeRef.current !== 'disabled') {
+          ctx.fillStyle = `hsla(${p._discoHue}, 80%, 60%, ${Math.min(alpha, 0.9)})`
+        } else {
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
+        }
+
+        // Draw particle shape
+        const px = Math.floor(p.x)
+        const py = Math.floor(p.y)
+        const shape = particleShapeRef.current
+        const radius = particleSize / 2
+
+        if (shape === 'circle') {
+          ctx.beginPath()
+          ctx.arc(px + radius, py + radius, radius, 0, Math.PI * 2)
+          ctx.fill()
+        } else if (shape === 'triangle') {
+          ctx.beginPath()
+          ctx.moveTo(px + radius, py)
+          ctx.lineTo(px + particleSize, py + particleSize)
+          ctx.lineTo(px, py + particleSize)
+          ctx.closePath()
+          ctx.fill()
+        } else if (shape === 'pentagon') {
+          ctx.beginPath()
+          for (let i = 0; i < 5; i++) {
+            const angle = (i * 2 * Math.PI / 5) - Math.PI / 2
+            const x = px + radius + radius * Math.cos(angle)
+            const y = py + radius + radius * Math.sin(angle)
+            if (i === 0) ctx.moveTo(x, y)
+            else ctx.lineTo(x, y)
+          }
+          ctx.closePath()
+          ctx.fill()
+        } else if (shape === 'hexagon') {
+          ctx.beginPath()
+          for (let i = 0; i < 6; i++) {
+            const angle = (i * 2 * Math.PI / 6) - Math.PI / 2
+            const x = px + radius + radius * Math.cos(angle)
+            const y = py + radius + radius * Math.sin(angle)
+            if (i === 0) ctx.moveTo(x, y)
+            else ctx.lineTo(x, y)
+          }
+          ctx.closePath()
+          ctx.fill()
+        } else {
+          // Square (default)
+          ctx.fillRect(px, py, particleSize, particleSize)
+        }
       }
     }
 

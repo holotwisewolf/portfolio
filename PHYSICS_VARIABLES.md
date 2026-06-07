@@ -17,6 +17,144 @@ All these settings persist to localStorage and take effect immediately (no page 
 | `connectorState` | 'auto' / 'zen-only' / 'crystal-only' / 'none' | 'auto' | Which special states can trigger |
 | `calmnessEnabled` | true / false | true | Fitness and zen calmness effects |
 | `connectorHighlight` | 'disabled' / 'red' / 'yellow' / 'cyan' | 'disabled' | Visual connector highlight color |
+| `discoMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Rainbow particle colors |
+| `woozyMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Pulsing particle sizes |
+| `particleShape` | 'square' / 'circle' / 'triangle' / 'pentagon' / 'hexagon' | 'square' | Shape of particles |
+| `cursorInteractionMode` | 'none' / 'push' / 'attract' | 'none' | Cursor interaction with particles |
+| `cursorRippleEnabled` | true / false | false | Visual ripple on cursor movement |
+| `cursorConnectParticles` | true / false | false | Draw lines from cursor to nearby particles |
+| `cursorClickExplodeCluster` | true / false | false | Click creates explosion |
+| `iconAttractParticles` | true / false | false | Icons attract particles (edge-based) |
+| `iconCollideParticles` | true / false | false | Icons have physical collision with particles |
+| `iconConnectParticles` | true / false | false | Draw lines from icon edges to nearby particles |
+
+---
+
+## Cursor Interaction Settings
+
+### Settings UI Controls
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| `cursorInteractionMode` | 'none' / 'push' / 'attract' | 'none' | Cursor interaction with particles |
+| `cursorRippleEnabled` | true / false | false | Visual ripple on cursor movement |
+| `cursorConnectParticles` | true / false | false | Draw lines from cursor to nearby particles |
+| `cursorClickExplodeCluster` | true / false | false | Click creates explosion |
+
+### Physics Constants
+
+| Variable | Value | Description | Category |
+|----------|-------|-------------|----------|
+| `COLLISION_RADIUS` | 18px | Cursor physical collision radius | Distance |
+| `CURSOR_PUSH_FORCE` | 0.8× | Multiplier for cursor push based on velocity | Force |
+| `CURSOR_ATTRACT_FORCE` | 0.06 | Attraction force when mode is 'attract' | Force |
+| `MOUSE_VELOCITY_SMOOTHING` | 0.15 | Cursor velocity smoothing factor | Physics |
+
+### Mechanics
+
+**Push Mode (Momentum-based)**:
+- Collision radius: 18px (smaller for less "invisible wall" feel)
+- Push force scales with cursor velocity (faster movement = stronger push)
+- Push multiplier: 0.8× (reduced from 2× for gentler feel)
+- Velocity smoothing: 0.15 (prevents jittery reactions)
+
+**Attract Mode**:
+- Particles within collision radius are drawn toward cursor
+- Attraction force: 0.06 (gentle pull)
+
+**Click to Explode**:
+- Triggers explosion at cursor position
+- Uses standard explosion mechanics (see Explosion Settings)
+
+**Cursor Connect**:
+- Draws lines from cursor to particles within connection distance
+- Uses same connection distance as particle-particle connections
+
+---
+
+## Icon Interaction Settings
+
+### Settings UI Controls
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| `iconAttractParticles` | true / false | false | Icons attract particles to edges |
+| `iconCollideParticles` | true / false | false | Icons have physical collision with particles |
+| `iconConnectParticles` | true / false | false | Draw lines from icon edges to nearby particles |
+
+### Physics Constants
+
+| Variable | Value | Description | Category |
+|----------|-------|-------------|----------|
+| `ICON_ATTRACT_FORCE` | 0.08 | Attraction to icons (edge-based) | Force |
+| `ICON_CONNECT_DISTANCE` | 100px | Max distance for icon-to-particle lines | Distance |
+| `ICON_SIZE` | 64×88px | Desktop icon dimensions | Geometry |
+
+### Mechanics
+
+**Edge-Based Attraction**:
+- Finds nearest point on icon rectangle (clamps to bounds)
+- Not center-based - treats icon as solid object
+- Attraction force: 0.08 (weak, subtle pull)
+- Scales with distance (stronger when closer)
+
+**Physical Collision**:
+- Treats icon boundaries as solid walls
+- Particles bounce off icon edges
+- Uses same collision mechanics as cursor
+
+**Icon Connect**:
+- Draws lines from icon edges (not center) to nearby particles
+- Uses shorter distance (100px vs 130px for particle-particle)
+- Creates visual "field" around icons
+
+---
+
+## Visual Effects Settings
+
+### Settings UI Controls
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| `discoMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Rainbow particle colors |
+| `woozyMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Pulsing particle sizes |
+| `particleShape` | 'square' / 'circle' / 'triangle' / 'pentagon' / 'hexagon' | 'square' | Shape of particles |
+
+### Mechanics
+
+**Disco Mode**:
+- Each particle changes colors at random intervals
+- Smooth hue transitions (5% per frame toward target hue)
+- Particles pick new target hues every 0.5-2.5 seconds
+- Color format: HSLA with 80% saturation, 60% lightness
+- Creates dynamic, non-uniform rainbow effect
+- **Enabled**: Connector lines between same-colored particles take that color
+  - Particles with similar hues (within 15°) are considered "same color"
+  - Line uses particle's hue when colors match
+  - Dimmed white line (50% opacity) when colors differ
+- **Extreme**: Every connection line gets random colors
+  - Each connection line has its own hue based on time and particle indices
+  - Creates chaotic rainbow web effect
+
+**Woozy Mode**:
+- Particles pulse in size using sine wave
+- **Enabled**: Size range 0.8× to 1.4×, slow pulse (200ms period)
+- **Extreme**: Random size explosions
+  - 20% chance: 2× size (1.5s duration)
+  - 10% chance: 4× size (1s duration)
+  - 5% chance: 6× size (0.8s duration)
+  - 3% chance: 8× size (0.7s duration)
+  - 2% chance: 16× size (0.5s duration)
+  - 40% total chance per frame for any particle to go extreme
+
+**Particle Shape**:
+- **Square**: Default rectangular particles (fillRect)
+- **Circle**: Round particles using arc()
+- **Triangle**: 3-sided polygon pointing up
+- **Pentagon**: 5-sided polygon
+- **Hexagon**: 6-sided polygon
+- All shapes render centered on particle position
+- Size varies by woozy mode, density, and base particle size
 
 ---
 
