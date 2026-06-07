@@ -96,6 +96,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   const ripplesRef = useRef<Array<{ x: number; y: number; frame: number; wave: number }>>([])
   const ripplesCounterRef = useRef(0)
   const collisionDebugRef = useRef({ count: 0, frame: 0 })
+  const frameCounterRef = useRef(0)  // Global frame counter for consistent animation timing
   // Track icon positions and velocities for momentum transfer
   const iconStatesRef = useRef<Map<string, { x: number; y: number; vx: number; vy: number; left: number; right: number; top: number; bottom: number }>>(new Map())
   const discoModeRef = useRef(discoMode)
@@ -429,6 +430,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     }
 
     const update = () => {
+      // Increment global frame counter for consistent animation timing
+      frameCounterRef.current++
+
       // Debug: log collision count every 60 frames
       collisionDebugRef.current.frame++
       if (collisionDebugRef.current.frame >= 60) {
@@ -1001,13 +1005,18 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                   const tangentX = -dy / dist
                   const tangentY = dx / dist
 
+                  // Scale tangential force by distance (stronger when farther, weaker when closer)
+                  // This creates more stable orbits at varying distances
+                  const distanceScale = dist / 100  // 0 to 1 based on distance
+                  const tangentialScale = 0.5 + distanceScale * 0.5  // 0.5 to 1.0
+
                   // Radial component: pull toward icon (weaker)
                   p.vx -= radialX * force * 0.3
                   p.vy -= radialY * force * 0.3
 
-                  // Tangential component: push sideways (stronger for orbit)
-                  p.vx += tangentX * force * 0.7
-                  p.vy += tangentY * force * 0.7
+                  // Tangential component: push sideways (distance-adjusted for orbit stability)
+                  p.vx += tangentX * force * 0.7 * tangentialScale
+                  p.vy += tangentY * force * 0.7 * tangentialScale
                 }
               }
             }
@@ -1529,7 +1538,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               }
             } else if (discoModeRef.current === 'extreme') {
               // Every connection line gets a random color (more vibrant and visible)
-              const randomHue = (Date.now() / 5 + i * 17 + j * 23) % 360
+              // Use frame counter instead of Date.now() for consistent timing across frame rates
+              const randomHue = (frameCounterRef.current * 2 + i * 17 + j * 23) % 360
               const boostedOpacity = Math.min(opacity * 3, 1) // Boost visibility
               ctx.strokeStyle = `hsla(${randomHue}, 100%, 65%, ${boostedOpacity})`
             } else {
@@ -1643,7 +1653,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         // Woozy mode: size variation
         let particleSize = size
         if (woozyModeRef.current === 'enabled') {
-          const pulse = Math.sin(Date.now() / 200 + i * 0.5) * 0.5 + 0.5
+          // Use frame counter instead of Date.now() for consistent timing across frame rates
+          const pulse = Math.sin(frameCounterRef.current / 30 + i * 0.5) * 0.5 + 0.5
           particleSize = size * (0.8 + pulse * 0.6) // 0.8x to 1.4x size
         } else if (woozyModeRef.current === 'extreme') {
           // Use extreme multiplier from update loop

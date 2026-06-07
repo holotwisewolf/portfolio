@@ -601,16 +601,34 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
   }
 
   const handleSetDiscoMode = (mode: DiscoMode) => {
+    // Runtime validation to prevent invalid enum values
+    const validModes: DiscoMode[] = ['disabled', 'enabled', 'extreme']
+    if (!validModes.includes(mode)) {
+      console.warn(`Invalid discoMode: ${mode}, defaulting to 'disabled'`)
+      mode = 'disabled'
+    }
     setDiscoMode(mode)
     localStorage.setItem('discoMode', mode)
   }
 
   const handleSetWoozyMode = (mode: WoozyMode) => {
+    // Runtime validation to prevent invalid enum values
+    const validModes: WoozyMode[] = ['disabled', 'enabled', 'extreme']
+    if (!validModes.includes(mode)) {
+      console.warn(`Invalid woozyMode: ${mode}, defaulting to 'disabled'`)
+      mode = 'disabled'
+    }
     setWoozyMode(mode)
     localStorage.setItem('woozyMode', mode)
   }
 
   const handleSetParticleShape = (shape: ParticleShape) => {
+    // Runtime validation to prevent invalid enum values
+    const validShapes: ParticleShape[] = ['square', 'circle', 'triangle', 'pentagon', 'hexagon']
+    if (!validShapes.includes(shape)) {
+      console.warn(`Invalid particleShape: ${shape}, defaulting to 'square'`)
+      shape = 'square'
+    }
     setParticleShape(shape)
     localStorage.setItem('particleShape', shape)
   }
