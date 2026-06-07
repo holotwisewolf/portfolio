@@ -35,6 +35,7 @@ interface Particle {
   _discoChangeTimer: number   // Frames until next color change
   _woozyExtremeMult: number    // Current size multiplier for extreme woozy
   _woozyExtremeTimer: number   // Frames until extreme effect ends
+  _woozyCooldownTimer: number  // Frames until can trigger extreme again
 }
 
 interface PixelBackgroundProps {
@@ -347,7 +348,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         _discoTargetHue: Math.random() * 360,  // Random target hue
         _discoChangeTimer: Math.random() * 120 + 60,  // 1-3 seconds until first change
         _woozyExtremeMult: 1,  // Start at normal size
-        _woozyExtremeTimer: 0   // No extreme effect initially
+        _woozyExtremeTimer: 0, // No extreme effect initially
+        _woozyCooldownTimer: 0 // No cooldown initially
       })
     }
 
@@ -398,9 +400,11 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       }
 
       // Check if line intersects any of the four rectangle edges
-      // Horizontal edges (top and bottom)
+      // Horizontal edges (top and bottom) - skip if line is horizontal (parallel)
       const intersectsHorizontal = (y: number) => {
-        const t = (y - y1) / (y2 - y1 || 1)
+        const dy = y2 - y1
+        if (dy === 0) return false  // Line is horizontal, can't intersect horizontal edges
+        const t = (y - y1) / dy
         if (t >= 0 && t <= 1) {
           const x = x1 + t * (x2 - x1)
           return x >= rectLeft && x <= rectRight
@@ -408,9 +412,11 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         return false
       }
 
-      // Vertical edges (left and right)
+      // Vertical edges (left and right) - skip if line is vertical (parallel)
       const intersectsVertical = (x: number) => {
-        const t = (x - x1) / (x2 - x1 || 1)
+        const dx = x2 - x1
+        if (dx === 0) return false  // Line is vertical, can't intersect vertical edges
+        const t = (x - x1) / dx
         if (t >= 0 && t <= 1) {
           const y = y1 + t * (y2 - y1)
           return y >= rectTop && y <= rectBottom
@@ -825,14 +831,18 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
 
         // Woozy extreme mode: random size explosions
         if (woozyModeRef.current === 'extreme') {
-          // Decrease timer
+          // Decrease timers
           if (p._woozyExtremeTimer > 0) {
             p._woozyExtremeTimer--
           } else if (p._woozyExtremeMult > 1) {
-            // Timer expired, return to normal size
+            // Timer expired, return to normal size and enter cooldown
             p._woozyExtremeMult = 1
+            p._woozyCooldownTimer = 60  // 1 second cooldown before next trigger
+          } else if (p._woozyCooldownTimer > 0) {
+            // In cooldown, wait before next trigger
+            p._woozyCooldownTimer--
           } else {
-            // Not in extreme state, chance to trigger
+            // Not in extreme state and cooldown expired, chance to trigger
             const roll = Math.random()
             if (roll < 0.02) {
               // 2% chance: 16x (very rare)

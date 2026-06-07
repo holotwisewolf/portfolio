@@ -11,6 +11,19 @@ type WoozyMode = 'disabled' | 'enabled' | 'extreme'
 type DiscoMode = 'disabled' | 'enabled' | 'extreme'
 type ParticleShape = 'square' | 'circle' | 'triangle' | 'pentagon' | 'hexagon'
 
+// Safe localStorage parsers with NaN validation
+const safeParseFloat = (value: string | null, defaultValue: number): number => {
+  if (value === null) return defaultValue
+  const parsed = parseFloat(value)
+  return isNaN(parsed) ? defaultValue : parsed
+}
+
+const safeParseInt = (value: string | null, defaultValue: number): number => {
+  if (value === null) return defaultValue
+  const parsed = parseInt(value, 10)
+  return isNaN(parsed) ? defaultValue : parsed
+}
+
 interface ExplosionModeContextType {
   // Basic settings
   explosionMode: 'space' | 'radial'
@@ -116,7 +129,7 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
   const [spaceFinderRatio, setSpaceFinderRatio] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('spaceFinderRatio')
-      return saved ? parseFloat(saved) : 0.3
+      return safeParseFloat(saved, 0.3)
     }
     return 0.3
   })
@@ -173,7 +186,7 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
   const [particleCount, setParticleCount] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('particleCount')
-      return saved ? parseInt(saved) : 150
+      return safeParseInt(saved, 150)
     }
     return 150
   })
@@ -367,7 +380,7 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
   const [connectionOpacity, setConnectionOpacity] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('connectionOpacity')
-      return saved ? parseFloat(saved) : 0.3
+      return safeParseFloat(saved, 0.3)
     }
     return 0.3
   })
