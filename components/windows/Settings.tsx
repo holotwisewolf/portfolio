@@ -163,13 +163,13 @@ export default function Settings() {
         <div className="text-gray-400 mb-1 text-[10px]">→ Click Explode: click triggers explosion</div>
 
         <div className="text-gray-700 mb-0.5">$ icon-interactions</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles drawn to icon edges (solid object)</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Collide: icons act as physical walls</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles orbit icons in circular paths</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Collide: icons act as walls + block connections</div>
         <div className="text-gray-400 mb-1 text-[10px]">→ Connect: lines from icon edges to particles</div>
 
         <div className="text-gray-700 mb-0.5">$ visual-effects</div>
         <div className="text-gray-400 mb-0.5 text-[10px]">→ Disco Mode: rainbow particle colors</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: colored lines between same-colored particles</div>
+        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: particles change color, similar hues connect</div>
         <div className="text-gray-400 mb-0.5 text-[10px]">→ Extreme: every connection line gets random colors</div>
         <div className="text-gray-400 mb-0.5 text-[10px]">→ Particle Shape: square, circle, triangle, pentagon, hexagon</div>
         <div className="text-gray-400 mb-0.5 text-[10px]">→ Woozy Mode: particles pulse in size</div>
