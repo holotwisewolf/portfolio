@@ -98,8 +98,6 @@ interface ExplosionModeContextType {
   // Visual settings
   connectionOpacity: number
   setConnectionOpacity: (opacity: number) => void
-  connectionBrightness: number
-  setConnectionBrightness: (brightness: number) => void
   discoMode: DiscoMode
   setDiscoMode: (mode: DiscoMode) => void
   woozyMode: WoozyMode
@@ -387,14 +385,6 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return 0.3
   })
 
-  const [connectionBrightness, setConnectionBrightness] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('connectionBrightness')
-      return safeParseFloat(saved, 1.0)
-    }
-    return 1.0
-  })
-
   const [discoMode, setDiscoMode] = useState<DiscoMode>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('discoMode') as DiscoMode | null
@@ -610,11 +600,6 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('connectionOpacity', opacity.toString())
   }
 
-  const handleSetConnectionBrightness = (brightness: number) => {
-    setConnectionBrightness(brightness)
-    localStorage.setItem('connectionBrightness', brightness.toString())
-  }
-
   const handleSetDiscoMode = (mode: DiscoMode) => {
     // Runtime validation to prevent invalid enum values
     const validModes: DiscoMode[] = ['disabled', 'enabled', 'extreme']
@@ -731,8 +716,6 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setCursorClickExplodeCluster: handleSetCursorClickExplodeCluster,
       connectionOpacity,
       setConnectionOpacity: handleSetConnectionOpacity,
-      connectionBrightness,
-      setConnectionBrightness: handleSetConnectionBrightness,
       discoMode,
       setDiscoMode: handleSetDiscoMode,
       woozyMode,

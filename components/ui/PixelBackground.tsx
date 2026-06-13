@@ -78,7 +78,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     cursorConnectParticles,
     cursorClickExplodeCluster,
     connectionOpacity,
-    connectionBrightness,
     discoMode,
     woozyMode,
     particleShape,
@@ -109,7 +108,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
     `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionBrightness}`
+    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionOpacity}`
   )
 
   useEffect(() => {
@@ -123,7 +122,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
       `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionBrightness}`
+      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionOpacity}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
@@ -1519,7 +1518,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             }
             if (blockedByIcon) continue
 
-            const opacity = (1 - d / CONNECTION_DISTANCE) * connectionOpacity * connectionBrightness
+            const opacity = (1 - d / CONNECTION_DISTANCE) * connectionOpacity
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(q.x, q.y)
@@ -1574,7 +1573,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           const p = particles[i]
           const d = distToPoint(p, mousePos.current.x, mousePos.current.y)
           if (d < CONNECTION_DISTANCE) {
-            const opacity = (1 - d / CONNECTION_DISTANCE) * (connectionOpacity + 0.2) * connectionBrightness
+            const opacity = (1 - d / CONNECTION_DISTANCE) * (connectionOpacity + 0.2)
             ctx.beginPath()
             ctx.moveTo(mousePos.current.x, mousePos.current.y)
             ctx.lineTo(p.x, p.y)
@@ -1606,7 +1605,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
             // Only connect if within range and particle is outside icon
             const isOutside = p.x < iconState.left || p.x > iconState.right || p.y < iconState.top || p.y > iconState.bottom
             if (d < CONNECTION_DISTANCE && isOutside) {
-              const opacity = (1 - d / CONNECTION_DISTANCE) * (connectionOpacity + 0.2) * connectionBrightness
+              const opacity = (1 - d / CONNECTION_DISTANCE) * (connectionOpacity + 0.2)
               ctx.beginPath()
               ctx.moveTo(nearestX, nearestY)
               ctx.lineTo(p.x, p.y)

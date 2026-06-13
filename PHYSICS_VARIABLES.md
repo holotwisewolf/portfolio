@@ -368,7 +368,21 @@ Connectors have proactive edge avoidance to prevent lining up along screen borde
 |----------|-------|-------------|----------|
 | `particleSize.small` | 2px | 70% of particles | Visual |
 | `particleSize.large` | 3px | 30% of particles | Visual |
-| `connectorBrightness` | 0.2-0.5 | Randomized: 0.2 (25%), 0.25 (25%), 0.3 (30%), 0.5 (20%) | Visual |
+| `_connectorBrightness` | 0.2-0.5 | Per-particle connector glow: 0.2 (25%), 0.25 (25%), 0.3 (30%), 0.5 (20%) | Visual |
+| `connectionOpacity` | 0.3 | Connection line base opacity (adjustable in Advanced Settings) | Visual |
 | `densityGlow.divisor` | 6 | Neighbors count for max glow | Threshold |
 | `densityGlow.bonus` | 0.5 | Max brightness bonus from density | Visual |
+
+### Connection Line Opacity Formula
+
+```
+lineOpacity = (1 - distance / CONNECTION_DISTANCE) × connectionOpacity
+```
+
+With default `connectionOpacity = 0.3`:
+- At 0 distance: `1.0 × 0.3 = 0.3` (30% opacity)
+- At 65px (half): `0.5 × 0.3 = 0.15` (15% opacity)
+- At 130px (max): `0 × 0.3 = 0` (invisible)
+
+Cursor/icon connections use `connectionOpacity + 0.2` for slight boost.
 

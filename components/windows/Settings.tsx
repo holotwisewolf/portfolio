@@ -235,9 +235,18 @@ export default function Settings() {
 
               {/* Credits */}
               <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Stack</div>
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Credits</div>
                 <div className="text-gray-400 text-[9px]">
-                  Next.js • React • TypeScript • Tailwind • Recharts
+                  Built with brutalist love<br/>
+                  Wanna-be quant aesthetic
+                </div>
+              </div>
+
+              {/* GitHub */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Source</div>
+                <div className="text-gray-400 text-[9px]">
+                  github.com/yjchoong/portfolio
                 </div>
               </div>
             </div>
