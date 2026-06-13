@@ -68,6 +68,7 @@ export default function Settings() {
   const [cursorExpanded, setCursorExpanded] = useState(false) // Cursor interactions section
   const [windowExpanded, setWindowExpanded] = useState(false) // Window interactions section
   const [visualExpanded, setVisualExpanded] = useState(false) // Visual effects section
+  const [aboutExpanded, setAboutExpanded] = useState(false) // About section
   const [currentPreset, setCurrentPreset] = useState<Preset>('balanced')
   const [selectFocused, setSelectFocused] = useState(false) // Track if any select is focused
 
@@ -198,6 +199,59 @@ export default function Settings() {
 
         {/* All navigation items in a single scrollable container */}
         <div className={`flex-1 ${selectFocused ? 'overflow-visible' : 'overflow-y-auto'}`}>
+          {/* About - expandable with animation */}
+          <div
+            onClick={() => setAboutExpanded(!aboutExpanded)}
+            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+          >
+            <span className="text-gray-800">
+              &gt;
+            </span>{' '}
+            about
+          </div>
+
+          {/* Animated expansion for about */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              aboutExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="pl-4 py-2 space-y-2">
+              {/* Version */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Version</div>
+                <div className="text-gray-300 text-[10px]">
+                  v0.1.0
+                </div>
+              </div>
+
+              {/* Build Info */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Build</div>
+                <div className="text-gray-400 text-[9px]">
+                  Next.js 15.1.0 / React 18.3.1 / TypeScript 5.6.0
+                </div>
+              </div>
+
+              {/* Credits */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Credits</div>
+                <div className="text-gray-400 text-[9px]">
+                  Built with brutalist love<br/>
+                  Wanna-be quant aesthetic
+                </div>
+              </div>
+
+              {/* GitHub */}
+              <div className="border border-gray-800 p-2">
+                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Source</div>
+                <div className="text-gray-400 text-[9px]">
+                  github.com/yjchoong/portfolio
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* BG Particle - expandable with animation */}
           <div
             onClick={() => setExpanded(!expanded)}

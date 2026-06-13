@@ -99,7 +99,7 @@ All trading projects follow the **Zone Classifier pattern**:
 These are the current TODO items - work on these in priority order:
 
 ### UI/UX Improvements
-- [ ] **Settings about section with site version** - Add settings modal with version info, build info, credits
+- [x] **Settings about section with site version** - Add settings modal with version info, build info, credits ✓ DONE (2026-06-13)
 - [ ] **SoundCloud-style music player at bottom left** - Hardcoded fallback tracks, progress bar, play/pause
 - [ ] **Terminal folder navigation** - Make projects navigable as folders (cd/ls/cat commands)
 - [ ] **Instagram ASCII art particle option** - BG particles can show Instagram logo ASCII
@@ -108,6 +108,7 @@ These are the current TODO items - work on these in priority order:
 - [ ] **Mobile fallback mode (low priority)** - Basic mobile view for unsupported screen sizes
 
 ### Content Features
+- [x] **Interactive candle bar examples in trading results** - Added TradingCandleChart component with interactive patterns for Breakout/Consolidation/Neutral zones ✓ DONE (2026-06-13)
 - [ ] **Admin password easter egg** - Hidden password unlocks secret "Twitter" blog section
 - [ ] **Instagram-style gallery** - Cool art showcase with credits to artists
 - [ ] **Text-rendered FPS game** - Working FPS game with ASCII/text rendering
@@ -214,6 +215,7 @@ components/
 ├── charts/
 │   ├── TradingLineChart.tsx
 │   ├── TradingBarChart.tsx
+│   ├── TradingCandleChart.tsx    # Interactive candlestick with zone highlighting
 │   └── TradingMetricsCard.tsx
 ├── window-manager/
 │   ├── Window.tsx
