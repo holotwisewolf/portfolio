@@ -1,26 +1,8 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { useWindowStore, registerWindowContent } from './useWindows'
-import Welcome from '../windows/Welcome'
-import Projects from '../windows/Projects'
-import Blog from '../windows/Blog'
-import About from '../windows/About'
-import Admin from '../windows/Admin'
-import TerminalNav from '../windows/TerminalNav'
-import Settings from '../windows/Settings'
-import AdvancedSettings from '../windows/AdvancedSettings'
+import { useWindowStore } from './useWindows'
 import ContextMenu from './ContextMenu'
-
-// Register all window contents
-registerWindowContent('welcome', Welcome)
-registerWindowContent('projects', Projects)
-registerWindowContent('blog', Blog)
-registerWindowContent('about', About)
-registerWindowContent('admin', Admin)
-registerWindowContent('terminalnav', TerminalNav)
-registerWindowContent('settings', Settings)
-registerWindowContent('advanced-physics-settings', AdvancedSettings)
 
 const GRID_SIZE = 100
 const ICON_WIDTH = 64
@@ -42,7 +24,7 @@ const initialIcons: DesktopIcon[] = [
   { id: 'blog', label: 'Blog', position: { x: 0, y: 100 } },
   { id: 'about', label: 'About', position: { x: 100, y: 100 } },
   { id: 'admin', label: 'Admin', position: { x: 200, y: 100 } },
-  { id: 'settings', label: 'Settings', position: { x: 300, y: 0 } },
+  { id: 'settings', label: 'Settings', position: { x: 300, y: 100 } },
 ]
 
 export default function Desktop() {

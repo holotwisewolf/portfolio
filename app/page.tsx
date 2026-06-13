@@ -42,7 +42,7 @@ function AppContent() {
         </div>
 
         {/* Windows - separate layer above all panels */}
-        <div className="absolute inset-0 pointer-events-none z-50" style={{ top: '24px' }}>
+        <div className="absolute inset-0 pointer-events-none z-[10002]" style={{ top: '24px' }}>
           {openWindows.map((window) => (
             <div key={window.id} className="pointer-events-auto">
               <Window windowId={window.id as any} />

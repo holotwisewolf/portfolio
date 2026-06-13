@@ -1,4 +1,16 @@
-export type WindowId = 'welcome' | 'projects' | 'blog' | 'about' | 'admin' | 'terminalnav' | 'settings' | 'advanced-physics-settings' | `project-${string}` | `blog-${string}`
+export type WindowId =
+  | 'welcome'
+  | 'projects'
+  | 'blog'
+  | 'about'
+  | 'admin'
+  | 'terminalnav'
+  | 'settings'
+  | 'advanced-physics-settings'
+  | 'trading-projects'
+  | 'project-discord'
+  | `project-${string}`
+  | `blog-${string}`
 
 export interface WindowState {
   id: WindowId

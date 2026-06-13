@@ -1,0 +1,798 @@
+diff --git a/PHYSICS_VARIABLES.md b/PHYSICS_VARIABLES.md
+index 254af4cc..7c8e4213 100644
+--- a/PHYSICS_VARIABLES.md
++++ b/PHYSICS_VARIABLES.md
+@@ -17,6 +17,144 @@ All these settings persist to localStorage and take effect immediately (no page
+ | `connectorState` | 'auto' / 'zen-only' / 'crystal-only' / 'none' | 'auto' | Which special states can trigger |
+ | `calmnessEnabled` | true / false | true | Fitness and zen calmness effects |
+ | `connectorHighlight` | 'disabled' / 'red' / 'yellow' / 'cyan' | 'disabled' | Visual connector highlight color |
++| `discoMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Rainbow particle colors |
++| `woozyMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Pulsing particle sizes |
++| `particleShape` | 'square' / 'circle' / 'triangle' / 'pentagon' / 'hexagon' | 'square' | Shape of particles |
++| `cursorInteractionMode` | 'none' / 'push' / 'attract' | 'none' | Cursor interaction with particles |
++| `cursorRippleEnabled` | true / false | false | Visual ripple on cursor movement |
++| `cursorConnectParticles` | true / false | false | Draw lines from cursor to nearby particles |
++| `cursorClickExplodeCluster` | true / false | false | Click creates explosion |
++| `iconAttractParticles` | true / false | false | Icons attract particles (edge-based) |
++| `iconCollideParticles` | true / false | false | Icons have physical collision with particles |
++| `iconConnectParticles` | true / false | false | Draw lines from icon edges to nearby particles |
++
++---
++
++## Cursor Interaction Settings
++
++### Settings UI Controls
++
++| Setting | Options | Default | Description |
++|---------|---------|---------|-------------|
++| `cursorInteractionMode` | 'none' / 'push' / 'attract' | 'none' | Cursor interaction with particles |
++| `cursorRippleEnabled` | true / false | false | Visual ripple on cursor movement |
++| `cursorConnectParticles` | true / false | false | Draw lines from cursor to nearby particles |
++| `cursorClickExplodeCluster` | true / false | false | Click creates explosion |
++
++### Physics Constants
++
++| Variable | Value | Description | Category |
++|----------|-------|-------------|----------|
++| `COLLISION_RADIUS` | 18px | Cursor physical collision radius | Distance |
++| `CURSOR_PUSH_FORCE` | 0.8× | Multiplier for cursor push based on velocity | Force |
++| `CURSOR_ATTRACT_FORCE` | 0.06 | Attraction force when mode is 'attract' | Force |
++| `MOUSE_VELOCITY_SMOOTHING` | 0.15 | Cursor velocity smoothing factor | Physics |
++
++### Mechanics
++
++**Push Mode (Momentum-based)**:
++- Collision radius: 18px (smaller for less "invisible wall" feel)
++- Push force scales with cursor velocity (faster movement = stronger push)
++- Push multiplier: 0.8× (reduced from 2× for gentler feel)
++- Velocity smoothing: 0.15 (prevents jittery reactions)
++
++**Attract Mode**:
++- Particles within collision radius are drawn toward cursor
++- Attraction force: 0.06 (gentle pull)
++
++**Click to Explode**:
++- Triggers explosion at cursor position
++- Uses standard explosion mechanics (see Explosion Settings)
++
++**Cursor Connect**:
++- Draws lines from cursor to particles within connection distance
++- Uses same connection distance as particle-particle connections
++
++---
++
++## Icon Interaction Settings
++
++### Settings UI Controls
++
++| Setting | Options | Default | Description |
++|---------|---------|---------|-------------|
++| `iconAttractParticles` | true / false | false | Icons attract particles to edges |
++| `iconCollideParticles` | true / false | false | Icons have physical collision with particles |
++| `iconConnectParticles` | true / false | false | Draw lines from icon edges to nearby particles |
++
++### Physics Constants
++
++| Variable | Value | Description | Category |
++|----------|-------|-------------|----------|
++| `ICON_ATTRACT_FORCE` | 0.08 | Attraction to icons (edge-based) | Force |
++| `ICON_CONNECT_DISTANCE` | 100px | Max distance for icon-to-particle lines | Distance |
++| `ICON_SIZE` | 64×88px | Desktop icon dimensions | Geometry |
++
++### Mechanics
++
++**Edge-Based Attraction**:
++- Finds nearest point on icon rectangle (clamps to bounds)
++- Not center-based - treats icon as solid object
++- Attraction force: 0.08 (weak, subtle pull)
++- Scales with distance (stronger when closer)
++
++**Physical Collision**:
++- Treats icon boundaries as solid walls
++- Particles bounce off icon edges
++- Uses same collision mechanics as cursor
++
++**Icon Connect**:
++- Draws lines from icon edges (not center) to nearby particles
++- Uses shorter distance (100px vs 130px for particle-particle)
++- Creates visual "field" around icons
++
++---
++
++## Visual Effects Settings
++
++### Settings UI Controls
++
++| Setting | Options | Default | Description |
++|---------|---------|---------|-------------|
++| `discoMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Rainbow particle colors |
++| `woozyMode` | 'disabled' / 'enabled' / 'extreme' | 'disabled' | Pulsing particle sizes |
++| `particleShape` | 'square' / 'circle' / 'triangle' / 'pentagon' / 'hexagon' | 'square' | Shape of particles |
++
++### Mechanics
++
++**Disco Mode**:
++- Each particle changes colors at random intervals
++- Smooth hue transitions (5% per frame toward target hue)
++- Particles pick new target hues every 0.5-2.5 seconds
++- Color format: HSLA with 80% saturation, 60% lightness
++- Creates dynamic, non-uniform rainbow effect
++- **Enabled**: Connector lines between same-colored particles take that color
++  - Particles with similar hues (within 15°) are considered "same color"
++  - Line uses particle's hue when colors match
++  - Dimmed white line (50% opacity) when colors differ
++- **Extreme**: Every connection line gets random colors
++  - Each connection line has its own hue based on time and particle indices
++  - Creates chaotic rainbow web effect
++
++**Woozy Mode**:
++- Particles pulse in size using sine wave
++- **Enabled**: Size range 0.8× to 1.4×, slow pulse (200ms period)
++- **Extreme**: Random size explosions
++  - 20% chance: 2× size (1.5s duration)
++  - 10% chance: 4× size (1s duration)
++  - 5% chance: 6× size (0.8s duration)
++  - 3% chance: 8× size (0.7s duration)
++  - 2% chance: 16× size (0.5s duration)
++  - 40% total chance per frame for any particle to go extreme
++
++**Particle Shape**:
++- **Square**: Default rectangular particles (fillRect)
++- **Circle**: Round particles using arc()
++- **Triangle**: 3-sided polygon pointing up
++- **Pentagon**: 5-sided polygon
++- **Hexagon**: 6-sided polygon
++- All shapes render centered on particle position
++- Size varies by woozy mode, density, and base particle size
+ 
+ ---
+ 
+diff --git a/components/ui/PixelBackground.tsx b/components/ui/PixelBackground.tsx
+index fd8f0474..cf3f69f3 100644
+--- a/components/ui/PixelBackground.tsx
++++ b/components/ui/PixelBackground.tsx
+@@ -30,6 +30,11 @@ interface Particle {
+   _crystallizeTimer: number    // Frames until crystal mode ends
+   _isZenMode: boolean          // In content/zen state (regardless of fitness)
+   _zenModeTimer: number        // Frames until zen mode ends
++  _discoHue: number            // Current hue for disco mode (0-360)
++  _discoTargetHue: number     // Target hue to transition to
++  _discoChangeTimer: number   // Frames until next color change
++  _woozyExtremeMult: number    // Current size multiplier for extreme woozy
++  _woozyExtremeTimer: number   // Frames until extreme effect ends
+ }
+ 
+ interface PixelBackgroundProps {
+@@ -72,6 +77,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+     cursorConnectParticles,
+     cursorClickExplodeCluster,
+     connectionOpacity,
++    discoMode,
++    woozyMode,
++    particleShape,
+     iconAttractParticles,
+     iconCollideParticles,
+     iconConnectParticles
+@@ -89,6 +97,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+   const collisionDebugRef = useRef({ count: 0, frame: 0 })
+   // Track icon positions and velocities for momentum transfer
+   const iconStatesRef = useRef<Map<string, { x: number; y: number; vx: number; vy: number; left: number; right: number; top: number; bottom: number }>>(new Map())
++  const discoModeRef = useRef(discoMode)
++  const woozyModeRef = useRef(woozyMode)
++  const particleShapeRef = useRef(particleShape)
+ 
+   const prevSettingsRef = useRef(
+     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
+@@ -116,12 +127,25 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+       prevSettingsRef.current = currentSettings
+ 
+       // Clear icon states when toggling icon interactions to ensure fresh tracking
+-      if (currentSettings.includes('iconAttractParticles=true') || currentSettings.includes('iconCollideParticles=true')) {
++      if (currentSettings.includes('iconAttractParticles=true') || currentSettings.includes('iconCollideParticles=true') || currentSettings.includes('iconConnectParticles=true')) {
+         iconStatesRef.current.clear()
+       }
+     }
+   }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, iconAttractParticles, iconCollideParticles, iconConnectParticles])
+ 
++  // Sync visual mode refs for instant updates without recreating animation loop
++  useEffect(() => {
++    discoModeRef.current = discoMode
++  }, [discoMode])
++
++  useEffect(() => {
++    woozyModeRef.current = woozyMode
++  }, [woozyMode])
++
++  useEffect(() => {
++    particleShapeRef.current = particleShape
++  }, [particleShape])
++
+   useEffect(() => {
+     if (!mounted) return
+ 
+@@ -272,7 +296,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+ 
+     // Window interaction constants
+     const WINDOW_MARGIN = 50          // Buffer around windows
+-    const ICON_ATTRACT_FORCE = 0.2 // Attraction to icons
++    const ICON_ATTRACT_FORCE = 0.08 // Attraction to icons (weaker)
+     const ICON_COLLIDE_FORCE = 2.0  // Collision force from icons (much stronger)
+ 
+     // Grace period state (probabilistic)
+@@ -318,7 +342,12 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+         _isCrystallized: false,  // Not in crystal mode initially
+         _crystallizeTimer: 0,    // No crystal timer initially
+         _isZenMode: false,       // Not in zen mode initially
+-        _zenModeTimer: 0         // No zen timer initially
++        _zenModeTimer: 0,        // No zen timer initially
++        _discoHue: Math.random() * 360,  // Random starting hue
++        _discoTargetHue: Math.random() * 360,  // Random target hue
++        _discoChangeTimer: Math.random() * 120 + 60,  // 1-3 seconds until first change
++        _woozyExtremeMult: 1,  // Start at normal size
++        _woozyExtremeTimer: 0   // No extreme effect initially
+       })
+     }
+ 
+@@ -360,6 +389,39 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+       return indices.sort((a, b) => a - b).join('-')
+     }
+ 
++    // Helper: Check if line segment intersects rectangle (shared by update and draw)
++    const lineIntersectsRect = (x1: number, y1: number, x2: number, y2: number, rectLeft: number, rectTop: number, rectRight: number, rectBottom: number): boolean => {
++      // Check if either endpoint is inside the rectangle
++      if ((x1 >= rectLeft && x1 <= rectRight && y1 >= rectTop && y1 <= rectBottom) ||
++          (x2 >= rectLeft && x2 <= rectRight && y2 >= rectTop && y2 <= rectBottom)) {
++        return true
++      }
++
++      // Check if line intersects any of the four rectangle edges
++      // Horizontal edges (top and bottom)
++      const intersectsHorizontal = (y: number) => {
++        const t = (y - y1) / (y2 - y1 || 1)
++        if (t >= 0 && t <= 1) {
++          const x = x1 + t * (x2 - x1)
++          return x >= rectLeft && x <= rectRight
++        }
++        return false
++      }
++
++      // Vertical edges (left and right)
++      const intersectsVertical = (x: number) => {
++        const t = (x - x1) / (x2 - x1 || 1)
++        if (t >= 0 && t <= 1) {
++          const y = y1 + t * (y2 - y1)
++          return y >= rectTop && y <= rectBottom
++        }
++        return false
++      }
++
++      return intersectsHorizontal(rectTop) || intersectsHorizontal(rectBottom) ||
++             intersectsVertical(rectLeft) || intersectsVertical(rectRight)
++    }
++
+     const update = () => {
+       // Debug: log collision count every 60 frames
+       collisionDebugRef.current.frame++
+@@ -737,6 +799,65 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+         // Use neighbor count from earlier pass (for glow rendering)
+         p._neighbors = neighborCounts[i]
+ 
++        // Disco mode: smooth color transitions at random intervals
++        if (discoModeRef.current) {
++          if (p._discoChangeTimer > 0) {
++            p._discoChangeTimer--
++          } else {
++            // Timer expired, pick new target hue
++            p._discoTargetHue = Math.random() * 360
++            p._discoChangeTimer = Math.random() * 120 + 30  // 0.5-2.5 seconds until next change
++          }
++
++          // Smoothly transition current hue toward target
++          const hueDiff = p._discoTargetHue - p._discoHue
++          if (Math.abs(hueDiff) > 0.5) {
++            // Handle wrap-around (e.g., going from 350 to 10)
++            let adjustedDiff = hueDiff
++            if (adjustedDiff > 180) adjustedDiff -= 360
++            if (adjustedDiff < -180) adjustedDiff += 360
++            p._discoHue += adjustedDiff * 0.05  // 5% transition speed per frame
++            // Normalize to 0-360
++            if (p._discoHue < 0) p._discoHue += 360
++            if (p._discoHue >= 360) p._discoHue -= 360
++          }
++        }
++
++        // Woozy extreme mode: random size explosions
++        if (woozyModeRef.current === 'extreme') {
++          // Decrease timer
++          if (p._woozyExtremeTimer > 0) {
++            p._woozyExtremeTimer--
++          } else if (p._woozyExtremeMult > 1) {
++            // Timer expired, return to normal size
++            p._woozyExtremeMult = 1
++          } else {
++            // Not in extreme state, chance to trigger
++            const roll = Math.random()
++            if (roll < 0.02) {
++              // 2% chance: 16x (very rare)
++              p._woozyExtremeMult = 16
++              p._woozyExtremeTimer = 30  // 0.5 seconds
++            } else if (roll < 0.05) {
++              // 3% chance: 8x (rare)
++              p._woozyExtremeMult = 8
++              p._woozyExtremeTimer = 40  // ~0.7 seconds
++            } else if (roll < 0.10) {
++              // 5% chance: 6x
++              p._woozyExtremeMult = 6
++              p._woozyExtremeTimer = 50  // ~0.8 seconds
++            } else if (roll < 0.20) {
++              // 10% chance: 4x
++              p._woozyExtremeMult = 4
++              p._woozyExtremeTimer = 60  // 1 second
++            } else if (roll < 0.40) {
++              // 20% chance: 2x (most common)
++              p._woozyExtremeMult = 2
++              p._woozyExtremeTimer = 90  // 1.5 seconds
++            }
++          }
++        }
++
+         // Only apply gravity if this specific particle is NOT immune/dispersing
+         // Connectors have their own mesh network physics, skip normal attraction
+         // SKIP ALL forces during grace period (time slow)
+@@ -860,9 +981,23 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+                 // Check if particle is outside the icon
+                 const isOutside = p.x < iconState.left || p.x > iconState.right || p.y < iconState.top || p.y > iconState.bottom
+                 if (isOutside) {
++                  // Orbital motion: add both radial (attraction) and tangential (orbit) forces
+                   const force = ICON_ATTRACT_FORCE * (1 - dist / 100)
+-                  p.vx -= (dx / dist) * force
+-                  p.vy -= (dy / dist) * force
++                  const radialX = dx / dist
++                  const radialY = dy / dist
++
++                  // Tangential direction (perpendicular to radial, for orbit)
++                  // Use -dy, dx for counter-clockwise orbit
++                  const tangentX = -dy / dist
++                  const tangentY = dx / dist
++
++                  // Radial component: pull toward icon (weaker)
++                  p.vx -= radialX * force * 0.3
++                  p.vy -= radialY * force * 0.3
++
++                  // Tangential component: push sideways (stronger for orbit)
++                  p.vx += tangentX * force * 0.7
++                  p.vy += tangentY * force * 0.7
+                 }
+               }
+             }
+@@ -1352,11 +1487,44 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+           const q = particles[j]
+           const d = dist(p, q)
+           if (d < CONNECTION_DISTANCE) {
++            // Check if icon is in the way (line-of-sight blocking) when collide is enabled
++            let blockedByIcon = false
++            if (iconCollideParticles && iconStatesRef.current.size > 0) {
++              for (const [, iconState] of iconStatesRef.current) {
++                if (lineIntersectsRect(p.x, p.y, q.x, q.y, iconState.left, iconState.top, iconState.right, iconState.bottom)) {
++                  blockedByIcon = true
++                  break
++                }
++              }
++            }
++            if (blockedByIcon) continue
++
+             const opacity = (1 - d / CONNECTION_DISTANCE) * connectionOpacity
+             ctx.beginPath()
+             ctx.moveTo(p.x, p.y)
+             ctx.lineTo(q.x, q.y)
+-            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
++
++            // Disco mode: colored connector lines
++            if (discoModeRef.current === 'enabled') {
++              // Check if particles have similar hues (same color)
++              const hueDiff = Math.abs(p._discoHue - q._discoHue)
++              const hueSimilar = hueDiff < 15 || hueDiff > 345  // Within 15 degrees = similar color
++              if (hueSimilar) {
++                // Use the particle's color for the line (boosted visibility)
++                const boostedOpacity = Math.min(opacity * 2, 1)
++                ctx.strokeStyle = `hsla(${p._discoHue}, 100%, 65%, ${boostedOpacity})`
++              } else {
++                // Different colors, use white or blend
++                ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`
++              }
++            } else if (discoModeRef.current === 'extreme') {
++              // Every connection line gets a random color (more vibrant and visible)
++              const randomHue = (Date.now() / 5 + i * 17 + j * 23) % 360
++              const boostedOpacity = Math.min(opacity * 3, 1) // Boost visibility
++              ctx.strokeStyle = `hsla(${randomHue}, 100%, 65%, ${boostedOpacity})`
++            } else {
++              ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
++            }
+             ctx.lineWidth = 0.5
+             ctx.stroke()
+           }
+@@ -1434,7 +1602,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+         const p = particles[i]
+         const density = Math.min(p._neighbors / 6, 1)
+         let alpha = p.base + density * 0.5
+-        const size = p.size + (density > 0.5 ? 1 : 0)
++        let size = p.size + (density > 0.5 ? 1 : 0)
+ 
+         // Connector particles get extra brightness bonus (influenced by density like regular particles)
+         if (p._isConnector) {
+@@ -1462,8 +1630,66 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
+           }
+         }
+ 
+-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
+-        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), size, size)
++        // Woozy mode: size variation
++        let particleSize = size
++        if (woozyModeRef.current === 'enabled') {
++          const pulse = Math.sin(Date.now() / 200 + i * 0.5) * 0.5 + 0.5
++          particleSize = size * (0.8 + pulse * 0.6) // 0.8x to 1.4x size
++        } else if (woozyModeRef.current === 'extreme') {
++          // Use extreme multiplier from update loop
++          particleSize = size * p._woozyExtremeMult
++        }
++
++        // Disco mode: rainbow colors with smooth transitions
++        if (discoModeRef.current !== 'disabled') {
++          ctx.fillStyle = `hsla(${p._discoHue}, 80%, 60%, ${Math.min(alpha, 0.9)})`
++        } else {
++          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(alpha, 0.9)})`
++        }
++
++        // Draw particle shape
++        const px = Math.floor(p.x)
++        const py = Math.floor(p.y)
++        const shape = particleShapeRef.current
++        const radius = particleSize / 2
++
++        if (shape === 'circle') {
++          ctx.beginPath()
++          ctx.arc(px + radius, py + radius, radius, 0, Math.PI * 2)
++          ctx.fill()
++        } else if (shape === 'triangle') {
++          ctx.beginPath()
++          ctx.moveTo(px + radius, py)
++          ctx.lineTo(px + particleSize, py + particleSize)
++          ctx.lineTo(px, py + particleSize)
++          ctx.closePath()
++          ctx.fill()
++        } else if (shape === 'pentagon') {
++          ctx.beginPath()
++          for (let i = 0; i < 5; i++) {
++            const angle = (i * 2 * Math.PI / 5) - Math.PI / 2
++            const x = px + radius + radius * Math.cos(angle)
++            const y = py + radius + radius * Math.sin(angle)
++            if (i === 0) ctx.moveTo(x, y)
++            else ctx.lineTo(x, y)
++          }
++          ctx.closePath()
++          ctx.fill()
++        } else if (shape === 'hexagon') {
++          ctx.beginPath()
++          for (let i = 0; i < 6; i++) {
++            const angle = (i * 2 * Math.PI / 6) - Math.PI / 2
++            const x = px + radius + radius * Math.cos(angle)
++            const y = py + radius + radius * Math.sin(angle)
++            if (i === 0) ctx.moveTo(x, y)
++            else ctx.lineTo(x, y)
++          }
++          ctx.closePath()
++          ctx.fill()
++        } else {
++          // Square (default)
++          ctx.fillRect(px, py, particleSize, particleSize)
++        }
+       }
+     }
+ 
+diff --git a/components/windows/Settings.tsx b/components/windows/Settings.tsx
+index ed506e53..a8be3575 100644
+--- a/components/windows/Settings.tsx
++++ b/components/windows/Settings.tsx
+@@ -10,6 +10,9 @@ type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
+ type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
+ type Preset = 'conservative' | 'balanced' | 'chaotic'
+ type CursorInteractionMode = 'none' | 'attract' | 'collide'
++type WoozyMode = 'disabled' | 'enabled' | 'extreme'
++type DiscoMode = 'disabled' | 'enabled' | 'extreme'
++type ParticleShape = 'square' | 'circle' | 'triangle' | 'pentagon' | 'hexagon'
+ 
+ export default function Settings() {
+   const {
+@@ -50,7 +53,13 @@ export default function Settings() {
+     iconCollideParticles,
+     setIconCollideParticles,
+     iconConnectParticles,
+-    setIconConnectParticles
++    setIconConnectParticles,
++    discoMode,
++    setDiscoMode,
++    woozyMode,
++    setWoozyMode,
++    particleShape,
++    setParticleShape
+   } = useContext(ExplosionModeContext)!
+ 
+   const openWindow = useWindowStore((state) => state.openWindow)
+@@ -58,7 +67,9 @@ export default function Settings() {
+   const [expanded, setExpanded] = useState(false) // Default collapsed for bg particles
+   const [cursorExpanded, setCursorExpanded] = useState(false) // Cursor interactions section
+   const [windowExpanded, setWindowExpanded] = useState(false) // Window interactions section
++  const [visualExpanded, setVisualExpanded] = useState(false) // Visual effects section
+   const [currentPreset, setCurrentPreset] = useState<Preset>('balanced')
++  const [selectFocused, setSelectFocused] = useState(false) // Track if any select is focused
+ 
+   // Detect current preset from settings values
+   useEffect(() => {
+@@ -143,6 +154,28 @@ export default function Settings() {
+         <div className="text-gray-700 mb-0.5">$ connector-highlight</div>
+         <div className="text-gray-400 mb-1 text-[10px]">→ Color overlay (red/yellow/cyan) for visibility</div>
+ 
++        <div className="text-gray-700 mb-0.5">$ cursor-interactions</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ None: cursor doesn't affect particles</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Push: momentum-based collision (faster = stronger)</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles drawn to cursor</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Ripple: visual trail on movement</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Connect: lines from cursor to particles</div>
++        <div className="text-gray-400 mb-1 text-[10px]">→ Click Explode: click triggers explosion</div>
++
++        <div className="text-gray-700 mb-0.5">$ icon-interactions</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles orbit icons in circular paths</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Collide: icons act as walls + block connections</div>
++        <div className="text-gray-400 mb-1 text-[10px]">→ Connect: lines from icon edges to particles</div>
++
++        <div className="text-gray-700 mb-0.5">$ visual-effects</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disco Mode: rainbow particle colors</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: particles change color, similar hues connect</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Extreme: every connection line gets random colors</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Particle Shape: square, circle, triangle, pentagon, hexagon</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Woozy Mode: particles pulse in size</div>
++        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: smooth pulsing (0.8-1.4x)</div>
++        <div className="text-gray-400 mb-1 text-[10px]">→ Extreme: 40%/frame for random explosions (2-16x)</div>
++
+         <div className="text-gray-700 mb-0.5">$ advanced-settings</div>
+         <div className="text-gray-400 mb-0.5 text-[10px]">→ Fine-tune 21 physics variables: particle count,</div>
+         <div className="text-gray-400 mb-0.5 text-[10px]">→ max speed, attraction force, mesh network,</div>
+@@ -164,7 +197,7 @@ export default function Settings() {
+         <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Navigation</div>
+ 
+         {/* All navigation items in a single scrollable container */}
+-        <div className="flex-1 overflow-y-auto">
++        <div className={`flex-1 ${selectFocused ? 'overflow-visible' : 'overflow-y-auto'}`}>
+           {/* BG Particle - expandable with animation */}
+           <div
+             onClick={() => setExpanded(!expanded)}
+@@ -211,7 +244,7 @@ export default function Settings() {
+                   <select
+                     value={graceMode}
+                     onChange={(e) => setGraceMode(e.target.value as GraceMode)}
+-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
++                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                   >
+                     <option value="enabled">Enabled</option>
+                     <option value="disabled">Disabled</option>
+@@ -250,7 +283,7 @@ export default function Settings() {
+                   <select
+                     value={crystalMode}
+                     onChange={(e) => setCrystalMode(e.target.value as CrystalMode)}
+-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
++                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                   >
+                     <option value="enabled">Enabled</option>
+                     <option value="disabled">Disabled</option>
+@@ -269,7 +302,7 @@ export default function Settings() {
+                   <select
+                     value={connectorState}
+                     onChange={(e) => setConnectorState(e.target.value as ConnectorState)}
+-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
++                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                   >
+                     <option value="auto">Auto</option>
+                     <option value="zen-only">Zen Only</option>
+@@ -309,7 +342,7 @@ export default function Settings() {
+                   <select
+                     value={connectorHighlight}
+                     onChange={(e) => setConnectorHighlight(e.target.value as ConnectorHighlight)}
+-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
++                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                   >
+                     <option value="disabled">Disabled</option>
+                     <option value="red">Red</option>
+@@ -370,6 +403,91 @@ export default function Settings() {
+             </div>
+           </div>
+ 
++          {/* Visual Effects - expandable with animation */}
++          <div
++            onClick={() => setVisualExpanded(!visualExpanded)}
++            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
++          >
++            <span className="text-gray-800">
++              &gt;
++            </span>{' '}
++            visual effects
++          </div>
++
++          {/* Animated expansion for visual effects */}
++          <div
++            className={`overflow-hidden transition-all duration-300 ease-out ${
++              visualExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
++            }`}
++          >
++            <div className="pl-4 py-2 space-y-2">
++              {/* Disco Mode */}
++              <div className="border border-gray-800 p-2">
++                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Disco Mode</div>
++                <div className="flex items-center justify-between">
++                  <div className="text-gray-300 text-[10px]">
++                    Rainbow particles, flashing colors
++                  </div>
++                  <select
++                    value={discoMode}
++                    onChange={(e) => { e.stopPropagation(); setDiscoMode(e.target.value as DiscoMode); }}
++                    onFocus={() => setSelectFocused(true)}
++                    onBlur={() => setSelectFocused(false)}
++                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
++                  >
++                    <option value="disabled">Disabled</option>
++                    <option value="enabled">Enabled</option>
++                    <option value="extreme">Extreme</option>
++                  </select>
++                </div>
++              </div>
++
++              {/* Woozy Mode */}
++              <div className="border border-gray-800 p-2">
++                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Woozy Mode</div>
++                <div className="flex items-center justify-between">
++                  <div className="text-gray-300 text-[10px]">
++                    Particles pulse and change size
++                  </div>
++                  <select
++                    value={woozyMode}
++                    onChange={(e) => { e.stopPropagation(); setWoozyMode(e.target.value as WoozyMode); }}
++                    onFocus={() => setSelectFocused(true)}
++                    onBlur={() => setSelectFocused(false)}
++                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
++                  >
++                    <option value="disabled">Disabled</option>
++                    <option value="enabled">Enabled</option>
++                    <option value="extreme">Extreme</option>
++                  </select>
++                </div>
++              </div>
++
++              {/* Particle Shape */}
++              <div className="border border-gray-800 p-2">
++                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Particle Shape</div>
++                <div className="flex items-center justify-between">
++                  <div className="text-gray-300 text-[10px]">
++                    Shape of particles
++                  </div>
++                  <select
++                    value={particleShape}
++                    onChange={(e) => { e.stopPropagation(); setParticleShape(e.target.value as ParticleShape); }}
++                    onFocus={() => setSelectFocused(true)}
++                    onBlur={() => setSelectFocused(false)}
++                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
++                  >
++                    <option value="square">Square</option>
++                    <option value="circle">Circle</option>
++                    <option value="triangle">Triangle</option>
++                    <option value="pentagon">Pentagon</option>
++                    <option value="hexagon">Hexagon</option>
++                  </select>
++                </div>
++              </div>
++            </div>
++          </div>
++
+           {/* Cursor Interactions - expandable with animation */}
+           <div
+             onClick={() => setCursorExpanded(!cursorExpanded)}
+@@ -402,7 +520,7 @@ export default function Settings() {
+                   <select
+                     value={cursorInteractionMode}
+                     onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
+-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none"
++                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                   >
+                     <option value="none">None</option>
+                     <option value="attract">Attract</option>
+diff --git a/contexts/ExplosionModeContext.tsx b/contexts/ExplosionModeContext.tsx
+index 42c1e43f..b59eb72a 100644
+--- a/contexts/ExplosionModeContext.tsx
++++ b/contexts/ExplosionModeContext.tsx
+@@ -7,6 +7,9 @@ type CrystalMode = 'enabled' | 'disabled' | 'constant'
+ type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
+ type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
+ type CursorInteractionMode = 'none' | 'attract' | 'collide'
++type WoozyMode = 'disabled' | 'enabled' | 'extreme'
++type DiscoMode = 'disabled' | 'enabled' | 'extreme'
++type ParticleShape = 'square' | 'circle' | 'triangle' | 'pentagon' | 'hexagon'
+ 
+ interface ExplosionModeContextType {
+   // Basic settings
+@@ -82,6 +85,12 @@ interface ExplosionModeContextType {
+   // Visual settings
+   connectionOpacity: number
+   setConnectionOpacity: (opacity: number) => void
++  discoMode: DiscoMode
++  setDiscoMode: (mode: DiscoMode) => void
++  woozyMode: WoozyMode
++  setWoozyMode: (mode: WoozyMode) => void
++  particleShape: ParticleShape
++  setParticleShape: (shape: ParticleShape) => void
+ 
+   // Desktop icon interactions
+   iconAttractParticles: boolean
+@@ -363,6 +372,30 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
+     return 0.3
+   })
+ 
++  const [discoMode, setDiscoMode] = useState<DiscoMode>(() => {
++    if (typeof window !== 'undefined') {
++      const saved = localStorage.getItem('discoMode') as DiscoMode | null
++      return saved || 'disabled'
++    }
++    return 'disabled'
++  })
++
++  const [woozyMode, setWoozyMode] = useState<WoozyMode>(() => {
++    if (typeof window !== 'undefined') {
++      const saved = localStorage.getItem('woozyMode') as WoozyMode | null
++      return saved || 'disabled'
++    }
++    return 'disabled'
++  })
++
++  const [particleShape, setParticleShape] = useState<ParticleShape>(() => {
++    if (typeof window !== 'undefined') {
++      const saved = localStorage.getItem('particleShape') as ParticleShape | null
++      return saved || 'square'
++    }
++    return 'square'
++  })
++
+   // Window interaction settings
+   const [iconAttractParticles, setIconAttractParticles] = useState(() => {
+     if (typeof window !== 'undefined') {
+@@ -554,6 +587,21 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
+     localStorage.setItem('connectionOpacity', opacity.toString())
+   }
+ 
++  const handleSetDiscoMode = (mode: DiscoMode) => {
++    setDiscoMode(mode)
++    localStorage.setItem('discoMode', mode)
++  }
++
++  const handleSetWoozyMode = (mode: WoozyMode) => {
++    setWoozyMode(mode)
++    localStorage.setItem('woozyMode', mode)
++  }
++
++  const handleSetParticleShape = (shape: ParticleShape) => {
++    setParticleShape(shape)
++    localStorage.setItem('particleShape', shape)
++  }
++
+   const handleSetIconAttractParticles = (enabled: boolean) => {
+     setIconAttractParticles(enabled)
+     localStorage.setItem('iconAttractParticles', enabled.toString())
+@@ -637,6 +685,12 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
+       setCursorClickExplodeCluster: handleSetCursorClickExplodeCluster,
+       connectionOpacity,
+       setConnectionOpacity: handleSetConnectionOpacity,
++      discoMode,
++      setDiscoMode: handleSetDiscoMode,
++      woozyMode,
++      setWoozyMode: handleSetWoozyMode,
++      particleShape,
++      setParticleShape: handleSetParticleShape,
+       iconAttractParticles,
+       setIconAttractParticles: handleSetIconAttractParticles,
+       iconCollideParticles,

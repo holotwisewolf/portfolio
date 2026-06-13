@@ -1,6 +1,6 @@
 'use client'
 
-import OrderflowDemo from '../projects/OrderflowDemo'
+import TradingVisualizer from '../projects/TradingVisualizer'
 
 interface Project {
   id: string
@@ -27,9 +27,9 @@ export default function ProjectDetail({ project }: ProjectDetailProps) {
         ))}
       </div>
 
-      <div className="flex-1 border border-white p-4">
-        {project.id === 'orderflow' ? (
-          <OrderflowDemo />
+      <div className="flex-1 border border-white">
+        {project.id === 'trading' ? (
+          <TradingVisualizer />
         ) : (
           <div className="flex items-center justify-center h-full opacity-50">
             Demo coming soon...

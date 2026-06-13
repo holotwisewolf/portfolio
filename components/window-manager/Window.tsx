@@ -50,10 +50,19 @@ export default function Window({ windowId }: WindowProps) {
   // Initialize local state from window state on mount
   useEffect(() => {
     if (windowState) {
-      setLocalPosition(windowState.position)
-      setLocalSize(windowState.size)
-      localSizeRef.current = windowState.size
-      localPositionRef.current = windowState.position
+      // Handle NaN/undefined from localStorage corruption
+      const position = {
+        x: isNaN(windowState.position?.x ?? 0) ? 100 : (windowState.position.x ?? 100),
+        y: isNaN(windowState.position?.y ?? 0) ? 100 : (windowState.position.y ?? 100)
+      }
+      const size = {
+        width: isNaN(windowState.size?.width ?? 0) ? 800 : (windowState.size.width ?? 800),
+        height: isNaN(windowState.size?.height ?? 0) ? 600 : (windowState.size.height ?? 600)
+      }
+      setLocalPosition(position)
+      setLocalSize(size)
+      localSizeRef.current = size
+      localPositionRef.current = position
     }
   }, [windowId])
 
@@ -399,11 +408,11 @@ export default function Window({ windowId }: WindowProps) {
         isActive ? 'border-white z-[9999]' : 'border-gray-600'
       } ${isBooting ? 'window-booting' : ''} bg-black`}
       style={{
-        width: localSize.width,
-        height: localSize.height,
-        zIndex: windowState.zIndex,
-        left: localPosition.x,
-        top: localPosition.y,
+        width: isNaN(localSize.width) ? 800 : localSize.width,
+        height: isNaN(localSize.height) ? 600 : localSize.height,
+        zIndex: windowState?.zIndex ?? 100,
+        left: isNaN(localPosition.x) ? 100 : localPosition.x,
+        top: isNaN(localPosition.y) ? 100 : localPosition.y,
       }}
     >
       <div

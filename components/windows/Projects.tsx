@@ -12,16 +12,16 @@ interface Project {
 
 const projects: Project[] = [
   {
-    id: 'orderflow',
-    title: 'Orderflow Research',
-    description: 'ML Zone Classification System for trading - replace hard-coded rules with data-driven machine learning.',
-    tech: ['Python', 'ML', 'FastAPI', 'Next.js'],
+    id: 'trading',
+    title: 'Trading Research',
+    description: 'ML Zone Classification System with symbolic regression. Classifies market regimes (Neutral/Consolidation/Breakout) using interpretable AI.',
+    tech: ['Python', 'ML', 'FastAPI', 'NumPy'],
   },
   {
-    id: 'backtest',
-    title: 'Trading Backtests',
-    description: 'Strategy backtesting with parameter optimization and performance analytics.',
-    tech: ['Python', 'pandas', 'numpy'],
+    id: 'discord',
+    title: 'Discord Research Bot',
+    description: 'Multi-AI research assistant coordinating Claude, GPT-4, and Gemini by cost/capability routing.',
+    tech: ['Python', 'Discord.py', 'LLM API'],
   },
 ]
 
