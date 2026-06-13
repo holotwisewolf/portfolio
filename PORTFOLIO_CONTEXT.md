@@ -105,6 +105,7 @@ These are the current TODO items - work on these in priority order:
 - [ ] **Instagram ASCII art particle option** - BG particles can show Instagram logo ASCII
 - [ ] **Instagram aesthetic research** - Study Insta aesthetic, find typing sound reference
 - [ ] **Click-and-hold particle spawning** - Spawn connectors/particles, clear canvas option
+- [ ] **Mobile fallback mode (low priority)** - Basic mobile view for unsupported screen sizes
 
 ### Content Features
 - [ ] **Admin password easter egg** - Hidden password unlocks secret "Twitter" blog section
@@ -113,7 +114,11 @@ These are the current TODO items - work on these in priority order:
 
 ### Advanced Integration
 - [ ] **Obsidian vault integration via MCP** - Connect note-taking vault for AI organization, accessible via admin panel
-- [ ] **Documentation** - This context file for fresh sessions ✓
+- [ ] **Window snap-to-half-screen (low priority)** - Windows Aero Snap-style edge snapping
+
+### Documentation
+- [ ] **Document HMM, IB Strategy, and Walk-Forward analytics** - Add methodology docs for these projects
+- [x] **PORTFOLIO_CONTEXT.md** - This context file for fresh sessions ✓
 
 ---
 
