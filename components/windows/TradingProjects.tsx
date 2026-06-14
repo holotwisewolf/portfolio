@@ -2,123 +2,128 @@
 
 import { useWindowStore } from '../window-manager/useWindows'
 
-// All trading research projects
-const TRADING_PROJECTS = [
+interface TradingProject {
+  id: string
+  title: string
+  description: string
+  windowId: string
+  workspacePath?: string[]
+  migrated?: boolean
+}
+
+const TRADING_PROJECTS: TradingProject[] = [
   {
     id: 'zone-classifier',
     title: 'Zone Classifier',
-    emoji: '📊',
     description: 'ML-based market regime classification',
-    color: 'border-green-500/30',
-    windowId: 'project-zone'
+    windowId: 'project-zone',
+    workspacePath: ['trading', 'zone-classifier', 'README.md'],
+    migrated: true,
   },
   {
     id: 'orderflow',
     title: 'Orderflow Research',
-    emoji: '💹',
     description: 'Elasticity, Delta, and Microstructure',
-    color: 'border-blue-500/30',
-    windowId: 'project-orderflow'
+    windowId: 'project-orderflow',
   },
   {
     id: 'vpoc',
     title: 'VPOC Analysis',
-    emoji: '🎯',
     description: 'Volume Point of Control patterns',
-    color: 'border-purple-500/30',
-    windowId: 'project-vpoc'
+    windowId: 'project-vpoc',
   },
   {
     id: 'ib-strategy',
     title: 'IB Strategy',
-    emoji: '📊',
     description: 'Initial Balance & Cloned Box',
-    color: 'border-yellow-500/30',
-    windowId: 'project-ib'
+    windowId: 'project-ib',
   },
   {
     id: 'hmm',
     title: 'HMM Analysis',
-    emoji: '🔄',
     description: 'Hidden Markov Regime Detection',
-    color: 'border-cyan-500/30',
-    windowId: 'project-hmm'
+    windowId: 'project-hmm',
   },
   {
     id: 'walk-forward',
     title: 'Walk-Forward Analytics',
-    emoji: '🔬',
     description: 'Robust validation framework',
-    color: 'border-red-500/30',
-    windowId: 'project-walkforward'
+    windowId: 'project-walkforward',
   },
   {
     id: 'symbolic',
     title: 'Symbolic Regression',
-    emoji: '🧬',
     description: 'Interpretable AI formulas',
-    color: 'border-pink-500/30',
-    windowId: 'project-symbolic'
+    windowId: 'project-symbolic',
   },
   {
     id: 'ml-consolidation',
     title: 'ML Consolidation',
-    emoji: '🤖',
     description: 'ML-based consolidation detection',
-    color: 'border-indigo-500/30',
-    windowId: 'project-ml-consol'
+    windowId: 'project-ml-consol',
   },
   {
     id: 'orderflow-visualizer',
     title: 'Orderflow Visualizer',
-    emoji: '👁️',
     description: 'Tick data diagnostics',
-    color: 'border-teal-500/30',
-    windowId: 'project-of-viz'
+    windowId: 'project-of-viz',
   },
   {
     id: 'neutral-candle',
     title: 'Neutral Candle',
-    emoji: '🕯️',
     description: '12-filter grid search engine',
-    color: 'border-amber-500/30',
-    windowId: 'project-neutral'
+    windowId: 'project-neutral',
   },
 ]
 
 export default function TradingProjects() {
   const openWindow = useWindowStore((s) => s.openWindow)
+  const openWorkspace = useWindowStore((s) => s.openWorkspace)
 
-  const handleProjectClick = (project: typeof TRADING_PROJECTS[0]) => {
-    openWindow(project.windowId as any)
+  const handleProjectClick = (project: TradingProject) => {
+    if (project.workspacePath) {
+      openWorkspace(project.workspacePath)
+    } else {
+      openWindow(project.windowId as any)
+    }
+  }
+
+  const handleBrowseWorkspace = () => {
+    openWorkspace()
   }
 
   return (
     <div className="h-full flex flex-col bg-[#0a0a0a]">
-      {/* Header */}
-      <div className="border-b border-white/20 p-4 bg-black/50">
-        <h2 className="text-lg font-bold text-white mb-1">🔬 Trading Research Projects</h2>
-        <p className="text-gray-500 text-[10px]">Click a project to open its dedicated window</p>
+      <div className="border-b border-[#1c2e1c] p-3 bg-black">
+        <div className="text-[9px] tracking-[0.3em] text-[#444] mb-1">// trading research</div>
+        <h2 className="text-[14px] tracking-[0.15em] text-white mb-2">PROJECTS [10]</h2>
+        <p className="text-[#666] text-[10px] mb-3">Click any project to open</p>
+
+        <button
+          onClick={handleBrowseWorkspace}
+          className="w-full text-left p-2 border border-[#1c2e1c] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-[#00ff9d] text-[11px] tracking-[0.15em]"
+        >
+          &gt; BROWSE WORKSPACE
+        </button>
       </div>
 
-      {/* Projects Grid */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="flex-1 overflow-y-auto p-3">
+        <div className="grid grid-cols-2 gap-0 border-t border-l border-[#1c2e1c]">
           {TRADING_PROJECTS.map((project) => (
             <button
               key={project.id}
               onClick={() => handleProjectClick(project)}
-              className={`text-left p-4 bg-black/50 border ${project.color} rounded hover:bg-white/5 transition-colors group`}
+              className="text-left border-r border-b border-[#1c2e1c] p-3 hover:bg-[#0f1a0f] transition-colors group min-h-[80px] flex flex-col justify-between"
             >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{project.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-white font-medium text-sm mb-1 group-hover:text-green-400 transition-colors">
-                    {project.title}
-                  </div>
-                  <div className="text-gray-500 text-[10px] leading-tight">
-                    {project.description}
-                  </div>
+              <div>
+                <div className="text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] mb-1 transition-colors">
+                  {project.migrated ? '[WORKSPACE]' : '[LEGACY]'}
+                </div>
+                <div className="text-white text-[12px] tracking-[0.05em] group-hover:text-[#00ff9d] transition-colors mb-1">
+                  {project.title}
+                </div>
+                <div className="text-[#666] text-[10px] leading-relaxed">
+                  {project.description}
                 </div>
               </div>
             </button>
@@ -126,12 +131,9 @@ export default function TradingProjects() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="border-t border-white/20 p-3 bg-black/50 text-[10px] text-gray-600">
-        <div className="flex justify-between">
-          <span>{TRADING_PROJECTS.length} research projects</span>
-          <span>Double-click desktop icons to open windows</span>
-        </div>
+      <div className="border-t border-[#1c2e1c] p-2 bg-black text-[9px] text-[#444] tracking-[0.2em] flex justify-between">
+        <span>{TRADING_PROJECTS.length} PROJECTS</span>
+        <span>[ESC] EXITS WORKSPACE</span>
       </div>
     </div>
   )
