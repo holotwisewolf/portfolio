@@ -19,8 +19,10 @@ interface TradingBarChartProps {
   barSize?: number
 }
 
-const DEFAULT_COLORS = ['#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6', '#ec4899']
-const GRID_COLOR = 'rgba(255, 255, 255, 0.1)'
+const DEFAULT_COLORS = ['#00cc77', '#00aa66', '#008855', '#006644', '#004433', '#003322']
+const GRID_COLOR = '#1c2e1c'
+const AXIS_COLOR = '#666'
+const AXIS_LINE = '#1c2e1c'
 
 const CustomTooltip = ({ active, payload, label, formatTooltip }: any) => {
   if (active && payload && payload.length) {
@@ -28,16 +30,15 @@ const CustomTooltip = ({ active, payload, label, formatTooltip }: any) => {
     return (
       <div
         style={{
-          backgroundColor: '#1a1a1a',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '4px',
-          padding: '8px 12px',
+          backgroundColor: '#0a0a0a',
+          border: '1px solid #1c2e1c',
+          padding: '6px 10px',
         }}
       >
-        <p className="text-gray-400 text-[10px]">{label}</p>
+        <p className="text-[#666] text-[10px] font-mono">{label}</p>
         <p
-          className="text-[11px] font-medium"
-          style={{ color: data.payload.color || '#10b981' }}
+          className="text-[11px] font-mono"
+          style={{ color: data.payload.color || '#00ff9d' }}
         >
           {formatTooltip ? formatTooltip(data.value, data.name)[1] : `${data.name}: ${data.value}`}
         </p>
@@ -80,20 +81,20 @@ export default function TradingBarChart({
         )}
         <XAxis
           dataKey={horizontal ? yKey : xKey}
-          stroke="#666"
-          tick={{ fill: '#666', fontSize: 10 }}
+          stroke={AXIS_COLOR}
+          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'monospace' }}
           tickLine={false}
-          axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+          axisLine={{ stroke: AXIS_LINE }}
           type={horizontal ? 'number' : 'category'}
         />
         <YAxis
-          stroke="#666"
-          tick={{ fill: '#666', fontSize: 10 }}
+          stroke={AXIS_COLOR}
+          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'monospace' }}
           tickLine={false}
-          axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+          axisLine={{ stroke: AXIS_LINE }}
           type={horizontal ? 'category' : 'number'}
         />
-        <Tooltip content={<CustomTooltip formatTooltip={formatTooltip} />} />
+        <Tooltip content={<CustomTooltip formatTooltip={formatTooltip} />} cursor={{ fill: '#1c2e1c', fillOpacity: 0.5 }} />
         <Bar dataKey={horizontal ? xKey : yKey}>
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={getColor(index, entry)} />

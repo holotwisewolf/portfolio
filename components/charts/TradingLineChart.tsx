@@ -19,22 +19,24 @@ interface TradingLineChartProps {
   referenceLines?: { y?: number; x?: number; label?: string; color?: string }[]
 }
 
-const DEFAULT_COLOR = '#10b981'
-const GRID_COLOR = 'rgba(255, 255, 255, 0.1)'
-const TOOLTIP_STYLE = {
-  backgroundColor: '#1a1a1a',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  borderRadius: '4px',
-  padding: '8px 12px',
-}
+const DEFAULT_COLOR = '#00cc77'
+const GRID_COLOR = '#1c2e1c'
+const AXIS_COLOR = '#666'
+const AXIS_LINE = '#1c2e1c'
 
 const CustomTooltip = ({ active, payload, label, formatTooltip }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0]
     return (
-      <div style={TOOLTIP_STYLE}>
-        <p className="text-gray-400 text-[10px]">{label}</p>
-        <p className="text-green-400 text-[11px] font-medium">
+      <div
+        style={{
+          backgroundColor: '#0a0a0a',
+          border: '1px solid #1c2e1c',
+          padding: '6px 10px',
+        }}
+      >
+        <p className="text-[#666] text-[10px] font-mono">{label}</p>
+        <p className="text-[#00ff9d] text-[11px] font-mono">
           {formatTooltip ? formatTooltip(data.value, data.name)[1] : `${data.name}: ${data.value}`}
         </p>
       </div>
@@ -69,20 +71,20 @@ export default function TradingLineChart({
         )}
         <XAxis
           dataKey={xKey}
-          stroke="#666"
-          tick={{ fill: '#666', fontSize: 10 }}
+          stroke={AXIS_COLOR}
+          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'monospace' }}
           tickLine={false}
-          axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+          axisLine={{ stroke: AXIS_LINE }}
         />
         <YAxis
-          stroke="#666"
-          tick={{ fill: '#666', fontSize: 10 }}
+          stroke={AXIS_COLOR}
+          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'monospace' }}
           tickLine={false}
-          axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+          axisLine={{ stroke: AXIS_LINE }}
         />
         <Tooltip
           content={<CustomTooltip formatTooltip={formatTooltip} />}
-          cursor={{ stroke: 'rgba(16, 185, 129, 0.3)', strokeWidth: 1 }}
+          cursor={{ stroke: '#00ff9d', strokeWidth: 1, strokeOpacity: 0.3 }}
         />
         {referenceLines.map((line, i) => (
           <ReferenceArea
@@ -101,8 +103,8 @@ export default function TradingLineChart({
             dataKey={yKey}
             stroke={color}
             fill={color}
-            fillOpacity={0.3}
-            strokeWidth={2}
+            fillOpacity={0.25}
+            strokeWidth={1.5}
             dot={showDots}
           />
         ) : (
@@ -110,9 +112,9 @@ export default function TradingLineChart({
             type="monotone"
             dataKey={yKey}
             stroke={color}
-            strokeWidth={2}
+            strokeWidth={1.5}
             dot={showDots}
-            activeDot={{ r: 4, fill: color, stroke: '#fff', strokeWidth: 2 }}
+            activeDot={{ r: 3, fill: color, stroke: '#fff', strokeWidth: 1 }}
           />
         )}
       </ChartComponent>

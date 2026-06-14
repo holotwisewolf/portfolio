@@ -16,33 +16,37 @@ interface TradingMetricsCardProps {
   className?: string
 }
 
-const DEFAULT_COLOR = '#10b981'
 const COLOR_MAP = {
-  up: '#10b981',
+  up: '#00ff9d',
   down: '#ef4444',
-  neutral: '#666',
+  neutral: '#999',
 }
 
 export default function TradingMetricsCard({ title, metrics, children, className = '' }: TradingMetricsCardProps) {
   return (
-    <div className={`bg-black/50 border border-white/10 p-4 rounded ${className}`}>
-      <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-3">{title}</div>
-
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        {metrics.map((metric, i) => (
-          <div key={i} className="bg-black/30 border border-white/5 p-2 rounded">
-            <div className="text-gray-600 text-[9px] uppercase mb-1">{metric.label}</div>
-            <div
-              className="text-white text-[11px] font-medium"
-              style={{ color: metric.color || COLOR_MAP[metric.trend || 'neutral'] || DEFAULT_COLOR }}
-            >
-              {metric.value}
-            </div>
-          </div>
-        ))}
+    <div className={`border border-[#1c2e1c] bg-black ${className}`}>
+      <div className="border-b border-[#1c2e1c] px-3 py-1 text-[9px] tracking-[0.3em] text-[#666]">
+        {title}
       </div>
 
-      {children}
+      <div className="grid grid-cols-4 gap-0 border-b border-[#1c2e1c]">
+        {metrics.map((metric, i) => {
+          const color = metric.color || COLOR_MAP[metric.trend || 'neutral']
+          return (
+            <div
+              key={i}
+              className={`p-2 ${i < metrics.length - 1 ? 'border-r border-[#1c2e1c]' : ''}`}
+            >
+              <div className="text-[8px] tracking-[0.25em] text-[#444] mb-1">{metric.label}</div>
+              <div className="text-[12px] font-mono" style={{ color }}>
+                {metric.value}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="p-3">{children}</div>
     </div>
   )
 }

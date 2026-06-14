@@ -24,20 +24,20 @@ interface TradingCandleChartProps {
 
 const CANDLE_WIDTH = 8
 const CANDLE_GAP = 2
-const GRID_COLOR = 'rgba(255, 255, 255, 0.05)'
-const AXIS_COLOR = '#444'
+const GRID_COLOR = '#1c2e1c'
+const AXIS_COLOR = '#666'
 
 const PRICE_COLORS = {
-  up: '#10b981',
+  up: '#00cc77',
   down: '#ef4444',
   neutral: '#666',
 }
 
 const ZONE_COLORS = {
-  neutral: 'rgba(107, 114, 128, 0.1)',
+  neutral: 'rgba(107, 114, 128, 0.08)',
   consolidation: 'rgba(245, 158, 11, 0.1)',
-  breakout: 'rgba(16, 185, 129, 0.1)',
-  entry: 'rgba(59, 130, 246, 0.2)',
+  breakout: 'rgba(0, 255, 157, 0.1)',
+  entry: 'rgba(0, 255, 157, 0.2)',
   exit: 'rgba(239, 68, 68, 0.2)',
 }
 
@@ -52,7 +52,6 @@ export default function TradingCandleChart({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [selectedCandle, setSelectedCandle] = useState<{ candle: CandleData; index: number } | null>(null)
 
-  // Calculate price range
   const { minPrice, maxPrice, maxVolume, priceRange } = useMemo(() => {
     const allHighs = data.map(d => d.high)
     const allLows = data.map(d => d.low)
@@ -71,31 +70,21 @@ export default function TradingCandleChart({
     }
   }, [data])
 
-  // SVG dimensions
   const chartWidth = width || '100%'
   const chartHeight = height
   const volumeHeight = showVolume ? 60 : 0
-  const priceHeight = chartHeight - volumeHeight - 20 // 20px for padding
+  const priceHeight = chartHeight - volumeHeight - 20
   const volumeBase = priceHeight + 10
 
-  // Scale functions
   const scalePrice = (price: number) => {
     return priceHeight - ((price - minPrice) / priceRange) * priceHeight
   }
 
-  const scaleVolume = (volume: number) => {
-    if (!showVolume) return 0
-    const scaled = (volume / maxVolume) * volumeHeight * 0.8
-    return volumeBase - scaled
-  }
-
-  // Calculate price level for Y position
   const priceFromY = (y: number) => {
     const scaled = (priceHeight - y) / priceHeight
     return minPrice + scaled * priceRange
   }
 
-  // Handle click
   const handleCandleClick = (candle: CandleData, index: number) => {
     if (!interactive) return
     setSelectedCandle({ candle, index })
@@ -103,13 +92,12 @@ export default function TradingCandleChart({
   }
 
   return (
-    <div className="relative w-full" style={{ height: chartHeight }}>
+    <div className="relative w-full border border-[#1c2e1c]" style={{ height: chartHeight }}>
       <svg
         width={chartWidth}
         height={chartHeight}
-        className="bg-black/50"
+        className="bg-[#0a0a0a]"
       >
-        {/* Grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map(pct => {
           const y = pct * priceHeight
           const price = priceFromY(y)
@@ -136,7 +124,6 @@ export default function TradingCandleChart({
           )
         })}
 
-        {/* Zone backgrounds */}
         {data.map((candle, i) => {
           if (!candle.zone) return null
           const x = i * (CANDLE_WIDTH + CANDLE_GAP)
@@ -152,7 +139,6 @@ export default function TradingCandleChart({
           )
         })}
 
-        {/* Candles */}
         {data.map((candle, i) => {
           const isUp = candle.close >= candle.open
           const bodyTop = scalePrice(Math.max(candle.open, candle.close))
@@ -163,27 +149,24 @@ export default function TradingCandleChart({
           const isHovered = hoveredIndex === i
           const isSelected = selectedCandle?.index === i
 
-          // Volume bar
           const volHeight = candle.volume
             ? (candle.volume / maxVolume) * volumeHeight * 0.8
             : 0
 
           return (
             <g key={i}>
-              {/* Volume bar */}
               {showVolume && candle.volume && (
                 <rect
                   x={x}
                   y={volumeBase}
                   width={CANDLE_WIDTH}
                   height={-volHeight}
-                  fill={isUp ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}
+                  fill={isUp ? 'rgba(0, 204, 119, 0.3)' : 'rgba(239, 68, 68, 0.3)'}
                   className="transition-opacity"
                   style={{ opacity: isHovered ? 0.8 : 0.4 }}
                 />
               )}
 
-              {/* Wick */}
               <line
                 x1={x + CANDLE_WIDTH / 2}
                 y1={wickTop}
@@ -195,7 +178,6 @@ export default function TradingCandleChart({
                 style={{ opacity: isHovered || isSelected ? 1 : 0.7 }}
               />
 
-              {/* Body */}
               <rect
                 x={x}
                 y={bodyTop}
@@ -212,14 +194,13 @@ export default function TradingCandleChart({
                 onMouseLeave={() => setHoveredIndex(null)}
               />
 
-              {/* Entry/Exit markers */}
               {candle.annotation === 'entry' && (
                 <circle
                   cx={x + CANDLE_WIDTH / 2}
                   cy={scalePrice(candle.low) + 15}
                   r={4}
                   fill="none"
-                  stroke="#3b82f6"
+                  stroke="#00ff9d"
                   strokeWidth={2}
                 />
               )}
@@ -237,7 +218,6 @@ export default function TradingCandleChart({
           )
         })}
 
-        {/* Time labels */}
         {data.filter((_, i) => i % Math.max(1, Math.floor(data.length / 6)) === 0).map((candle, i) => {
           const index = data.indexOf(candle)
           const x = index * (CANDLE_WIDTH + CANDLE_GAP)
@@ -257,47 +237,45 @@ export default function TradingCandleChart({
         })}
       </svg>
 
-      {/* Hover tooltip */}
       {hoveredIndex !== null && data[hoveredIndex] && (
         <div
-          className="absolute pointer-events-none bg-black/90 border border-white/20 p-2 rounded z-10"
+          className="absolute pointer-events-none bg-[#0a0a0a] border border-[#1c2e1c] p-2 z-10"
           style={{
             left: `${hoveredIndex * (CANDLE_WIDTH + CANDLE_GAP) + CANDLE_WIDTH + 10}px`,
             top: '50%',
             transform: 'translateY(-50%)',
           }}
         >
-          <div className="text-gray-400 text-[9px] font-mono">{data[hoveredIndex].time}</div>
-          <div className="text-green-400 text-[10px] font-mono">O: {data[hoveredIndex].open.toFixed(2)}</div>
-          <div className="text-green-400 text-[10px] font-mono">H: {data[hoveredIndex].high.toFixed(2)}</div>
-          <div className="text-red-400 text-[10px] font-mono">L: {data[hoveredIndex].low.toFixed(2)}</div>
-          <div className="text-green-400 text-[10px] font-mono">C: {data[hoveredIndex].close.toFixed(2)}</div>
+          <div className="text-[#666] text-[9px] font-mono">{data[hoveredIndex].time}</div>
+          <div className="text-[#00ff9d] text-[10px] font-mono">O: {data[hoveredIndex].open.toFixed(2)}</div>
+          <div className="text-[#00ff9d] text-[10px] font-mono">H: {data[hoveredIndex].high.toFixed(2)}</div>
+          <div className="text-[#ef4444] text-[10px] font-mono">L: {data[hoveredIndex].low.toFixed(2)}</div>
+          <div className="text-[#00ff9d] text-[10px] font-mono">C: {data[hoveredIndex].close.toFixed(2)}</div>
           {data[hoveredIndex].zone && (
-            <div className="text-yellow-400 text-[9px] mt-1 capitalize">{data[hoveredIndex].zone}</div>
+            <div className="text-white text-[9px] mt-1 font-mono uppercase tracking-wider">{data[hoveredIndex].zone}</div>
           )}
         </div>
       )}
 
-      {/* Selected candle details */}
       {selectedCandle && (
-        <div className="absolute bottom-0 left-0 right-0 bg-black/90 border-t border-white/20 p-2">
+        <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0a] border-t border-[#1c2e1c] p-2">
           <div className="flex items-center justify-between">
-            <div className="text-gray-400 text-[9px]">
-              {selectedCandle.candle.time} — {selectedCandle.candle.zone && (
-                <span className="capitalize text-yellow-400">{selectedCandle.candle.zone}</span>
+            <div className="text-[#666] text-[9px] font-mono">
+              {selectedCandle.candle.time} {selectedCandle.candle.zone && (
+                <span className="uppercase text-white tracking-wider">— {selectedCandle.candle.zone}</span>
               )}
             </div>
             <div className="flex gap-4 text-[10px] font-mono">
-              <span className="text-gray-400">O: <span className="text-green-400">{selectedCandle.candle.open.toFixed(2)}</span></span>
-              <span className="text-gray-400">H: <span className="text-green-400">{selectedCandle.candle.high.toFixed(2)}</span></span>
-              <span className="text-gray-400">L: <span className="text-red-400">{selectedCandle.candle.low.toFixed(2)}</span></span>
-              <span className="text-gray-400">C: <span className="text-green-400">{selectedCandle.candle.close.toFixed(2)}</span></span>
+              <span className="text-[#666]">O: <span className="text-[#00ff9d]">{selectedCandle.candle.open.toFixed(2)}</span></span>
+              <span className="text-[#666]">H: <span className="text-[#00ff9d]">{selectedCandle.candle.high.toFixed(2)}</span></span>
+              <span className="text-[#666]">L: <span className="text-[#ef4444]">{selectedCandle.candle.low.toFixed(2)}</span></span>
+              <span className="text-[#666]">C: <span className="text-[#00ff9d]">{selectedCandle.candle.close.toFixed(2)}</span></span>
             </div>
             <button
               onClick={() => setSelectedCandle(null)}
-              className="text-gray-500 hover:text-white text-[9px]"
+              className="text-[#666] hover:text-white text-[9px]"
             >
-              [×]
+              [x]
             </button>
           </div>
         </div>
