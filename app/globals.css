@@ -220,6 +220,34 @@ body::before {
   animation: rgb-shift 3s ease-in-out infinite;
 }
 
+/* Workspace-specific CRT overlay */
+@keyframes workspace-flicker {
+  0% { opacity: 0.04; }
+  50% { opacity: 0.08; }
+  100% { opacity: 0.04; }
+}
+
+.workspace-flicker {
+  background: rgba(18, 16, 16, 1);
+  animation: workspace-flicker 0.15s infinite;
+}
+
+.workspace-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 1px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* Subtle RGB shift on workspace text */
+.workspace-crt {
+  text-shadow: -0.5px 0 rgba(255, 0, 0, 0.25), 0.5px 0 rgba(0, 255, 255, 0.25);
+}
+
 /* Window boot animation - no flash */
 @keyframes window-boot {
   0% {

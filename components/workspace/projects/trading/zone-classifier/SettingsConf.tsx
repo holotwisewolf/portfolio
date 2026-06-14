@@ -94,7 +94,7 @@ export default function SettingsConf() {
 
       <div className="border border-[#1c2e1c] p-3 bg-black">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-2">PREVIEW</div>
-        <pre className="text-[11px] text-gray-400 font-mono leading-relaxed">
+        <pre className="text-[11px] text-gray-400 font-orbit leading-relaxed">
 {`lookback_window = ${settings.lookbackWindow}
 volatility_threshold = ${settings.volatilityThreshold.toFixed(1)}
 volume_weight = ${settings.volumeWeight.toFixed(1)}
@@ -117,12 +117,12 @@ function SettingRow({ label, comment, value, displayValue, children }: SettingRo
   return (
     <div className="p-3">
       <div className="flex justify-between items-baseline mb-1">
-        <div className="text-[11px] tracking-[0.1em] text-white font-mono">
+        <div className="text-[11px] tracking-[0.1em] text-white font-orbit">
           {label} <span className="text-[#666]">= {value}</span>
         </div>
-        <div className="text-[11px] text-[#00ff9d] font-mono">{displayValue}</div>
+        <div className="text-[11px] text-[#00ff9d] font-orbit">{displayValue}</div>
       </div>
-      <div className="text-[10px] text-[#444] font-mono mb-2">{comment}</div>
+      <div className="text-[10px] text-[#444] font-orbit mb-2">{comment}</div>
       {children}
     </div>
   )

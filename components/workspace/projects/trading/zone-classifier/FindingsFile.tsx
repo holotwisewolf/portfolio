@@ -33,7 +33,7 @@ export default function FindingsFile() {
 
       <div className="border border-[#1c2e1c] p-3">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-3">WHAT DIDN'T WORK</div>
-        <div className="space-y-2 text-[11px] text-gray-400 font-mono leading-relaxed">
+        <div className="space-y-2 text-[11px] text-gray-400 font-orbit leading-relaxed">
           <div><span className="text-[#666]">[x]</span> <span className="text-white">VWAP look-ahead bias:</span> Calculated VWAP using full day data, fake edge. Fixed with progressive VWAP.</div>
           <div><span className="text-[#666]">[x]</span> <span className="text-white">Orderflow data quality:</span> TradingView tick data shows FILLED orders, not orderbook depth.</div>
           <div><span className="text-[#666]">[x]</span> <span className="text-white">Feature inflation:</span> Started with 100+ features, pruned to 68, final formula used 4.</div>

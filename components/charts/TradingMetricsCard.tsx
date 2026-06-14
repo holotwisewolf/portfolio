@@ -40,7 +40,7 @@ export default function TradingMetricsCard({ title, metrics, children, className
               } ${i < metrics.length - 2 ? 'border-b md:border-b-0' : ''}`}
             >
               <div className="text-[8px] tracking-[0.25em] text-[#444] mb-1">{metric.label}</div>
-              <div className="text-[12px] font-mono" style={{ color }}>
+              <div className="text-[12px] font-orbit" style={{ color }}>
                 {metric.value}
               </div>
             </div>

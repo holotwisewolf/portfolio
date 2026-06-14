@@ -116,7 +116,7 @@ export default function TradingCandleChart({
                 y={y - 4}
                 fill={AXIS_COLOR}
                 fontSize={9}
-                fontFamily="monospace"
+                fontFamily="Orbit, monospace"
               >
                 {price.toFixed(2)}
               </text>
@@ -228,7 +228,7 @@ export default function TradingCandleChart({
               y={chartHeight - 5}
               fill={AXIS_COLOR}
               fontSize={9}
-              fontFamily="monospace"
+              fontFamily="Orbit, monospace"
               textAnchor="middle"
             >
               {candle.time}
@@ -246,13 +246,13 @@ export default function TradingCandleChart({
             transform: 'translateY(-50%)',
           }}
         >
-          <div className="text-[#666] text-[9px] font-mono">{data[hoveredIndex].time}</div>
-          <div className="text-[#00ff9d] text-[10px] font-mono">O: {data[hoveredIndex].open.toFixed(2)}</div>
-          <div className="text-[#00ff9d] text-[10px] font-mono">H: {data[hoveredIndex].high.toFixed(2)}</div>
-          <div className="text-[#ef4444] text-[10px] font-mono">L: {data[hoveredIndex].low.toFixed(2)}</div>
-          <div className="text-[#00ff9d] text-[10px] font-mono">C: {data[hoveredIndex].close.toFixed(2)}</div>
+          <div className="text-[#666] text-[9px] font-orbit">{data[hoveredIndex].time}</div>
+          <div className="text-[#00ff9d] text-[10px] font-orbit">O: {data[hoveredIndex].open.toFixed(2)}</div>
+          <div className="text-[#00ff9d] text-[10px] font-orbit">H: {data[hoveredIndex].high.toFixed(2)}</div>
+          <div className="text-[#ef4444] text-[10px] font-orbit">L: {data[hoveredIndex].low.toFixed(2)}</div>
+          <div className="text-[#00ff9d] text-[10px] font-orbit">C: {data[hoveredIndex].close.toFixed(2)}</div>
           {data[hoveredIndex].zone && (
-            <div className="text-white text-[9px] mt-1 font-mono uppercase tracking-wider">{data[hoveredIndex].zone}</div>
+            <div className="text-white text-[9px] mt-1 font-orbit uppercase tracking-wider">{data[hoveredIndex].zone}</div>
           )}
         </div>
       )}
@@ -260,12 +260,12 @@ export default function TradingCandleChart({
       {selectedCandle && (
         <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0a] border-t border-[#1c2e1c] p-2">
           <div className="flex items-center justify-between">
-            <div className="text-[#666] text-[9px] font-mono">
+            <div className="text-[#666] text-[9px] font-orbit">
               {selectedCandle.candle.time} {selectedCandle.candle.zone && (
                 <span className="uppercase text-white tracking-wider">— {selectedCandle.candle.zone}</span>
               )}
             </div>
-            <div className="flex gap-4 text-[10px] font-mono">
+            <div className="flex gap-4 text-[10px] font-orbit">
               <span className="text-[#666]">O: <span className="text-[#00ff9d]">{selectedCandle.candle.open.toFixed(2)}</span></span>
               <span className="text-[#666]">H: <span className="text-[#00ff9d]">{selectedCandle.candle.high.toFixed(2)}</span></span>
               <span className="text-[#666]">L: <span className="text-[#ef4444]">{selectedCandle.candle.low.toFixed(2)}</span></span>

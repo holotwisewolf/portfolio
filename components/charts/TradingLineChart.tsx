@@ -35,8 +35,8 @@ const CustomTooltip = ({ active, payload, label, formatTooltip }: any) => {
           padding: '6px 10px',
         }}
       >
-        <p className="text-[#666] text-[10px] font-mono">{label}</p>
-        <p className="text-[#00ff9d] text-[11px] font-mono">
+        <p className="text-[#666] text-[10px] font-orbit">{label}</p>
+        <p className="text-[#00ff9d] text-[11px] font-orbit">
           {formatTooltip ? formatTooltip(data.value, data.name)[1] : `${data.name}: ${data.value}`}
         </p>
       </div>
@@ -72,13 +72,13 @@ export default function TradingLineChart({
         <XAxis
           dataKey={xKey}
           stroke={AXIS_COLOR}
-          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'monospace' }}
+          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'Orbit, monospace' }}
           tickLine={false}
           axisLine={{ stroke: AXIS_LINE }}
         />
         <YAxis
           stroke={AXIS_COLOR}
-          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'monospace' }}
+          tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'Orbit, monospace' }}
           tickLine={false}
           axisLine={{ stroke: AXIS_LINE }}
         />

@@ -24,14 +24,19 @@ export default function WorkspaceContainer() {
 
   return (
     <div
-      className="absolute inset-0 bg-[#0a0a0a] flex flex-col overflow-hidden"
-      style={{ fontFamily: '"Orbit", "Courier New", monospace' }}
+      className="absolute inset-0 bg-[#0a0a0a] flex flex-col overflow-hidden font-orbit workspace-crt"
     >
       <WorkspaceBreadcrumb path={workspacePath} onExit={closeWorkspace} />
 
       <div className="flex-1 flex flex-col md:flex-row min-h-0">
         <ProjectSidebar path={workspacePath} />
         <FileContentView path={workspacePath} />
+      </div>
+
+      {/* CRT overlay — flicker + scanlines + RGB shift, above content but below interactive */}
+      <div className="pointer-events-none absolute inset-0 z-[100]" aria-hidden>
+        <div className="absolute inset-0 workspace-flicker" />
+        <div className="absolute inset-0 workspace-scanlines" />
       </div>
     </div>
   )

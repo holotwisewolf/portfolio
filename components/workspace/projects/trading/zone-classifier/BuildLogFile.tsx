@@ -15,7 +15,7 @@ export default function BuildLogFile() {
 
       <div className="border border-[#1c2e1c] p-3">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-3">ML MODELS COMPARED</div>
-        <div className="space-y-1 text-[11px] text-gray-400 font-mono">
+        <div className="space-y-1 text-[11px] text-gray-400 font-orbit">
           <div><span className="text-[#666]">[ ]</span> <span className="text-white">Random Forest:</span> 76% accuracy, black box. Can't debug failures.</div>
           <div><span className="text-[#666]">[ ]</span> <span className="text-white">Gradient Boosting:</span> 78% accuracy, slower training, still opaque.</div>
           <div><span className="text-[#666]">[ ]</span> <span className="text-white">Logistic Regression:</span> 68% accuracy, too simple.</div>
@@ -35,7 +35,7 @@ export default function BuildLogFile() {
 
       <div className="border border-[#1c2e1c] p-3">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-3">TECHNICAL STACK EVOLUTION</div>
-        <div className="space-y-1 text-[11px] text-gray-400 font-mono">
+        <div className="space-y-1 text-[11px] text-gray-400 font-orbit">
           <div><span className="text-[#666]">v1</span> <span className="text-white">Manual feature engineering + scikit-learn models</span></div>
           <div><span className="text-[#666]">v2</span> <span className="text-white">Added symbolic regression (PySR from Julia)</span></div>
           <div><span className="text-[#666]">v3</span> <span className="text-white">FastAPI production deployment</span></div>
@@ -45,7 +45,7 @@ export default function BuildLogFile() {
 
       <div className="border border-[#1c2e1c] p-3">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-3">FILES & ARCHITECTURE</div>
-        <div className="space-y-1 text-[11px] text-gray-400 font-mono">
+        <div className="space-y-1 text-[11px] text-gray-400 font-orbit">
           <div><span className="text-[#00ff9d]">core/</span>zone_classifier.py — Main classification engine</div>
           <div><span className="text-[#00ff9d]">core/</span>symbolic_regression.py — PySR wrapper</div>
           <div><span className="text-[#00ff9d]">core/</span>feature_extraction.py — 68-feature pipeline</div>

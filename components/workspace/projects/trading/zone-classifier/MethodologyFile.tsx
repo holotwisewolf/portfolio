@@ -26,7 +26,7 @@ export default function MethodologyFile() {
 
       <div className="border border-[#1c2e1c] p-3">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-3">SYMBOLIC REGRESSION PROCESS</div>
-        <div className="space-y-2 text-[11px] text-gray-400 font-mono">
+        <div className="space-y-2 text-[11px] text-gray-400 font-orbit">
           <div><span className="text-[#444]">01</span> <span className="text-white">Generate population:</span> 1000 random equations using +, -, x, /, sqrt, log, max, min</div>
           <div><span className="text-[#444]">02</span> <span className="text-white">Evaluate fitness:</span> RMSE vs accuracy trade-off (Pareto frontier)</div>
           <div><span className="text-[#444]">03</span> <span className="text-white">Select & evolve:</span> Best equations breed, mutate, crossover</div>
