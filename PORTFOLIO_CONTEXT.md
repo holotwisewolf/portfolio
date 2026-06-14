@@ -250,6 +250,74 @@ The portfolio should feel like:
 
 ---
 
+## Gallery Items (Art Showcase)
+
+### Item 1: Interactive Peony (p5.js)
+
+**Type:** Interactive 3D flower with multiple render modes  
+**Tech:** p5.js, vanilla JavaScript  
+**Features:**
+- 3D peony flower (stem, leaves, petals, center)
+- 3 render modes: ASCII characters → dots → squares
+- Mouse-controlled 3D rotation
+- Glitch effects (slice displacement, color shifting)
+- Brutalist loading screen with progress bar
+- Grows, blooms, wilts, transitions automatically
+
+**Aesthetic notes:**
+- Black background (#000)
+- Pink/magenta flower palette
+- Courier New monospace font
+- ASCII characters: `@#$%&*0123456789`
+- Smooth easing functions (easeInOutCubic, easeOutQuart)
+- Dark, brutalist foundation with organic subject rendered digitally
+
+**Code (save for integration):**
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peonia</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; height: 100vh; width: 100vw; }
+    canvas { display: block; }
+    #canvas-container { width: 100%; height: 100%; }
+    #loader {
+      position: fixed; inset: 0; z-index: 999; background: #000;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      transition: opacity 0.8s ease;
+    }
+    #loader.fade { opacity: 0; pointer-events: none; }
+    #loader .title {
+      color: #fff; font-family: 'Courier New', monospace;
+      font-size: 14px; letter-spacing: 4px; opacity: 0.7; margin-bottom: 24px;
+    }
+    #loader .bar-bg { width: 180px; height: 3px; background: #222; border-radius: 2px; overflow: hidden; }
+    #loader .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #c77, #e9b); transition: width 0.15s; }
+    #loader .pct { color: #555; font-family: 'Courier New', monospace; font-size: 11px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="loader">
+    <div class="title">LOADING</div>
+    <div class="bar-bg"><div class="bar-fill" id="loader-bar"></div></div>
+    <div class="pct" id="loader-pct">0%</div>
+  </div>
+  <!-- Full p5.js sketch code here - see saved file for complete implementation -->
+</body>
+</html>
+```
+
+**To integrate:** Embed as iframe or adapt p5.js sketch to React component when gallery feature is built.
+
+---
+
 **Remember:** The user wants to start fresh sessions with full context. Update this file when:
 - Major architecture changes happen
 - New patterns are established
