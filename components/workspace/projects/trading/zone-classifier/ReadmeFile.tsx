@@ -17,7 +17,7 @@ export default function ReadmeFile() {
         Market regime classification using symbolic regression. Three zones, one formula, zero black boxes.
       </p>
 
-      <div className="grid grid-cols-3 gap-0 border-t border-l border-[#1c2e1c]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-[#1c2e1c]">
         <div className="border-r border-b border-[#1c2e1c] p-3">
           <div className="text-[9px] tracking-[0.25em] text-[#444] mb-1">RESEARCH GOAL</div>
           <div className="text-[11px] text-gray-300">Discover interpretable entry signals without black-box models</div>

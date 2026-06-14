@@ -6,7 +6,7 @@ export default function MethodologyFile() {
 
       <div className="border border-[#1c2e1c] p-3">
         <div className="text-[9px] tracking-[0.3em] text-[#444] mb-3">FEATURE ENGINEERING — 68 FEATURES</div>
-        <div className="grid grid-cols-4 gap-0 border-t border-l border-[#1c2e1c]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-[#1c2e1c]">
           {[
             { name: 'ZONE METRICS', count: 7, items: 'num_candles, duration, zone_high/low, range' },
             { name: 'VOLUME DYNAMICS', count: 17, items: 'volume_diff, roc, trend, stddev, acceleration' },

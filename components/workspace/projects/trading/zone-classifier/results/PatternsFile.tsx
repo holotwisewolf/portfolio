@@ -12,7 +12,7 @@ export default function ResultsPatternsFile() {
         Click any candle to see details. Examples show how each zone pattern appears in real market data.
       </p>
 
-      <div className="grid grid-cols-3 gap-0 border-t border-l border-[#1c2e1c]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-t border-l border-[#1c2e1c]">
         <div className="border-r border-b border-[#1c2e1c] p-3">
           <div className="text-[10px] tracking-[0.2em] text-[#00ff9d] mb-1">BREAKOUT ZONE</div>
           <div className="text-[10px] text-[#444] mb-3">Volume surge + expansion = entry signal</div>

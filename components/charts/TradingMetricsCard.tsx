@@ -29,13 +29,15 @@ export default function TradingMetricsCard({ title, metrics, children, className
         {title}
       </div>
 
-      <div className="grid grid-cols-4 gap-0 border-b border-[#1c2e1c]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-b border-[#1c2e1c]">
         {metrics.map((metric, i) => {
           const color = metric.color || COLOR_MAP[metric.trend || 'neutral']
           return (
             <div
               key={i}
-              className={`p-2 ${i < metrics.length - 1 ? 'border-r border-[#1c2e1c]' : ''}`}
+              className={`p-2 ${i < metrics.length - 1 ? 'border-r border-[#1c2e1c]' : ''} ${
+                i % 2 === 1 ? 'md:border-r' : ''
+              } ${i < metrics.length - 2 ? 'border-b md:border-b-0' : ''}`}
             >
               <div className="text-[8px] tracking-[0.25em] text-[#444] mb-1">{metric.label}</div>
               <div className="text-[12px] font-mono" style={{ color }}>

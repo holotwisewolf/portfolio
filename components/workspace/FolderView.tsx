@@ -54,7 +54,7 @@ export default function FolderView({ path }: Props) {
           EMPTY DIRECTORY
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-0 border-t border-l border-[#1c2e1c]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-0 border-t border-l border-[#1c2e1c]">
           {children.map((child) => (
             <button
               key={child.name}

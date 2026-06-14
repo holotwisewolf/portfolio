@@ -15,7 +15,7 @@ export default function FeaturesFile() {
       <div className="text-[9px] tracking-[0.3em] text-[#444]">// FEATURES.md</div>
       <h1 className="text-[26px] tracking-[0.15em] text-white">FEATURES <span className="text-[#444] text-[14px]">[68 TOTAL]</span></h1>
 
-      <div className="grid grid-cols-2 gap-0 border-t border-l border-[#1c2e1c]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-t border-l border-[#1c2e1c]">
         {CATEGORIES.map((cat) => (
           <div key={cat.name} className="border-r border-b border-[#1c2e1c] p-3">
             <div className="flex justify-between items-baseline mb-2">
