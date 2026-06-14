@@ -11,9 +11,13 @@ import CustomCursor from '@/components/ui/CustomCursor'
 import StatusBar from '@/components/ui/StatusBar'
 import PixelBackground from '@/components/ui/PixelBackground'
 import { ExplosionModeProvider, ExplosionModeContext } from '@/contexts/ExplosionModeContext'
+import WorkspaceContainer from '@/components/workspace/WorkspaceContainer'
+import WorkspaceTransition from '@/components/workspace/WorkspaceTransition'
 
 function AppContent() {
   const windows = useWindowStore((s) => s.windows)
+  const activeWorkspace = useWindowStore((s) => s.activeWorkspace)
+  const workspaceTransitioning = useWindowStore((s) => s.workspaceTransitioning)
   const openWindows = Object.values(windows).filter(w => w.isOpen && !w.isMinimized)
   const { explosionMode } = useContext(ExplosionModeContext)!
 
@@ -21,39 +25,54 @@ function AppContent() {
     <>
       <div className="h-screen w-screen overflow-hidden relative flex flex-col">
         <StatusBar />
-        <div className="flex-1 flex min-h-0">
-          {/* Left Panel - Profile */}
-          <div className="w-[280px] flex-shrink-0 border-r border-white bg-black relative z-10">
-            <ProfilePanel />
-          </div>
+        {workspaceTransitioning || activeWorkspace ? null : (
+          <div className="flex-1 flex min-h-0">
+            {/* Left Panel - Profile */}
+            <div className="w-[280px] flex-shrink-0 border-r border-white bg-black relative z-10">
+              <ProfilePanel />
+            </div>
 
-          {/* Center Panel - Desktop */}
-          <div className="flex-1 relative z-0">
-            <PixelBackground explosionMode={explosionMode} />
-            <div className="absolute inset-0">
-              <Desktop />
+            {/* Center Panel - Desktop */}
+            <div className="flex-1 relative z-0">
+              <PixelBackground explosionMode={explosionMode} />
+              <div className="absolute inset-0">
+                <Desktop />
+              </div>
+            </div>
+
+            {/* Right Panel - Market+Dev */}
+            <div className="w-[320px] flex-shrink-0 border-l border-white bg-black relative z-10">
+              <StockCharts />
             </div>
           </div>
+        )}
 
-          {/* Right Panel - Market+Dev */}
-          <div className="w-[320px] flex-shrink-0 border-l border-white bg-black relative z-10">
-            <StockCharts />
+        {activeWorkspace && !workspaceTransitioning && (
+          <div className="flex-1 min-h-0 relative">
+            <WorkspaceContainer />
           </div>
-        </div>
+        )}
 
-        {/* Windows - separate layer above all panels */}
-        <div className="absolute inset-0 pointer-events-none z-[10002]" style={{ top: '24px' }}>
-          {openWindows.map((window) => (
-            <div key={window.id} className="pointer-events-auto">
-              <Window windowId={window.id as any} />
-            </div>
-          ))}
-        </div>
+        {/* Windows - separate layer above all panels (hidden during workspace) */}
+        {!activeWorkspace && !workspaceTransitioning && (
+          <div className="absolute inset-0 pointer-events-none z-[10002]" style={{ top: '24px' }}>
+            {openWindows.map((window) => (
+              <div key={window.id} className="pointer-events-auto">
+                <Window windowId={window.id as any} />
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* Terminal Bar - Full Width */}
-        <div className="relative z-20">
-          <TerminalBar />
-        </div>
+        {/* Transition overlay - above everything */}
+        {workspaceTransitioning && <WorkspaceTransition />}
+
+        {/* Terminal Bar - Full Width (hidden during transition, visible in workspace) */}
+        {!workspaceTransitioning && (
+          <div className="relative z-20">
+            <TerminalBar />
+          </div>
+        )}
         <CustomCursor />
       </div>
     </>

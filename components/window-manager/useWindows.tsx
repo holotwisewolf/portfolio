@@ -75,6 +75,9 @@ interface WindowStore {
   windows: Record<string, WindowState>
   activeWindow: WindowId | null
   maxZIndex: number
+  activeWorkspace: boolean
+  workspacePath: string[]
+  workspaceTransitioning: boolean
   openWindow: (id: WindowId) => void
   closeWindow: (id: WindowId) => void
   minimizeWindow: (id: WindowId) => void
@@ -85,6 +88,10 @@ interface WindowStore {
   updateWindowSize: (id: WindowId, size: { width: number; height: number }) => void
   updateLoadProgress: (id: WindowId, progress: number) => void
   setLoadingComplete: (id: WindowId) => void
+  openWorkspace: (initialPath?: string[]) => void
+  closeWorkspace: () => void
+  navigateWorkspace: (path: string[]) => void
+  completeWorkspaceTransition: () => void
 }
 
 export const useWindowStore = create<WindowStore>()(
@@ -93,6 +100,9 @@ export const useWindowStore = create<WindowStore>()(
       windows: {},
       activeWindow: null,
       maxZIndex: 100,
+      activeWorkspace: false,
+      workspacePath: [],
+      workspaceTransitioning: false,
 
       openWindow: (id) => {
         const content = windowContentRegistry.get(id)
@@ -289,6 +299,32 @@ export const useWindowStore = create<WindowStore>()(
             },
           },
         }))
+      },
+
+      openWorkspace: (initialPath) => {
+        set({
+          workspaceTransitioning: true,
+          workspacePath: initialPath ?? [],
+        })
+      },
+
+      completeWorkspaceTransition: () => {
+        set({
+          workspaceTransitioning: false,
+          activeWorkspace: true,
+        })
+      },
+
+      closeWorkspace: () => {
+        set({
+          activeWorkspace: false,
+          workspaceTransitioning: false,
+          workspacePath: [],
+        })
+      },
+
+      navigateWorkspace: (path) => {
+        set({ workspacePath: path })
       },
     }),
     {

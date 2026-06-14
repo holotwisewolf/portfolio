@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useWindowStore } from '@/components/window-manager/useWindows'
 
 export default function StatusBar() {
   const [isConnected, setIsConnected] = useState(true)
   const [latency, setLatency] = useState(0)
   const [time, setTime] = useState('')
   const [connections, setConnections] = useState(1) // Start with 1 (you)
+  const activeWorkspace = useWindowStore((s) => s.activeWorkspace)
+  const workspaceTransitioning = useWindowStore((s) => s.workspaceTransitioning)
 
   // Measure actual network latency
   useEffect(() => {
@@ -59,12 +62,22 @@ export default function StatusBar() {
       <div className="flex items-center gap-4">
         <span className="text-white font-bold">&gt; PORTFOLIO</span>
         <span className="text-gray-500">|</span>
-        <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
-          {isConnected ? 'SERVER_ONLINE' : 'SERVER_OFFLINE'}
-        </span>
-        <span className="text-gray-500">LATENCY: {latency}ms</span>
-        <span className="text-gray-400">|</span>
-        <span className="text-gray-300">CONNECTIONS: {connections}</span>
+        {workspaceTransitioning ? (
+          <span className="text-[#00ff9d]">CONNECTING...</span>
+        ) : activeWorkspace ? (
+          <span className="text-[#00ff9d]">IN PROJECTS</span>
+        ) : (
+          <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
+            {isConnected ? 'SERVER_ONLINE' : 'SERVER_OFFLINE'}
+          </span>
+        )}
+        {!activeWorkspace && !workspaceTransitioning && (
+          <>
+            <span className="text-gray-500">LATENCY: {latency}ms</span>
+            <span className="text-gray-400">|</span>
+            <span className="text-gray-300">CONNECTIONS: {connections}</span>
+          </>
+        )}
       </div>
       <div className="flex items-center gap-4">
         <span className="text-gray-500">{time || '--:--:--'}</span>
