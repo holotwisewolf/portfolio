@@ -24,7 +24,7 @@ export default function WorkspaceContainer() {
 
   return (
     <div
-      className="absolute inset-0 bg-[#0a0a0a] flex flex-col overflow-hidden font-orbit workspace-crt"
+      className="absolute inset-0 bg-[#0a0a0a] flex flex-col overflow-hidden font-orbit"
     >
       <WorkspaceBreadcrumb path={workspacePath} onExit={closeWorkspace} />
 
@@ -33,7 +33,7 @@ export default function WorkspaceContainer() {
         <FileContentView path={workspacePath} />
       </div>
 
-      {/* CRT overlay — flicker + scanlines + RGB shift, above content but below interactive */}
+      {/* CRT overlay — flicker + scanlines */}
       <div className="pointer-events-none absolute inset-0 z-[100]" aria-hidden>
         <div className="absolute inset-0 workspace-flicker" />
         <div className="absolute inset-0 workspace-scanlines" />
