@@ -63,8 +63,8 @@ function getCellsHiddenAtStage(stage: number): boolean[] {
     ;[indices[i], indices[j]] = [indices[j], indices[i]]
   }
 
-  // Hide counts per stage
-  const hideCounts = [0, 8, 16, 24, 30] // stage 0-4
+  // Hide counts per stage — less aggressive, ~17% / 33% / 50% before full dissolve
+  const hideCounts = [0, 5, 10, 15, 30] // stage 0-4
   const hideCount = hideCounts[Math.min(stage, 4)]
 
   const hidden = new Array(TOTAL_CELLS).fill(false)
@@ -191,7 +191,7 @@ export default function WorkspaceTransition() {
     if (stage === 0) return { main: 'WAITING FOR SRC01', sub: undefined }
     if (stage >= 1 && stage <= 3) {
       return {
-        main: `CONNECTING${'.'.repeat(stage)}`,
+        main: `CONNECTING${' .' .repeat(stage)}`,
         sub: 'SIGNAL • ###',
       }
     }
@@ -212,57 +212,97 @@ export default function WorkspaceTransition() {
       {/* ESTABLISHED or RECEIVING state — full screen, no split */}
       {(isEstablished || isReceiving) && !fadingOut && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-8">
-          {/* Small accent square at top (established state) */}
+          {/* Small accent square at top (established state only) */}
           {isEstablished && (
-            <div className="w-3 h-3 bg-[#00ff9d] mb-4" />
+            <>
+              <div className="w-3 h-3 bg-[#00ff9d] mb-4" />
+              <div className="border border-white px-6 py-3">
+                <div className="text-white text-[14px] sm:text-[18px] tracking-[0.3em] font-orbit text-center">
+                  {glitchText('CHANNEL ESTABLISHED', 7)}
+                </div>
+              </div>
+            </>
           )}
 
-          {/* Text box */}
-          <div className="border border-white px-6 py-3">
-            <div className="text-white text-[14px] sm:text-[18px] tracking-[0.3em] font-orbit text-center">
-              {isReceiving ? 'RECEIVING SRC' : glitchText('CHANNEL ESTABLISHED', 7)}
-            </div>
-          </div>
-
-          {/* Three rectangles for RECEIVING state */}
+          {/* Three rectangles for RECEIVING state — text in middle, content with bold PRAXIS text */}
           {isReceiving && (
-            <div className="w-full max-w-[800px] flex flex-col items-center gap-3 mt-4">
+            <div className="w-full max-w-[900px] flex flex-col items-center gap-4 mt-4">
               {/* Top wide rectangle */}
               <div
-                className="w-[80%] h-[80px] border border-white relative overflow-hidden transition-all duration-300"
+                className="w-[80%] h-[100px] border border-white relative overflow-hidden transition-all duration-300"
                 style={{
                   opacity: rectsShown >= 1 ? 1 : 0,
                   transform: rectsShown >= 1 ? 'translateY(0)' : 'translateY(20px)',
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/10 to-[#00cc77]/5" />
-                <div className="absolute top-2 left-3 text-[9px] text-[#666] font-orbit tracking-[0.3em]">PRAXIS / 01</div>
-                <div className="absolute bottom-2 right-3 text-[8px] text-[#444] font-orbit">[ STREAM 01 ]</div>
+                {/* Static-like content background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/15 via-[#00cc77]/8 to-transparent" />
+                <div className="absolute inset-0 opacity-30"
+                  style={{
+                    backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,255,157,0.1) 2px, rgba(0,255,157,0.1) 3px),
+                                       repeating-linear-gradient(90deg, transparent 0, transparent 8px, rgba(255,255,255,0.05) 8px, rgba(255,255,255,0.05) 9px)`,
+                  }}
+                />
+                {/* Bold PRAXIS title */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-white text-[22px] sm:text-[28px] tracking-[0.15em] font-orbit font-bold">
+                    PRAXIS ENTERPRISE
+                  </div>
+                </div>
+                <div className="absolute top-2 left-3 text-[9px] text-[#00ff9d] font-orbit tracking-[0.3em]">PROJECT AR2 / 01</div>
+                <div className="absolute bottom-2 right-3 text-[8px] text-[#666] font-orbit">[ STREAM 01 ]</div>
+              </div>
+
+              {/* RECEIVING SRC text in middle */}
+              <div className="border border-white px-6 py-2 my-1">
+                <div className="text-white text-[12px] tracking-[0.4em] font-orbit text-center">
+                  RECEIVING SRC
+                </div>
               </div>
 
               {/* Bottom two rectangles */}
-              <div className="flex gap-3 w-full justify-center">
+              <div className="flex gap-4 w-full justify-center">
                 <div
-                  className="w-[40%] h-[80px] border border-white relative overflow-hidden transition-all duration-300"
+                  className="w-[40%] h-[100px] border border-white relative overflow-hidden transition-all duration-300"
                   style={{
                     opacity: rectsShown >= 2 ? 1 : 0,
                     transform: rectsShown >= 2 ? 'translateY(0)' : 'translateY(20px)',
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00cc77]/10 to-transparent" />
-                  <div className="absolute top-2 left-3 text-[9px] text-[#666] font-orbit tracking-[0.3em]">PRAXIS / 02</div>
-                  <div className="absolute bottom-2 right-3 text-[8px] text-[#444] font-orbit">[ STREAM 02 ]</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00cc77]/15 via-[#00ff9d]/5 to-transparent" />
+                  <div className="absolute inset-0 opacity-30"
+                    style={{
+                      backgroundImage: `repeating-linear-gradient(45deg, transparent 0, transparent 4px, rgba(0,255,157,0.08) 4px, rgba(0,255,157,0.08) 5px)`,
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-[16px] sm:text-[20px] tracking-[0.15em] font-orbit font-bold">
+                      PRAXIS / 02
+                    </div>
+                  </div>
+                  <div className="absolute top-2 left-3 text-[9px] text-[#00ff9d] font-orbit tracking-[0.3em]">PROJECT AR2</div>
+                  <div className="absolute bottom-2 right-3 text-[8px] text-[#666] font-orbit">[ STREAM 02 ]</div>
                 </div>
                 <div
-                  className="w-[40%] h-[80px] border border-white relative overflow-hidden transition-all duration-300"
+                  className="w-[40%] h-[100px] border border-white relative overflow-hidden transition-all duration-300"
                   style={{
                     opacity: rectsShown >= 3 ? 1 : 0,
                     transform: rectsShown >= 3 ? 'translateY(0)' : 'translateY(20px)',
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/10 to-transparent" />
-                  <div className="absolute top-2 left-3 text-[9px] text-[#666] font-orbit tracking-[0.3em]">PRAXIS / 03</div>
-                  <div className="absolute bottom-2 right-3 text-[8px] text-[#444] font-orbit">[ STREAM 03 ]</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/15 via-[#00cc77]/5 to-transparent" />
+                  <div className="absolute inset-0 opacity-30"
+                    style={{
+                      backgroundImage: `repeating-linear-gradient(-45deg, transparent 0, transparent 4px, rgba(0,255,157,0.08) 4px, rgba(0,255,157,0.08) 5px)`,
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-[16px] sm:text-[20px] tracking-[0.15em] font-orbit font-bold">
+                      PRAXIS / 03
+                    </div>
+                  </div>
+                  <div className="absolute top-2 left-3 text-[9px] text-[#00ff9d] font-orbit tracking-[0.3em]">PROJECT AR2</div>
+                  <div className="absolute bottom-2 right-3 text-[8px] text-[#666] font-orbit">[ STREAM 03 ]</div>
                 </div>
               </div>
             </div>
@@ -297,7 +337,7 @@ export default function WorkspaceTransition() {
             {/* Pixel flower underneath */}
             <PixelFlowerCanvas />
 
-            {/* Grid overlay — cells hide flower as stage progresses */}
+            {/* Grid overlay — cells hide flower as stage progresses. Grid frame stays visible */}
             <div
               className="absolute inset-0 grid"
               style={{
@@ -308,8 +348,8 @@ export default function WorkspaceTransition() {
               {hiddenCells.map((hidden, i) => (
                 <div
                   key={i}
-                  className={`border border-white/15 transition-colors duration-300 ${
-                    hidden ? 'bg-[#0a1a0a]' : 'bg-transparent'
+                  className={`border border-white/40 transition-colors duration-300 ${
+                    hidden ? 'bg-black' : 'bg-transparent'
                   }`}
                 />
               ))}
