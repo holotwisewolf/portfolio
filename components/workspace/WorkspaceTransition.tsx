@@ -1,65 +1,155 @@
 'use client'
 
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useWindowStore } from '@/components/window-manager/useWindows'
 
-const GRID_W = 28
-const GRID_H = 22
-const STAGE_DELAY = 450
-const FINAL_HOLD = 250
-const ESC_KEY = 'Escape'
+const GRID_COLS = 5
+const GRID_ROWS = 6
+const TOTAL_CELLS = GRID_COLS * GRID_ROWS
 
-const BOOT_LINES = [
-  '> INITIALIZING SESSION',
-  '> LOADING filesystem',
-  '> MOUNTING projects/',
-]
+const FLOWER_COLS = 60
+const FLOWER_ROWS = 40
 
-// Generate a flower-like pattern in the grid.
-// Returns boolean[] where true = filled cell.
-function generateFlowerGrid(): boolean[] {
-  const cells: boolean[] = []
-  const cx = GRID_W / 2
-  const cy = GRID_H / 2
-
-  for (let y = 0; y < GRID_H; y++) {
-    for (let x = 0; x < GRID_W; x++) {
-      const dx = x - cx
-      const dy = (y - cy) * 1.1
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      const angle = Math.atan2(dy, dx)
-
-      // 6-petal flower: r = base + amplitude * sin(petals * angle)
-      const petalRadius = 6.5 + Math.sin(angle * 6) * 2.2
-      const inFlower = dist < petalRadius
-
-      // Tighter inner ring (the flower center)
-      const inCenter = dist < 1.8
-
-      // Sparse outer halo for atmosphere
-      const haloChance = dist < 9.5 && dist > petalRadius ? 0.12 : 0
-      const inHalo = haloChance > 0 && pseudoRandom(x, y) < haloChance
-
-      cells.push(inFlower || inCenter || inHalo)
-    }
-  }
-  return cells
+const STAGE_DELAYS = {
+  waiting: 0,
+  dot1: 500,
+  dot2: 1000,
+  dot3: 1500,
+  established: 2000,
+  rect1: 2400,
+  rect2: 2650,
+  rect3: 2900,
+  fadeOut: 3300,
+  complete: 3600,
 }
 
-// Deterministic pseudo-random for stable initial pattern across renders
+const ESC_KEY = 'Escape'
+
+// Deterministic pseudo-random for stable patterns
 function pseudoRandom(x: number, y: number): number {
   const n = (x * 928371 + y * 1234567) % 233280
   return n / 233280
+}
+
+// Glitch text: randomly replace letters with X
+function glitchText(text: string, seed: number): string {
+  return text
+    .split('')
+    .map((char, i) => {
+      if (char === ' ') return ' '
+      // Use deterministic seed for stable output
+      const r = pseudoRandom(i, seed)
+      return r < 0.3 ? 'X' : char
+    })
+    .join('')
+}
+
+interface Stage {
+  visibleCells: boolean[]
+  leftText: string
+  leftSubText?: string
+  showRightPanel: boolean
+  showRectangles: number // 0, 1, 2, 3
+  isEstablished: boolean
+}
+
+// Pick which cells to hide at each stage (deterministic for stable animation)
+function getCellsHiddenAtStage(stage: number): boolean[] {
+  // Create array of cell indices shuffled deterministically
+  const indices = Array.from({ length: TOTAL_CELLS }, (_, i) => i)
+  // Simple deterministic shuffle
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(pseudoRandom(i, 42) * (i + 1))
+    ;[indices[i], indices[j]] = [indices[j], indices[i]]
+  }
+
+  // Hide counts per stage
+  const hideCounts = [0, 8, 16, 24, 30] // stage 0-4
+  const hideCount = hideCounts[Math.min(stage, 4)]
+
+  const hidden = new Array(TOTAL_CELLS).fill(false)
+  for (let i = 0; i < hideCount; i++) {
+    hidden[indices[i]] = true
+  }
+  return hidden
+}
+
+function PixelFlowerCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Set canvas size to match display size
+    const rect = canvas.getBoundingClientRect()
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = rect.width * dpr
+    canvas.height = rect.height * dpr
+    ctx.scale(dpr, dpr)
+
+    const cellW = rect.width / FLOWER_COLS
+    const cellH = rect.height / FLOWER_ROWS
+
+    const cx = FLOWER_COLS / 2
+    const cy = FLOWER_ROWS / 2
+
+    // Draw peony-like pixel flower
+    for (let y = 0; y < FLOWER_ROWS; y++) {
+      for (let x = 0; x < FLOWER_COLS; x++) {
+        const dx = x - cx
+        const dy = (y - cy) * 1.05
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        const angle = Math.atan2(dy, dx)
+
+        // Multi-layer petal shape (peony-like — dense, ruffled)
+        const petal1 = Math.sin(angle * 5) * 2.5
+        const petal2 = Math.sin(angle * 7 + 0.5) * 1.5
+        const petal3 = Math.sin(angle * 3 - 0.3) * 1.0
+        const outerRadius = 14 + petal1 + petal2 + petal3
+
+        let brightness = 0
+        let r = 0, g = 255, b = 157 // Site green
+
+        if (dist < 2.5) {
+          // Bright center
+          brightness = 1.0
+        } else if (dist < outerRadius) {
+          // Main flower body — varies with distance
+          brightness = 1.0 - (dist / outerRadius) * 0.5
+          // Add organic noise
+          brightness += pseudoRandom(x, y) * 0.2 - 0.1
+          // Shift color slightly for depth
+          if (dist > outerRadius * 0.6) {
+            // Outer petals — more muted
+            r = 0; g = 200; b = 120
+          }
+        } else if (dist < outerRadius + 1.5) {
+          // Edge halo — sparse
+          if (pseudoRandom(x, y) > 0.5) {
+            brightness = 0.25 + pseudoRandom(x + 7, y + 3) * 0.2
+          }
+        }
+
+        if (brightness > 0) {
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${brightness})`
+          // Small square pixel with tiny gap
+          ctx.fillRect(x * cellW + 0.5, y * cellH + 0.5, cellW * 0.85, cellH * 0.85)
+        }
+      }
+    }
+  }, [])
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 }
 
 export default function WorkspaceTransition() {
   const completeWorkspaceTransition = useWindowStore((s) => s.completeWorkspaceTransition)
   const closeWorkspace = useWindowStore((s) => s.closeWorkspace)
 
-  const initialGrid = useMemo(() => generateFlowerGrid(), [])
-  const [visibleCells, setVisibleCells] = useState<boolean[]>(initialGrid)
-  const [dots, setDots] = useState(0)
-  const [visibleBootLines, setVisibleBootLines] = useState(0)
+  const [stage, setStage] = useState(0)
   const [rectsShown, setRectsShown] = useState(0)
   const [fadingOut, setFadingOut] = useState(false)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -70,35 +160,15 @@ export default function WorkspaceTransition() {
       timers.current.push(t)
     }
 
-    // Stage 1: first dot, drop ~30% of currently visible cells
-    addTimer(() => {
-      setDots(1)
-      setVisibleBootLines(1)
-      setVisibleCells((prev) => prev.map((c) => c && Math.random() > 0.3))
-    }, STAGE_DELAY)
-
-    // Stage 2: second dot, drop another ~40%
-    addTimer(() => {
-      setDots(2)
-      setVisibleBootLines(2)
-      setVisibleCells((prev) => prev.map((c) => c && Math.random() > 0.4))
-    }, STAGE_DELAY * 2)
-
-    // Stage 3: third dot, drop another ~60% (most cells now gone)
-    addTimer(() => {
-      setDots(3)
-      setVisibleBootLines(3)
-      setVisibleCells((prev) => prev.map((c) => c && Math.random() > 0.6))
-    }, STAGE_DELAY * 3)
-
-    // Three rectangles appear one after another after grid is dissolved
-    addTimer(() => setRectsShown(1), STAGE_DELAY * 3 + 150)
-    addTimer(() => setRectsShown(2), STAGE_DELAY * 3 + 350)
-    addTimer(() => setRectsShown(3), STAGE_DELAY * 3 + 550)
-
-    // Fade out + complete
-    addTimer(() => setFadingOut(true), STAGE_DELAY * 3 + 850)
-    addTimer(() => completeWorkspaceTransition(), STAGE_DELAY * 3 + 850 + FINAL_HOLD)
+    addTimer(() => setStage(1), STAGE_DELAYS.dot1)
+    addTimer(() => setStage(2), STAGE_DELAYS.dot2)
+    addTimer(() => setStage(3), STAGE_DELAYS.dot3)
+    addTimer(() => setStage(4), STAGE_DELAYS.established)
+    addTimer(() => setRectsShown(1), STAGE_DELAYS.rect1)
+    addTimer(() => setRectsShown(2), STAGE_DELAYS.rect2)
+    addTimer(() => setRectsShown(3), STAGE_DELAYS.rect3)
+    addTimer(() => setFadingOut(true), STAGE_DELAYS.fadeOut)
+    addTimer(() => completeWorkspaceTransition(), STAGE_DELAYS.complete)
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === ESC_KEY) {
@@ -114,114 +184,164 @@ export default function WorkspaceTransition() {
     }
   }, [completeWorkspaceTransition, closeWorkspace])
 
-  const dotsFilled = '.'.repeat(dots)
-  const dotsEmpty = '.'.repeat(3 - dots)
+  const hiddenCells = useMemo(() => getCellsHiddenAtStage(stage), [stage])
+
+  // Determine text content based on stage
+  const getLeftText = () => {
+    if (stage === 0) return { main: 'WAITING FOR SRC01', sub: undefined }
+    if (stage >= 1 && stage <= 3) {
+      return {
+        main: `CONNECTING${'.'.repeat(stage)}`,
+        sub: 'SIGNAL • ###',
+      }
+    }
+    if (stage === 4) return { main: 'CHANNEL ESTABLISHED', sub: undefined, glitch: true }
+    return { main: 'RECEIVING SRC', sub: undefined }
+  }
+
+  const text = getLeftText()
+  const isReceiving = stage >= 4 && rectsShown > 0
+  const isEstablished = stage === 4 && rectsShown === 0
 
   return (
     <div
-      className={`fixed inset-0 z-[20000] bg-black flex transition-opacity duration-200 ${
+      className={`fixed inset-0 z-[20000] bg-black flex transition-opacity duration-300 ${
         fadingOut ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      {/* LEFT — status text */}
-      <div className="flex-1 flex flex-col justify-center pl-12 sm:pl-20 pr-4">
-        <div className="text-[#00ff9d] text-[16px] sm:text-[20px] tracking-[0.4em] mb-6 whitespace-nowrap">
-          CONNECTING<span className="text-[#00ff9d]">{dotsFilled}</span>
-          <span className="text-[#1c2e1c]">{dotsEmpty}</span>
-        </div>
+      {/* ESTABLISHED or RECEIVING state — full screen, no split */}
+      {(isEstablished || isReceiving) && !fadingOut && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-8">
+          {/* Small accent square at top (established state) */}
+          {isEstablished && (
+            <div className="w-3 h-3 bg-[#00ff9d] mb-4" />
+          )}
 
-        <div className="space-y-1 mb-8 min-h-[80px]">
-          {BOOT_LINES.slice(0, visibleBootLines).map((line, i) => (
-            <div key={i} className="text-[#666] text-[10px] sm:text-[11px] tracking-[0.2em] font-orbit">
-              {line}
+          {/* Text box */}
+          <div className="border border-white px-6 py-3">
+            <div className="text-white text-[14px] sm:text-[18px] tracking-[0.3em] font-orbit text-center">
+              {isReceiving ? 'RECEIVING SRC' : glitchText('CHANNEL ESTABLISHED', 7)}
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Progress bar */}
-        <div className="w-[200px] h-[2px] bg-[#1c2e1c] mb-2">
-          <div
-            className="h-full bg-[#00ff9d] transition-[width] duration-200 ease-linear"
-            style={{ width: `${(dots / 3) * 100}%` }}
-          />
-        </div>
-        <div className="text-[#444] text-[9px] tracking-[0.3em] font-orbit">
-          STAGE {dots} / 3
-        </div>
-      </div>
-
-      {/* RIGHT — animated pixel flower grid + final rectangles */}
-      <div className="hidden md:flex w-[40%] lg:w-[45%] items-center justify-center relative">
-        <div
-          className="grid gap-[1px]"
-          style={{
-            gridTemplateColumns: `repeat(${GRID_W}, 1fr)`,
-            gridTemplateRows: `repeat(${GRID_H}, 1fr)`,
-          }}
-        >
-          {visibleCells.map((visible, i) => {
-            const x = i % GRID_W
-            const y = Math.floor(i / GRID_W)
-            const cx = GRID_W / 2
-            const cy = GRID_H / 2
-            const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2)
-            // Cells closer to center are brighter
-            const brightness = Math.max(0.3, 1 - dist / 12)
-            return (
+          {/* Three rectangles for RECEIVING state */}
+          {isReceiving && (
+            <div className="w-full max-w-[800px] flex flex-col items-center gap-3 mt-4">
+              {/* Top wide rectangle */}
               <div
-                key={i}
-                className="w-[8px] h-[8px] sm:w-[10px] sm:h-[10px] lg:w-[12px] lg:h-[12px] transition-opacity duration-300"
+                className="w-[80%] h-[80px] border border-white relative overflow-hidden transition-all duration-300"
                 style={{
-                  backgroundColor: visible ? '#00ff9d' : 'transparent',
-                  opacity: visible ? brightness : 0,
-                }}
-              />
-            )
-          })}
-        </div>
-
-        {/* Three rectangles appearing in sequence after grid dissolves */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
-          {[0, 1, 2].map((idx) => {
-            const shown = rectsShown > idx
-            return (
-              <div
-                key={idx}
-                className="border border-[#00ff9d] bg-black"
-                style={{
-                  width: '60%',
-                  maxWidth: '280px',
-                  height: '12px',
-                  opacity: shown ? 1 : 0,
-                  transform: shown ? 'scaleX(1)' : 'scaleX(0)',
-                  transformOrigin: 'left center',
-                  transition: 'opacity 200ms ease-out, transform 250ms ease-out',
-                  transitionDelay: shown ? '0ms' : '0ms',
+                  opacity: rectsShown >= 1 ? 1 : 0,
+                  transform: rectsShown >= 1 ? 'translateY(0)' : 'translateY(20px)',
                 }}
               >
-                <div
-                  className="h-full bg-[#00ff9d]"
-                  style={{
-                    width: shown ? '100%' : '0%',
-                    transition: 'width 300ms ease-out',
-                  }}
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/10 to-[#00cc77]/5" />
+                <div className="absolute top-2 left-3 text-[9px] text-[#666] font-orbit tracking-[0.3em]">PRAXIS / 01</div>
+                <div className="absolute bottom-2 right-3 text-[8px] text-[#444] font-orbit">[ STREAM 01 ]</div>
               </div>
-            )
-          })}
+
+              {/* Bottom two rectangles */}
+              <div className="flex gap-3 w-full justify-center">
+                <div
+                  className="w-[40%] h-[80px] border border-white relative overflow-hidden transition-all duration-300"
+                  style={{
+                    opacity: rectsShown >= 2 ? 1 : 0,
+                    transform: rectsShown >= 2 ? 'translateY(0)' : 'translateY(20px)',
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00cc77]/10 to-transparent" />
+                  <div className="absolute top-2 left-3 text-[9px] text-[#666] font-orbit tracking-[0.3em]">PRAXIS / 02</div>
+                  <div className="absolute bottom-2 right-3 text-[8px] text-[#444] font-orbit">[ STREAM 02 ]</div>
+                </div>
+                <div
+                  className="w-[40%] h-[80px] border border-white relative overflow-hidden transition-all duration-300"
+                  style={{
+                    opacity: rectsShown >= 3 ? 1 : 0,
+                    transform: rectsShown >= 3 ? 'translateY(0)' : 'translateY(20px)',
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/10 to-transparent" />
+                  <div className="absolute top-2 left-3 text-[9px] text-[#666] font-orbit tracking-[0.3em]">PRAXIS / 03</div>
+                  <div className="absolute bottom-2 right-3 text-[8px] text-[#444] font-orbit">[ STREAM 03 ]</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+      )}
 
-        {/* Corner brackets — eDEX-UI vibe */}
-        <div className="absolute top-6 left-6 w-4 h-4 border-t border-l border-[#1c2e1c]" />
-        <div className="absolute top-6 right-6 w-4 h-4 border-t border-r border-[#1c2e1c]" />
-        <div className="absolute bottom-6 left-6 w-4 h-4 border-b border-l border-[#1c2e1c]" />
-        <div className="absolute bottom-6 right-6 w-4 h-4 border-b border-r border-[#1c2e1c]" />
-      </div>
+      {/* Split-screen layout for stages 0-3 */}
+      {stage < 4 && (
+        <>
+          {/* LEFT — text panel */}
+          <div className="w-1/2 flex items-center justify-center p-8 relative">
+            <div className="border border-white px-8 py-6 min-w-[280px]">
+              <div className="text-white text-[14px] sm:text-[18px] tracking-[0.3em] font-orbit text-center mb-2">
+                {text.main}
+              </div>
+              {text.sub && (
+                <div className="text-[#666] text-[10px] tracking-[0.3em] font-orbit text-center">
+                  {text.sub}
+                </div>
+              )}
+            </div>
 
-      {/* ESC indicator */}
-      <div className="absolute bottom-4 left-12 sm:left-20 text-[#444] text-[9px] tracking-[0.3em] font-orbit">
-        [ESC] CANCEL
-      </div>
+            {/* ESC indicator */}
+            <div className="absolute bottom-6 text-[#333] text-[9px] tracking-[0.3em] font-orbit">
+              [ESC] CANCEL
+            </div>
+          </div>
+
+          {/* RIGHT — grid + flower */}
+          <div className="w-1/2 bg-[#0a1a0a] relative overflow-hidden border-l border-[#1c2e1c]">
+            {/* Pixel flower underneath */}
+            <PixelFlowerCanvas />
+
+            {/* Grid overlay — cells hide flower as stage progresses */}
+            <div
+              className="absolute inset-0 grid"
+              style={{
+                gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
+                gridTemplateRows: `repeat(${GRID_ROWS}, 1fr)`,
+              }}
+            >
+              {hiddenCells.map((hidden, i) => (
+                <div
+                  key={i}
+                  className={`border border-white/15 transition-colors duration-300 ${
+                    hidden ? 'bg-[#0a1a0a]' : 'bg-transparent'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Technical labels at grid corners */}
+            <div className="absolute top-2 left-2 text-[8px] text-white/40 font-orbit tracking-[0.2em] pointer-events-none">
+              VERTEX 04
+            </div>
+            <div className="absolute top-2 right-2 text-[8px] text-white/40 font-orbit tracking-[0.2em] pointer-events-none">
+              PLATFORM / V05
+            </div>
+            <div className="absolute bottom-2 left-2 text-[8px] text-white/40 font-orbit tracking-[0.2em] pointer-events-none">
+              VERTEX 07
+            </div>
+            <div className="absolute bottom-2 right-2 text-[8px] text-white/40 font-orbit tracking-[0.2em] pointer-events-none">
+              SRC / 01
+            </div>
+
+            {/* Mid-grid intersection labels */}
+            <div className="absolute top-1/2 left-2 -translate-y-1/2 text-[8px] text-white/30 font-orbit tracking-[0.2em] pointer-events-none">
+              MID / X
+            </div>
+            <div className="absolute top-1/2 right-2 -translate-y-1/2 text-[8px] text-white/30 font-orbit tracking-[0.2em] pointer-events-none">
+              MID / Y
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Established state has a small accent square */}
+      {stage === 4 && rectsShown === 0 && null}
     </div>
   )
 }
