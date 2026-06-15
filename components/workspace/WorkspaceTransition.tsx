@@ -226,82 +226,104 @@ export default function WorkspaceTransition() {
 
           {/* Three rectangles for RECEIVING state — text in middle, content with bold PRAXIS text */}
           {isReceiving && (
-            <div className="w-full max-w-[900px] flex flex-col items-center gap-4 mt-4">
-              {/* Top wide rectangle */}
+            <div className="w-full max-w-[900px] flex flex-col items-center gap-3 mt-2">
+              {/* Top wide rectangle with circular graphic */}
               <div
-                className="w-[80%] h-[100px] border border-white relative overflow-hidden transition-all duration-300"
+                className="w-[85%] h-[120px] border border-white relative overflow-hidden transition-all duration-300"
                 style={{
                   opacity: rectsShown >= 1 ? 1 : 0,
                   transform: rectsShown >= 1 ? 'translateY(0)' : 'translateY(20px)',
                 }}
               >
-                {/* Static-like content background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/15 via-[#00cc77]/8 to-transparent" />
-                <div className="absolute inset-0 opacity-30"
+                {/* Textured gray background like film reel/mechanical */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] via-[#1a1a1a] to-[#0a0a0a]" />
+                <div className="absolute inset-0 opacity-20"
                   style={{
-                    backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,255,157,0.1) 2px, rgba(0,255,157,0.1) 3px),
-                                       repeating-linear-gradient(90deg, transparent 0, transparent 8px, rgba(255,255,255,0.05) 8px, rgba(255,255,255,0.05) 9px)`,
+                    backgroundImage: `repeating-linear-gradient(90deg, transparent 0, transparent 12px, rgba(255,255,255,0.15) 12px, rgba(255,255,255,0.15) 13px)`,
                   }}
                 />
-                {/* Bold PRAXIS title */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-white text-[22px] sm:text-[28px] tracking-[0.15em] font-orbit font-bold">
-                    PRAXIS ENTERPRISE
+                {/* Central circular graphic — green tinted to match site */}
+                <div
+                  className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] rounded-full border-2 border-[#888] flex items-center justify-center"
+                  style={{
+                    background: 'radial-gradient(circle at center, rgba(0,255,157,0.35) 0%, rgba(0,204,119,0.2) 40%, rgba(20,30,20,0.5) 80%, transparent 100%)',
+                    boxShadow: 'inset 0 0 30px rgba(0,255,157,0.3)',
+                  }}
+                />
+                {/* Bold PRAXIS title over circle */}
+                <div className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 text-center">
+                  <div className="text-white text-[20px] sm:text-[26px] tracking-[0.15em] font-orbit font-bold leading-none">
+                    PRAXIS
+                  </div>
+                  <div className="text-white text-[8px] sm:text-[10px] tracking-[0.3em] font-orbit mt-1">
+                    PROJECT AR2
                   </div>
                 </div>
-                <div className="absolute top-2 left-3 text-[9px] text-[#00ff9d] font-orbit tracking-[0.3em]">PROJECT AR2 / 01</div>
-                <div className="absolute bottom-2 right-3 text-[8px] text-[#666] font-orbit">[ STREAM 01 ]</div>
+                {/* "ENT" cut off on right edge */}
+                <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[20%] text-white text-[28px] sm:text-[36px] tracking-[0.1em] font-orbit font-bold opacity-90">
+                  ENT
+                </div>
+                <div className="absolute top-2 left-3 text-[9px] text-[#888] font-orbit tracking-[0.3em]">SRC / 01</div>
+                <div className="absolute bottom-2 left-3 text-[8px] text-[#666] font-orbit">[ STREAM 01 ]</div>
               </div>
 
-              {/* RECEIVING SRC text in middle */}
-              <div className="border border-white px-6 py-2 my-1">
-                <div className="text-white text-[12px] tracking-[0.4em] font-orbit text-center">
-                  RECEIVING SRC
+              {/* RECIEVING SRC text in middle (intentional typo matching reference) */}
+              <div className="border border-white px-8 py-2 bg-black">
+                <div className="text-white text-[13px] sm:text-[15px] tracking-[0.4em] font-orbit text-center">
+                  RECIEVING SRC
                 </div>
               </div>
 
               {/* Bottom two rectangles */}
-              <div className="flex gap-4 w-full justify-center">
+              <div className="flex gap-3 w-full justify-center">
+                {/* Bottom-left — darker, with metallic vertical bar */}
                 <div
-                  className="w-[40%] h-[100px] border border-white relative overflow-hidden transition-all duration-300"
+                  className="w-[42%] h-[110px] border border-white relative overflow-hidden transition-all duration-300"
                   style={{
                     opacity: rectsShown >= 2 ? 1 : 0,
                     transform: rectsShown >= 2 ? 'translateY(0)' : 'translateY(20px)',
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00cc77]/15 via-[#00ff9d]/5 to-transparent" />
-                  <div className="absolute inset-0 opacity-30"
+                  {/* Dark gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#0a1a14] via-[#0a0a0a] to-[#1a1a14]" />
+                  {/* Metallic vertical bar on right */}
+                  <div className="absolute top-0 right-[20%] w-[12px] h-full"
                     style={{
-                      backgroundImage: `repeating-linear-gradient(45deg, transparent 0, transparent 4px, rgba(0,255,157,0.08) 4px, rgba(0,255,157,0.08) 5px)`,
+                      background: 'linear-gradient(to bottom, #8B4513 0%, #6b3a0e 40%, #2F4F4F 80%, #1a2a2a 100%)',
                     }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-white text-[16px] sm:text-[20px] tracking-[0.15em] font-orbit font-bold">
-                      PRAXIS / 02
+                  <div className="absolute inset-0 flex items-center justify-start pl-4">
+                    <div>
+                      <div className="text-white text-[16px] sm:text-[20px] tracking-[0.1em] font-orbit font-bold leading-none">
+                        PRAXIS ENTERPR
+                      </div>
+                      <div className="text-white text-[8px] sm:text-[10px] tracking-[0.3em] font-orbit mt-2">
+                        PROJECT AR2
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute top-2 left-3 text-[9px] text-[#00ff9d] font-orbit tracking-[0.3em]">PROJECT AR2</div>
                   <div className="absolute bottom-2 right-3 text-[8px] text-[#666] font-orbit">[ STREAM 02 ]</div>
                 </div>
+                {/* Bottom-right — lighter solid */}
                 <div
-                  className="w-[40%] h-[100px] border border-white relative overflow-hidden transition-all duration-300"
+                  className="w-[42%] h-[110px] border border-white relative overflow-hidden transition-all duration-300"
                   style={{
                     opacity: rectsShown >= 3 ? 1 : 0,
                     transform: rectsShown >= 3 ? 'translateY(0)' : 'translateY(20px)',
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/15 via-[#00cc77]/5 to-transparent" />
-                  <div className="absolute inset-0 opacity-30"
-                    style={{
-                      backgroundImage: `repeating-linear-gradient(-45deg, transparent 0, transparent 4px, rgba(0,255,157,0.08) 4px, rgba(0,255,157,0.08) 5px)`,
-                    }}
-                  />
+                  {/* Light gray background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#3a3a3a] via-[#2a2a2a] to-[#1a1a1a]" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-white text-[16px] sm:text-[20px] tracking-[0.15em] font-orbit font-bold">
-                      PRAXIS / 03
+                    <div className="text-center">
+                      <div className="text-white text-[16px] sm:text-[20px] tracking-[0.15em] font-orbit font-bold leading-none">
+                        PRAXIS
+                      </div>
+                      <div className="text-white text-[8px] sm:text-[10px] tracking-[0.3em] font-orbit mt-2">
+                        PROJECT AR2
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute top-2 left-3 text-[9px] text-[#00ff9d] font-orbit tracking-[0.3em]">PROJECT AR2</div>
                   <div className="absolute bottom-2 right-3 text-[8px] text-[#666] font-orbit">[ STREAM 03 ]</div>
                 </div>
               </div>
