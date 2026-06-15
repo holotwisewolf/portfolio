@@ -220,18 +220,7 @@ body::before {
   animation: rgb-shift 3s ease-in-out infinite;
 }
 
-/* Workspace-specific CRT overlay */
-@keyframes workspace-flicker {
-  0% { opacity: 0.04; }
-  50% { opacity: 0.08; }
-  100% { opacity: 0.04; }
-}
-
-.workspace-flicker {
-  background: rgba(18, 16, 16, 1);
-  animation: workspace-flicker 0.15s infinite;
-}
-
+/* Workspace-specific CRT overlay — scanlines only (no flicker to avoid flashing) */
 .workspace-scanlines {
   background: repeating-linear-gradient(
     0deg,
