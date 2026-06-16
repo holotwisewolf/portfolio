@@ -224,23 +224,33 @@ export default function WorkspaceTransition() {
             </>
           )}
 
-          {/* RECEIVING state — asymmetric premium feel matching reference:
-              NO panel borders (gaps created by black bg), non-uniform heights/gaps,
-              left-aligned text in bottom panels, offset text in top, distinct colors per panel */}
+          {/* RECEIVING state — asymmetric layout per reference:
+              Outer margins asymmetric (left 4.5%, right 9%), top panel WIDER than bottom row,
+              middle bar aligns with bottom row (75% width) not top (91% width),
+              2:1 negative space to panel ratio, no panel borders */}
           {isReceiving && (
-            <div className="w-[95%] flex flex-col">
-              {/* TOP PANEL — 42% height, purple dominant, PRAXIS V-offset at 40% from top */}
+            <div
+              className="flex flex-col items-start"
+              style={{
+                width: '91%',          // top panel width
+                paddingLeft: '4.5%',   // asymmetric: less on left
+                paddingRight: '9%',    // asymmetric: more on right
+                paddingTop: '2.5vh',
+                paddingBottom: '2.5vh',
+              }}
+            >
+              {/* TOP PANEL — full width of container (91%), 42vh tall, V-offset PRAXIS text */}
               <div
-                className="w-full relative overflow-hidden transition-all duration-500"
+                className="relative overflow-hidden transition-all duration-500"
                 style={{
+                  width: '100%',
                   height: '42vh',
-                  maxHeight: '380px',
+                  maxHeight: '400px',
                   opacity: rectsShown >= 1 ? 1 : 0,
                   transform: rectsShown >= 1 ? 'translateY(0)' : 'translateY(-10px)',
                   boxShadow: 'inset 0 0 80px rgba(0,0,0,0.5)',
                 }}
               >
-                {/* Dark mechanical/film-reel texture background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] via-[#1a1a1a] to-[#0a0a0a]" />
                 <div className="absolute inset-0 opacity-[0.12]"
                   style={{
@@ -248,7 +258,7 @@ export default function WorkspaceTransition() {
                                        repeating-linear-gradient(0deg, transparent 0, transparent 16px, rgba(255,255,255,0.3) 16px, rgba(255,255,255,0.3) 17px)`,
                   }}
                 />
-                {/* Central purple circle — 85% of panel height, perfectly H+V centered */}
+                {/* Central purple circle — 85% of panel height */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square h-[85%]">
                   <div
                     className="absolute inset-0 rounded-full border-[3px] border-[#999]"
@@ -258,7 +268,7 @@ export default function WorkspaceTransition() {
                     }}
                   />
                 </div>
-                {/* PRAXIS text — V-offset at 40% from top (not centered) */}
+                {/* PRAXIS — V-offset at 40% from top (not centered) */}
                 <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: '40%' }}>
                   <div
                     className="text-white text-[clamp(32px,6vw,60px)] font-bold leading-none tracking-[0.04em]"
@@ -290,15 +300,16 @@ export default function WorkspaceTransition() {
                 </div>
               </div>
 
-              {/* GAP — larger above middle (asymmetric premium detail) */}
-              <div style={{ height: '2vh' }} />
+              {/* GAP — 6vh uniform (per reference) */}
+              <div style={{ height: '6vh' }} />
 
-              {/* MIDDLE TEXT BAR — 65% width, thin (~5%), centered, no border (gap creates separation) */}
+              {/* MIDDLE BAR — 75% of top panel width, left-aligned with top panel's left edge */}
               <div
-                className="self-center w-[65%] bg-black flex items-center justify-center transition-all duration-300"
+                className="bg-black flex items-center justify-center transition-all duration-300"
                 style={{
-                  opacity: rectsShown >= 1 ? 1 : 0,
+                  width: '75%',         // matches bottom row, narrower than top (91%)
                   height: 'clamp(28px, 5vh, 48px)',
+                  opacity: rectsShown >= 1 ? 1 : 0,
                 }}
               >
                 <div
@@ -309,32 +320,30 @@ export default function WorkspaceTransition() {
                 </div>
               </div>
 
-              {/* GAP — smaller below middle (asymmetry) */}
-              <div style={{ height: '0.8vh' }} />
+              {/* GAP — 6vh uniform (per reference) */}
+              <div style={{ height: '6vh' }} />
 
-              {/* BOTTOM ROW — asymmetric widths, equal heights, no borders */}
-              <div className="flex w-full" style={{ gap: '2.5%' }}>
-                {/* BOTTOM-LEFT — 36% width, blue/grey, PRAXIS ENTERPR left-aligned near bottom */}
+              {/* BOTTOM ROW — 75% width total, matches middle bar width, NOT top panel width */}
+              <div className="flex" style={{ width: '75%', gap: '5%' }}>
+                {/* BOTTOM-LEFT — 36% of 75% = ~27% screen, blue/grey, PRAXIS ENTERPR left-aligned near bottom */}
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
-                    width: '36%',
+                    width: '36%',         // % of bottom row
                     height: '28vh',
-                    maxHeight: '250px',
+                    maxHeight: '260px',
                     opacity: rectsShown >= 2 ? 1 : 0,
                     transform: rectsShown >= 2 ? 'translateY(0)' : 'translateY(10px)',
                     boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)',
                   }}
                 >
-                  {/* Blue/grey gradient texture */}
                   <div className="absolute inset-0 bg-gradient-to-b from-[#1a2842] via-[#243454] to-[#3d4a66]" />
-                  {/* Subtle horizontal scanlines for material texture */}
                   <div className="absolute inset-0 opacity-[0.1]"
                     style={{
                       backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px)`,
                     }}
                   />
-                  {/* PRAXIS ENTERPR — LEFT-aligned, near BOTTOM (20% from bottom edge) */}
+                  {/* PRAXIS ENTERPR — LEFT-aligned, near BOTTOM */}
                   <div className="absolute left-[6%] bottom-[20%]">
                     <div
                       className="text-white text-[clamp(20px,2.8vw,32px)] font-bold leading-[0.95] tracking-[0.02em]"
@@ -351,27 +360,25 @@ export default function WorkspaceTransition() {
                   </div>
                 </div>
 
-                {/* BOTTOM-RIGHT — 60% width, solid light grey, PRAXIS left-aligned near top */}
+                {/* BOTTOM-RIGHT — 59% of 75% = ~44% screen, lighter grey, PRAXIS left-aligned near top */}
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
-                    width: '60%',
+                    width: '59%',         // % of bottom row (rest after 36% + 5% gap)
                     height: '28vh',
-                    maxHeight: '250px',
+                    maxHeight: '260px',
                     opacity: rectsShown >= 3 ? 1 : 0,
                     transform: rectsShown >= 3 ? 'translateY(0)' : 'translateY(10px)',
                     boxShadow: 'inset 0 0 40px rgba(0,0,0,0.35)',
                   }}
                 >
-                  {/* Light grey gradient (this panel is lighter than others) */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#6a6a6a] via-[#5a5a5a] to-[#4a4a4a]" />
-                  {/* Subtle diagonal texture */}
                   <div className="absolute inset-0 opacity-[0.06]"
                     style={{
                       backgroundImage: `repeating-linear-gradient(45deg, transparent 0, transparent 5px, rgba(255,255,255,1) 5px, rgba(255,255,255,1) 6px)`,
                     }}
                   />
-                  {/* PRAXIS — LEFT-aligned, near TOP (30% from top edge) */}
+                  {/* PRAXIS — LEFT-aligned, near TOP */}
                   <div className="absolute left-[6%] top-[28%]">
                     <div
                       className="text-white text-[clamp(24px,3.5vw,40px)] font-bold leading-none tracking-[0.06em]"
