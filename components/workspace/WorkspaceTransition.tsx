@@ -224,28 +224,16 @@ export default function WorkspaceTransition() {
             </>
           )}
 
-          {/* RECEIVING state — asymmetric layout per reference:
-              Outer margins asymmetric (left 4.5%, right 9%), top panel WIDER than bottom row,
-              middle bar aligns with bottom row (75% width) not top (91% width),
-              2:1 negative space to panel ratio, no panel borders */}
+          {/* RECEIVING state — exact structural match to reference (color can differ) */}
           {isReceiving && (
-            <div
-              className="flex flex-col items-start"
-              style={{
-                width: '91%',          // top panel width
-                paddingLeft: '4.5%',   // asymmetric: less on left
-                paddingRight: '9%',    // asymmetric: more on right
-                paddingTop: '2.5vh',
-                paddingBottom: '2.5vh',
-              }}
-            >
-              {/* TOP PANEL — full width of container (91%), 42vh tall, V-offset PRAXIS text */}
+            <div className="w-full flex flex-col items-center" style={{ paddingTop: '3vh', paddingBottom: '3vh' }}>
+              {/* TOP PANEL — 100% width, ~35% height */}
               <div
                 className="relative overflow-hidden transition-all duration-500"
                 style={{
                   width: '100%',
-                  height: '42vh',
-                  maxHeight: '400px',
+                  height: '35vh',
+                  maxHeight: '380px',
                   opacity: rectsShown >= 1 ? 1 : 0,
                   transform: rectsShown >= 1 ? 'translateY(0)' : 'translateY(-10px)',
                   boxShadow: 'inset 0 0 80px rgba(0,0,0,0.5)',
@@ -258,20 +246,22 @@ export default function WorkspaceTransition() {
                                        repeating-linear-gradient(0deg, transparent 0, transparent 16px, rgba(255,255,255,0.3) 16px, rgba(255,255,255,0.3) 17px)`,
                   }}
                 />
-                {/* Central purple circle — 85% of panel height */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square h-[85%]">
+                {/* Central purple circle — explicit width/height in vh for guaranteed round shape, 70-75% of panel height */}
+                <div
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[#999]"
+                  style={{
+                    width: '26vh',
+                    height: '26vh',
+                    maxWidth: '260px',
+                    maxHeight: '260px',
+                    background: 'radial-gradient(circle at center, #4B0082 0%, #5D2A8C 30%, #6A5ACD 70%, #8B7FD9 100%)',
+                    boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5), 0 0 50px rgba(106,90,205,0.35)',
+                  }}
+                />
+                {/* PRAXIS — H+V centered over circle */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
                   <div
-                    className="absolute inset-0 rounded-full border-[3px] border-[#999]"
-                    style={{
-                      background: 'radial-gradient(circle at center, #4B0082 0%, #5D2A8C 30%, #6A5ACD 70%, #8B7FD9 100%)',
-                      boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5), 0 0 50px rgba(106,90,205,0.35)',
-                    }}
-                  />
-                </div>
-                {/* PRAXIS — V-offset at 40% from top (not centered) */}
-                <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: '40%' }}>
-                  <div
-                    className="text-white text-[clamp(32px,6vw,60px)] font-bold leading-none tracking-[0.04em]"
+                    className="text-white text-[clamp(28px,5vw,48px)] font-bold leading-none tracking-[0.04em]"
                     style={{
                       fontFamily: '"Arial Narrow", "Helvetica Neue Condensed", system-ui, sans-serif',
                       fontStretch: 'condensed',
@@ -281,7 +271,7 @@ export default function WorkspaceTransition() {
                     PRAXIS
                   </div>
                   <div
-                    className="text-white text-[clamp(10px,1.3vw,14px)] tracking-[0.35em] mt-2 opacity-90"
+                    className="text-white text-[clamp(9px,1.2vw,13px)] tracking-[0.35em] mt-2 opacity-90"
                     style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
                   >
                     PROJECT AR2
@@ -289,7 +279,7 @@ export default function WorkspaceTransition() {
                 </div>
                 {/* "ENT" cut off on right edge */}
                 <div
-                  className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[20%] text-white text-[clamp(40px,7vw,72px)] font-bold leading-none opacity-90"
+                  className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[20%] text-white text-[clamp(36px,6vw,64px)] font-bold leading-none opacity-90"
                   style={{
                     fontFamily: '"Arial Narrow", system-ui, sans-serif',
                     fontStretch: 'condensed',
@@ -300,38 +290,39 @@ export default function WorkspaceTransition() {
                 </div>
               </div>
 
-              {/* GAP — 6vh uniform (per reference) */}
-              <div style={{ height: '6vh' }} />
+              {/* GAP — ~10vh between top and middle (significant breathing room per reference) */}
+              <div style={{ height: '10vh' }} />
 
-              {/* MIDDLE BAR — 75% of top panel width, left-aligned with top panel's left edge */}
+              {/* MIDDLE BAR — 40% width, ~10% height, CENTERED */}
               <div
                 className="bg-black flex items-center justify-center transition-all duration-300"
                 style={{
-                  width: '75%',         // matches bottom row, narrower than top (91%)
-                  height: 'clamp(28px, 5vh, 48px)',
+                  width: '40%',
+                  height: '10vh',
+                  maxHeight: '90px',
                   opacity: rectsShown >= 1 ? 1 : 0,
                 }}
               >
                 <div
-                  className="text-white text-[clamp(12px,1.5vw,16px)] tracking-[0.45em] font-bold"
+                  className="text-white text-[clamp(13px,1.7vw,18px)] tracking-[0.45em] font-bold"
                   style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
                 >
                   RECIEVING SRC
                 </div>
               </div>
 
-              {/* GAP — 6vh uniform (per reference) */}
-              <div style={{ height: '6vh' }} />
+              {/* GAP — ~10vh between middle and bottom */}
+              <div style={{ height: '10vh' }} />
 
-              {/* BOTTOM ROW — 75% width total, matches middle bar width, NOT top panel width */}
-              <div className="flex" style={{ width: '75%', gap: '5%' }}>
-                {/* BOTTOM-LEFT — 36% of 75% = ~27% screen, blue/grey, PRAXIS ENTERPR left-aligned near bottom */}
+              {/* BOTTOM ROW — 90% width combined, panels at 30% + 60% screen width */}
+              <div className="flex w-full justify-center" style={{ gap: '3%' }}>
+                {/* BOTTOM-LEFT — 30% of screen width, ~45% height, PRAXIS ENTERPR single line left-aligned */}
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
-                    width: '36%',         // % of bottom row
-                    height: '28vh',
-                    maxHeight: '260px',
+                    width: '30%',
+                    height: '45vh',
+                    maxHeight: '420px',
                     opacity: rectsShown >= 2 ? 1 : 0,
                     transform: rectsShown >= 2 ? 'translateY(0)' : 'translateY(10px)',
                     boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)',
@@ -343,16 +334,16 @@ export default function WorkspaceTransition() {
                       backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px)`,
                     }}
                   />
-                  {/* PRAXIS ENTERPR — LEFT-aligned, near BOTTOM */}
-                  <div className="absolute left-[6%] bottom-[20%]">
+                  {/* PRAXIS ENTERPR — single line, LEFT-aligned, vertically centered */}
+                  <div className="absolute left-[8%] top-1/2 -translate-y-1/2">
                     <div
-                      className="text-white text-[clamp(20px,2.8vw,32px)] font-bold leading-[0.95] tracking-[0.02em]"
+                      className="text-white text-[clamp(18px,2.4vw,28px)] font-bold leading-none tracking-[0.02em] whitespace-nowrap"
                       style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
                     >
-                      PRAXIS<br/>ENTERPR
+                      PRAXIS ENTERPR
                     </div>
                     <div
-                      className="text-white text-[clamp(8px,1vw,12px)] tracking-[0.3em] mt-2 opacity-75"
+                      className="text-white text-[clamp(8px,1vw,12px)] tracking-[0.3em] mt-3 opacity-75"
                       style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
                     >
                       PROJECT AR2
@@ -360,13 +351,13 @@ export default function WorkspaceTransition() {
                   </div>
                 </div>
 
-                {/* BOTTOM-RIGHT — 59% of 75% = ~44% screen, lighter grey, PRAXIS left-aligned near top */}
+                {/* BOTTOM-RIGHT — 60% of screen width, ~45% height, PRAXIS H-CENTERED */}
                 <div
                   className="relative overflow-hidden transition-all duration-500"
                   style={{
-                    width: '59%',         // % of bottom row (rest after 36% + 5% gap)
-                    height: '28vh',
-                    maxHeight: '260px',
+                    width: '60%',
+                    height: '45vh',
+                    maxHeight: '420px',
                     opacity: rectsShown >= 3 ? 1 : 0,
                     transform: rectsShown >= 3 ? 'translateY(0)' : 'translateY(10px)',
                     boxShadow: 'inset 0 0 40px rgba(0,0,0,0.35)',
@@ -378,10 +369,10 @@ export default function WorkspaceTransition() {
                       backgroundImage: `repeating-linear-gradient(45deg, transparent 0, transparent 5px, rgba(255,255,255,1) 5px, rgba(255,255,255,1) 6px)`,
                     }}
                   />
-                  {/* PRAXIS — LEFT-aligned, near TOP */}
-                  <div className="absolute left-[6%] top-[28%]">
+                  {/* PRAXIS — H-CENTERED, vertically centered */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <div
-                      className="text-white text-[clamp(24px,3.5vw,40px)] font-bold leading-none tracking-[0.06em]"
+                      className="text-white text-[clamp(28px,4vw,44px)] font-bold leading-none tracking-[0.06em]"
                       style={{
                         fontFamily: '"Arial Narrow", system-ui, sans-serif',
                         fontStretch: 'condensed',
