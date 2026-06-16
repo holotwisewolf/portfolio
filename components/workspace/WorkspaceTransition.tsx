@@ -224,159 +224,170 @@ export default function WorkspaceTransition() {
             </>
           )}
 
-          {/* RECEIVING state — proper proportions matching reference:
-              Top 95%w/32%h, middle 65%w/2.5%h thin bar, bottom asym: 32%w + 8%gap + 60%w */}
+          {/* RECEIVING state — asymmetric premium feel matching reference:
+              NO panel borders (gaps created by black bg), non-uniform heights/gaps,
+              left-aligned text in bottom panels, offset text in top, distinct colors per panel */}
           {isReceiving && (
-            <div className="w-[95%] h-[80vh] max-h-[700px] flex flex-col gap-[1vh]">
-              {/* TOP PANEL — 95% width, ~32% height, circle takes 85% of height */}
+            <div className="w-[95%] flex flex-col">
+              {/* TOP PANEL — 42% height, purple dominant, PRAXIS V-offset at 40% from top */}
               <div
-                className="w-full h-[40%] border border-white/70 relative overflow-hidden transition-all duration-500"
+                className="w-full relative overflow-hidden transition-all duration-500"
                 style={{
+                  height: '42vh',
+                  maxHeight: '380px',
                   opacity: rectsShown >= 1 ? 1 : 0,
                   transform: rectsShown >= 1 ? 'translateY(0)' : 'translateY(-10px)',
-                  boxShadow: 'inset 0 0 60px rgba(0,0,0,0.6), inset 0 0 2px rgba(255,255,255,0.1)',
+                  boxShadow: 'inset 0 0 80px rgba(0,0,0,0.5)',
                 }}
               >
-                {/* Light gray textured background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#3a3a3a] via-[#2a2a2a] to-[#1c1c1c]" />
-                <div className="absolute inset-0 opacity-[0.08]"
+                {/* Dark mechanical/film-reel texture background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] via-[#1a1a1a] to-[#0a0a0a]" />
+                <div className="absolute inset-0 opacity-[0.12]"
                   style={{
-                    backgroundImage: `repeating-linear-gradient(90deg, transparent 0, transparent 14px, rgba(255,255,255,1) 14px, rgba(255,255,255,1) 15px)`,
+                    backgroundImage: `repeating-linear-gradient(90deg, transparent 0, transparent 16px, rgba(255,255,255,1) 16px, rgba(255,255,255,1) 17px),
+                                       repeating-linear-gradient(0deg, transparent 0, transparent 16px, rgba(255,255,255,0.3) 16px, rgba(255,255,255,0.3) 17px)`,
                   }}
                 />
-                {/* Central circle — 85% of panel height, perfectly centered */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square h-[85%] flex items-center justify-center">
+                {/* Central purple circle — 85% of panel height, perfectly H+V centered */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square h-[85%]">
                   <div
-                    className="absolute inset-0 rounded-full border-[3px] border-[#bbb]"
+                    className="absolute inset-0 rounded-full border-[3px] border-[#999]"
                     style={{
                       background: 'radial-gradient(circle at center, #4B0082 0%, #5D2A8C 30%, #6A5ACD 70%, #8B7FD9 100%)',
-                      boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5), 0 0 30px rgba(106,90,205,0.3)',
+                      boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5), 0 0 50px rgba(106,90,205,0.35)',
                     }}
                   />
-                  <div className="relative z-10 text-center">
-                    <div
-                      className="text-white text-[clamp(28px,5vw,52px)] font-bold leading-none tracking-[0.05em]"
-                      style={{
-                        fontFamily: '"Arial Narrow", "Helvetica Neue Condensed", system-ui, sans-serif',
-                        fontStretch: 'condensed',
-                        textShadow: '0 0 20px rgba(255,255,255,0.6), 0 0 4px rgba(255,255,255,0.8)',
-                      }}
-                    >
-                      PRAXIS
-                    </div>
-                    <div
-                      className="text-white text-[clamp(10px,1.2vw,14px)] tracking-[0.3em] mt-1"
-                      style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
-                    >
-                      PROJECT AR2
-                    </div>
+                </div>
+                {/* PRAXIS text — V-offset at 40% from top (not centered) */}
+                <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: '40%' }}>
+                  <div
+                    className="text-white text-[clamp(32px,6vw,60px)] font-bold leading-none tracking-[0.04em]"
+                    style={{
+                      fontFamily: '"Arial Narrow", "Helvetica Neue Condensed", system-ui, sans-serif',
+                      fontStretch: 'condensed',
+                      textShadow: '0 0 24px rgba(255,255,255,0.7), 0 0 6px rgba(255,255,255,0.9)',
+                    }}
+                  >
+                    PRAXIS
+                  </div>
+                  <div
+                    className="text-white text-[clamp(10px,1.3vw,14px)] tracking-[0.35em] mt-2 opacity-90"
+                    style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
+                  >
+                    PROJECT AR2
                   </div>
                 </div>
-                {/* "ENT" cut off on right edge — bleeds beyond panel */}
+                {/* "ENT" cut off on right edge */}
                 <div
-                  className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[25%] text-white text-[clamp(36px,6vw,64px)] font-bold leading-none tracking-[-0.02em] opacity-95"
+                  className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[20%] text-white text-[clamp(40px,7vw,72px)] font-bold leading-none opacity-90"
                   style={{
                     fontFamily: '"Arial Narrow", system-ui, sans-serif',
                     fontStretch: 'condensed',
-                    textShadow: '0 0 8px rgba(255,255,255,0.4)',
+                    textShadow: '0 0 10px rgba(255,255,255,0.4)',
                   }}
                 >
                   ENT
                 </div>
               </div>
 
-              {/* MIDDLE TEXT BAR — 65% width, very thin (2.5% height), centered */}
+              {/* GAP — larger above middle (asymmetric premium detail) */}
+              <div style={{ height: '2vh' }} />
+
+              {/* MIDDLE TEXT BAR — 65% width, thin (~5%), centered, no border (gap creates separation) */}
               <div
-                className="self-center w-[68%] border border-white bg-black flex items-center justify-center transition-all duration-300"
+                className="self-center w-[65%] bg-black flex items-center justify-center transition-all duration-300"
                 style={{
                   opacity: rectsShown >= 1 ? 1 : 0,
-                  height: 'clamp(22px, 3vh, 36px)',
+                  height: 'clamp(28px, 5vh, 48px)',
                 }}
               >
                 <div
-                  className="text-white text-[clamp(11px,1.4vw,15px)] tracking-[0.4em] font-bold"
+                  className="text-white text-[clamp(12px,1.5vw,16px)] tracking-[0.45em] font-bold"
                   style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
                 >
                   RECIEVING SRC
                 </div>
               </div>
 
-              {/* BOTTOM ROW — asymmetric: 32% / 8% gap / 60% */}
-              <div className="flex w-full h-[40%] gap-[2.5%]">
-                {/* BOTTOM-LEFT — 32% width, metallic bar takes 40% of width on LEFT */}
+              {/* GAP — smaller below middle (asymmetry) */}
+              <div style={{ height: '0.8vh' }} />
+
+              {/* BOTTOM ROW — asymmetric widths, equal heights, no borders */}
+              <div className="flex w-full" style={{ gap: '2.5%' }}>
+                {/* BOTTOM-LEFT — 36% width, blue/grey, PRAXIS ENTERPR left-aligned near bottom */}
                 <div
-                  className="w-[36%] h-full border border-white/70 relative overflow-hidden transition-all duration-500"
+                  className="relative overflow-hidden transition-all duration-500"
                   style={{
+                    width: '36%',
+                    height: '28vh',
+                    maxHeight: '250px',
                     opacity: rectsShown >= 2 ? 1 : 0,
                     transform: rectsShown >= 2 ? 'translateY(0)' : 'translateY(10px)',
-                    boxShadow: 'inset 0 0 40px rgba(0,0,0,0.6)',
+                    boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)',
                   }}
                 >
-                  {/* Dark blue → blue-gray gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#0a1428] via-[#101830] to-[#2a3548]" />
-                  {/* Metallic vertical bar — 40% width on LEFT edge */}
-                  <div
-                    className="absolute top-0 left-0 h-full"
+                  {/* Blue/grey gradient texture */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#1a2842] via-[#243454] to-[#3d4a66]" />
+                  {/* Subtle horizontal scanlines for material texture */}
+                  <div className="absolute inset-0 opacity-[0.1]"
                     style={{
-                      width: '40%',
-                      background: 'linear-gradient(to bottom, #B8860B 0%, #8B4513 25%, #6b3a0e 50%, #3a2810 75%, #2F4F4F 100%)',
-                      boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.5)',
+                      backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px)`,
                     }}
                   />
-                  {/* Text on right side of bar */}
-                  <div className="absolute inset-0 flex items-center justify-end pr-[8%]">
-                    <div className="text-right">
-                      <div
-                        className="text-white text-[clamp(16px,2.2vw,24px)] font-bold leading-[0.9] tracking-[0.02em]"
-                        style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
-                      >
-                        PRAXIS<br/>ENTERPR
-                      </div>
-                      <div
-                        className="text-white text-[clamp(8px,0.9vw,11px)] tracking-[0.3em] mt-2 opacity-80"
-                        style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
-                      >
-                        PROJECT AR2
-                      </div>
+                  {/* PRAXIS ENTERPR — LEFT-aligned, near BOTTOM (20% from bottom edge) */}
+                  <div className="absolute left-[6%] bottom-[20%]">
+                    <div
+                      className="text-white text-[clamp(20px,2.8vw,32px)] font-bold leading-[0.95] tracking-[0.02em]"
+                      style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
+                    >
+                      PRAXIS<br/>ENTERPR
+                    </div>
+                    <div
+                      className="text-white text-[clamp(8px,1vw,12px)] tracking-[0.3em] mt-2 opacity-75"
+                      style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
+                    >
+                      PROJECT AR2
                     </div>
                   </div>
                 </div>
 
-                {/* BOTTOM-RIGHT — 60% width, solid light gray bg */}
+                {/* BOTTOM-RIGHT — 60% width, solid light grey, PRAXIS left-aligned near top */}
                 <div
-                  className="w-[60%] h-full border border-white/70 relative overflow-hidden transition-all duration-500"
+                  className="relative overflow-hidden transition-all duration-500"
                   style={{
+                    width: '60%',
+                    height: '28vh',
+                    maxHeight: '250px',
                     opacity: rectsShown >= 3 ? 1 : 0,
                     transform: rectsShown >= 3 ? 'translateY(0)' : 'translateY(10px)',
-                    boxShadow: 'inset 0 0 40px rgba(0,0,0,0.4)',
+                    boxShadow: 'inset 0 0 40px rgba(0,0,0,0.35)',
                   }}
                 >
-                  {/* Light gray gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#5a5a5a] via-[#4a4a4a] to-[#3a3a3a]" />
-                  {/* Subtle texture */}
-                  <div className="absolute inset-0 opacity-[0.05]"
+                  {/* Light grey gradient (this panel is lighter than others) */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#6a6a6a] via-[#5a5a5a] to-[#4a4a4a]" />
+                  {/* Subtle diagonal texture */}
+                  <div className="absolute inset-0 opacity-[0.06]"
                     style={{
-                      backgroundImage: `repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(255,255,255,1) 6px, rgba(255,255,255,1) 7px)`,
+                      backgroundImage: `repeating-linear-gradient(45deg, transparent 0, transparent 5px, rgba(255,255,255,1) 5px, rgba(255,255,255,1) 6px)`,
                     }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div
-                        className="text-white text-[clamp(20px,3vw,32px)] font-bold leading-none tracking-[0.08em]"
-                        style={{
-                          fontFamily: '"Arial Narrow", system-ui, sans-serif',
-                          fontStretch: 'condensed',
-                          textShadow: '0 0 12px rgba(255,255,255,0.3)',
-                        }}
-                      >
-                        PRAXIS
-                      </div>
-                      <div
-                        className="text-white text-[clamp(9px,1vw,12px)] tracking-[0.35em] mt-2 opacity-80"
-                        style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
-                      >
-                        PROJECT AR2
-                      </div>
+                  {/* PRAXIS — LEFT-aligned, near TOP (30% from top edge) */}
+                  <div className="absolute left-[6%] top-[28%]">
+                    <div
+                      className="text-white text-[clamp(24px,3.5vw,40px)] font-bold leading-none tracking-[0.06em]"
+                      style={{
+                        fontFamily: '"Arial Narrow", system-ui, sans-serif',
+                        fontStretch: 'condensed',
+                        textShadow: '0 0 14px rgba(255,255,255,0.35)',
+                      }}
+                    >
+                      PRAXIS
+                    </div>
+                    <div
+                      className="text-white text-[clamp(9px,1.1vw,13px)] tracking-[0.35em] mt-3 opacity-80"
+                      style={{ fontFamily: '"Arial Narrow", system-ui, sans-serif', fontStretch: 'condensed' }}
+                    >
+                      PROJECT AR2
                     </div>
                   </div>
                 </div>
