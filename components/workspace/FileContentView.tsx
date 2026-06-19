@@ -3,6 +3,7 @@
 import { projectTree } from './tree'
 import { getNodeAtPath, isFile, isFolder } from './registry'
 import FolderView from './FolderView'
+import ProjectHub from './ProjectHub'
 
 interface Props {
   path: string[]
@@ -37,6 +38,10 @@ export default function FileContentView({ path }: Props) {
   }
 
   if (isFolder(node)) {
+    // Project nodes get the hub layout; other folders get the tile grid
+    if (node.type === 'project' && path.length > 0) {
+      return <ProjectHub projectNode={node} projectPath={path} />
+    }
     return (
       <div className="flex-1 overflow-y-auto bg-[#0a0a0a]">
         <FolderView path={path} />
