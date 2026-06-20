@@ -61,27 +61,20 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
   }
 
   return (
-    <div className="flex-1 bg-[#0a0a0a] font-orbit flex flex-col p-[3vh] gap-[2vh] overflow-hidden">
-      {/* TOP — biggest, OVERVIEW */}
-      <div className="h-[32%] min-h-[140px]">
-        <HubButton
-          variant="top"
-          label="OVERVIEW"
-          blurb="What it is. The pitch, the takeaways, the one-screen version."
-          onClick={() => go('OVERVIEW')}
-        />
-      </div>
-
-      {/* CENTER HEADER — smallest, project title */}
-      <div className="self-center border border-[#1c2e1c] px-8 py-2 bg-black">
-        <div className="text-[#00ff9d] text-[11px] tracking-[0.4em] text-center">
-          {projectNode.name.toUpperCase()}
-        </div>
-      </div>
-
-      {/* BOTTOM ROW — METHOD (tall/narrow) + RESULTS (wide) */}
-      <div className="flex gap-[2%] flex-1 min-h-[200px]">
-        <div className="w-[33%]">
+    <div className="flex-1 bg-[#0a0a0a] font-orbit p-[3vh] overflow-hidden">
+      {/* Grid: METHOD (tall left col) | 50px gap | right column (overview / title / results)
+          METHOD spans full height; OVERVIEW top-right shifted right by the gap;
+          title sits beside METHOD in the middle; RESULTS fills bottom-right.
+          METHOD + OVERVIEW meet at a right angle, gap reads as triangle negative space. */}
+      <div
+        className="grid h-full"
+        style={{
+          gridTemplateColumns: 'minmax(170px, 20%) 50px 1fr',
+          gridTemplateRows: '1fr auto 1.3fr',
+        }}
+      >
+        {/* METHOD — full-height left column (tall, narrow) */}
+        <div style={{ gridColumn: 1, gridRow: '1 / 4' }}>
           <HubButton
             variant="left"
             label="METHOD"
@@ -89,7 +82,28 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
             onClick={() => go('METHOD')}
           />
         </div>
-        <div className="flex-1">
+
+        {/* OVERVIEW — top right (shifted right by the 50px gap column) */}
+        <div style={{ gridColumn: 3, gridRow: 1 }}>
+          <HubButton
+            variant="top"
+            label="OVERVIEW"
+            blurb="What it is. The pitch, the takeaways, the one-screen version."
+            onClick={() => go('OVERVIEW')}
+          />
+        </div>
+
+        {/* TITLE — beside METHOD, below OVERVIEW */}
+        <div style={{ gridColumn: 3, gridRow: 2 }} className="flex items-center py-[1vh]">
+          <div className="border border-[#1c2e1c] px-8 py-2 bg-black">
+            <div className="text-[#00ff9d] text-[11px] tracking-[0.4em]">
+              {projectNode.name.toUpperCase()}
+            </div>
+          </div>
+        </div>
+
+        {/* RESULTS — bottom right */}
+        <div style={{ gridColumn: 3, gridRow: 3 }}>
           <HubButton
             variant="right"
             label="RESULTS"
