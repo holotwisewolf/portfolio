@@ -8,11 +8,11 @@ interface Props {
   projectPath: string[]
 }
 
-// Category → first file to open when clicked (tree gets reorganized into real folders later)
+// Category → folder to open (shows tile grid of its files)
 const CATEGORY_TARGETS: Record<string, string[]> = {
-  OVERVIEW: ['README.md'],
-  METHOD: ['METHODOLOGY.md'],
-  RESULTS: ['results', 'equity-curve'],
+  OVERVIEW: ['overview'],
+  METHOD: ['method'],
+  RESULTS: ['results'],
 }
 
 function HubButton({

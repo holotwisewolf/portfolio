@@ -14,31 +14,38 @@ import {
 } from './projects/trading/zone-classifier'
 
 const zoneClassifierChildren = [
-  { type: 'file' as const, name: 'README.md', description: 'Project overview', component: ReadmeFile },
-  { type: 'file' as const, name: 'METHODOLOGY.md', description: 'How the model works', component: MethodologyFile },
   {
     type: 'folder' as const,
-    name: 'backtest',
-    description: 'Live backtest demos',
+    name: 'overview',
+    description: 'What it is',
     children: [
-      { type: 'file' as const, name: 'demo', description: 'Interactive demo', component: BacktestDemoFile },
+      { type: 'file' as const, name: 'README.md', description: 'Project overview', component: ReadmeFile },
+      { type: 'file' as const, name: 'FINDINGS.md', description: 'Key discoveries', component: FindingsFile },
+    ],
+  },
+  {
+    type: 'folder' as const,
+    name: 'method',
+    description: 'How it works',
+    children: [
+      { type: 'file' as const, name: 'METHODOLOGY.md', description: 'How the model works', component: MethodologyFile },
+      { type: 'file' as const, name: 'FEATURES.md', description: '68 engineered features', component: FeaturesFile },
+      { type: 'file' as const, name: 'BUILD_LOG.md', description: 'How I built this', component: BuildLogFile },
+      { type: 'file' as const, name: 'settings.conf', description: 'Model parameters', component: SettingsConf },
     ],
   },
   {
     type: 'folder' as const,
     name: 'results',
-    description: 'Backtest results',
+    description: 'The proof',
     children: [
+      { type: 'file' as const, name: 'demo', description: 'Interactive backtest demo', component: BacktestDemoFile },
       { type: 'file' as const, name: 'patterns', description: 'Pattern examples', component: ResultsPatternsFile },
       { type: 'file' as const, name: 'equity-curve', description: 'Equity curve over time', component: ResultsEquityCurveFile },
       { type: 'file' as const, name: 'zone-distribution', description: 'Zone distribution', component: ResultsZoneDistributionFile },
       { type: 'file' as const, name: 'feature-importance', description: 'Feature importance ranking', component: ResultsFeatureImportanceFile },
     ],
   },
-  { type: 'file' as const, name: 'FEATURES.md', description: '68 engineered features', component: FeaturesFile },
-  { type: 'file' as const, name: 'FINDINGS.md', description: 'Key discoveries', component: FindingsFile },
-  { type: 'file' as const, name: 'BUILD_LOG.md', description: 'How I built this', component: BuildLogFile },
-  { type: 'file' as const, name: 'settings.conf', description: 'Model parameters', component: SettingsConf },
 ]
 
 const tradingChildren = [
