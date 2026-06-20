@@ -35,11 +35,13 @@ function HubButton({
       <div className="absolute top-3 left-3 text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] transition-colors">
         {variant === 'top' ? '01' : variant === 'left' ? '02' : '03'}
       </div>
-      {/* arrow on hover */}
-      <div className="absolute top-3 right-3 text-[#444] group-hover:text-[#00ff9d] transition-colors text-[12px]">
-        →
-      </div>
-      <div className={`flex flex-col justify-end h-full ${variant === 'top' ? 'p-8' : 'p-6'}`}>
+      <div
+        className={`flex flex-col h-full ${variant === 'top' ? 'p-8' : 'p-6'} ${
+          variant === 'right'
+            ? 'justify-start items-end text-right'
+            : 'justify-end items-start text-left'
+        }`}
+      >
         <div
           className={`text-white group-hover:text-[#00ff9d] transition-colors font-orbit tracking-[0.1em] ${
             variant === 'top' ? 'text-[28px] sm:text-[36px]' : 'text-[22px] sm:text-[28px]'
@@ -96,8 +98,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         </div>
       </div>
 
-      {/* RESULTS — bottom-right, indented most (left edge ~57%) */}
-      <div className="absolute" style={{ left: '57%', top: '66%', width: '40%', height: '30%' }}>
+      {/* RESULTS — bottom-right, indented most (left edge ~53%, ~10% wider) */}
+      <div className="absolute" style={{ left: '53%', top: '66%', width: '44%', height: '30%' }}>
         <HubButton
           variant="right"
           label="RESULTS"
