@@ -26,6 +26,13 @@ function Row({ node, basePath, activePath, depth, onSelect }: RowProps) {
 
   const [expanded, setExpanded] = useState(isOnActivePath)
 
+  // Auto-expand folders when they land on the active path (after navigation),
+  // so the explorer traversal follows clicks. Doesn't force-collapse when
+  // navigating away — manually opened folders stay open.
+  useEffect(() => {
+    if (isOnActivePath) setExpanded(true)
+  }, [isOnActivePath])
+
   if (isFile(node)) {
     return (
       <button
