@@ -35,6 +35,11 @@ function HubButton({
       <div className="absolute top-3 left-3 text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] transition-colors">
         {variant === 'top' ? '01' : variant === 'left' ? '02' : '03'}
       </div>
+      {/* edge-midpoint pixels — one standout pixel centered on each border edge */}
+      <span className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
+      <span className="absolute left-1/2 -translate-x-1/2 -bottom-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
+      <span className="absolute top-1/2 -translate-y-1/2 -left-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
+      <span className="absolute top-1/2 -translate-y-1/2 -right-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
       <div
         className={`flex flex-col h-full ${variant === 'top' ? 'p-8' : 'p-6'} ${
           variant === 'right'
@@ -68,8 +73,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
     // bottom-right indented most. METHOD+OVERVIEW form the right angle.
     <div className="flex-1 relative bg-[#0a0a0a] font-orbit overflow-hidden">
-      {/* OVERVIEW — top, indented right (~23% left edge) */}
-      <div className="absolute" style={{ left: '23%', top: '7%', width: '72%', height: '34%' }}>
+      {/* OVERVIEW — top, indented right (~23% left edge, 5% narrower from right) */}
+      <div className="absolute" style={{ left: '23%', top: '7%', width: '67%', height: '34%' }}>
         <HubButton
           variant="top"
           label="OVERVIEW"
@@ -98,8 +103,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         </div>
       </div>
 
-      {/* RESULTS — bottom-right, indented most (left edge ~53%, ~10% wider) */}
-      <div className="absolute" style={{ left: '53%', top: '66%', width: '44%', height: '30%' }}>
+      {/* RESULTS — bottom-right, indented most (left edge ~55%, ~5% wider) */}
+      <div className="absolute" style={{ left: '55%', top: '66%', width: '42%', height: '30%' }}>
         <HubButton
           variant="right"
           label="RESULTS"
