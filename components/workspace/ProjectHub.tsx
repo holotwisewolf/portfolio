@@ -26,9 +26,9 @@ function HubButton({
   variant: 'top' | 'left' | 'right'
   onClick: () => void
 }) {
-  // ponytail: shared button class, variant only tweaks size via parent
+  // ponytail: shared button class, fills its positioned wrapper
   const base =
-    'group relative border border-[#1c2e1c] bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left overflow-hidden'
+    'group relative w-full h-full block border border-[#1c2e1c] bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left overflow-hidden'
   return (
     <button onClick={onClick} className={base}>
       {/* index marker */}
@@ -61,56 +61,49 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
   }
 
   return (
-    <div className="flex-1 bg-[#0a0a0a] font-orbit p-[3vh] overflow-hidden">
-      {/* Grid: METHOD (tall left col) | 50px gap | right column (overview / title / results)
-          METHOD spans full height; OVERVIEW top-right shifted right by the gap;
-          title sits beside METHOD in the middle; RESULTS fills bottom-right.
-          METHOD + OVERVIEW meet at a right angle, gap reads as triangle negative space. */}
+    // Absolute-positioned cascade matching the ASCII sketch. Each box steps
+    // further right (23% → 36% → 57% left edges). METHOD anchors bottom-left
+    // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
+    // bottom-right indented most. METHOD+OVERVIEW form the right angle.
+    <div className="flex-1 relative bg-[#0a0a0a] font-orbit overflow-hidden">
+      {/* OVERVIEW — top, indented right (~23% left edge) */}
+      <div className="absolute" style={{ left: '23%', top: '7%', width: '72%', height: '34%' }}>
+        <HubButton
+          variant="top"
+          label="OVERVIEW"
+          blurb="What it is. The pitch, the takeaways, the one-screen version."
+          onClick={() => go('OVERVIEW')}
+        />
+      </div>
+
+      {/* METHOD — bottom-left, tall narrow (left edge ~6%) */}
+      <div className="absolute" style={{ left: '6%', top: '44%', width: '26%', height: '52%' }}>
+        <HubButton
+          variant="left"
+          label="METHOD"
+          blurb="Methodology, features, build log."
+          onClick={() => go('METHOD')}
+        />
+      </div>
+
+      {/* TITLE — beside METHOD, below OVERVIEW, wide short (left edge ~36%) */}
       <div
-        className="grid h-full"
-        style={{
-          gridTemplateColumns: 'minmax(170px, 20%) 50px 1fr',
-          gridTemplateRows: '1fr auto 1.3fr',
-        }}
+        className="absolute border border-[#1c2e1c] bg-black px-6 flex items-center"
+        style={{ left: '36%', top: '49%', width: '42%', height: '9%' }}
       >
-        {/* METHOD — full-height left column (tall, narrow) */}
-        <div style={{ gridColumn: 1, gridRow: '1 / 4' }}>
-          <HubButton
-            variant="left"
-            label="METHOD"
-            blurb="How it works. Methodology, features, build log."
-            onClick={() => go('METHOD')}
-          />
+        <div className="text-[#00ff9d] text-[11px] tracking-[0.4em]">
+          {projectNode.name.toUpperCase()}
         </div>
+      </div>
 
-        {/* OVERVIEW — top right (shifted right by the 50px gap column) */}
-        <div style={{ gridColumn: 3, gridRow: 1 }}>
-          <HubButton
-            variant="top"
-            label="OVERVIEW"
-            blurb="What it is. The pitch, the takeaways, the one-screen version."
-            onClick={() => go('OVERVIEW')}
-          />
-        </div>
-
-        {/* TITLE — beside METHOD, below OVERVIEW */}
-        <div style={{ gridColumn: 3, gridRow: 2 }} className="flex items-center py-[1vh]">
-          <div className="border border-[#1c2e1c] px-8 py-2 bg-black">
-            <div className="text-[#00ff9d] text-[11px] tracking-[0.4em]">
-              {projectNode.name.toUpperCase()}
-            </div>
-          </div>
-        </div>
-
-        {/* RESULTS — bottom right */}
-        <div style={{ gridColumn: 3, gridRow: 3 }}>
-          <HubButton
-            variant="right"
-            label="RESULTS"
-            blurb="The proof. Backtests, equity curves, zone data."
-            onClick={() => go('RESULTS')}
-          />
-        </div>
+      {/* RESULTS — bottom-right, indented most (left edge ~57%) */}
+      <div className="absolute" style={{ left: '57%', top: '66%', width: '40%', height: '30%' }}>
+        <HubButton
+          variant="right"
+          label="RESULTS"
+          blurb="Backtests, equity curves, zone data."
+          onClick={() => go('RESULTS')}
+        />
       </div>
     </div>
   )
