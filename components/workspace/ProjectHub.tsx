@@ -28,7 +28,7 @@ function HubButton({
 }) {
   // ponytail: shared button class, fills its positioned wrapper. No overflow-hidden — edge pixels must protrude.
   const base =
-    'group relative w-full h-full block border border-[#1c2e1c] bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left'
+    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left'
   return (
     <button onClick={onClick} className={base}>
       {/* index marker */}
@@ -36,10 +36,10 @@ function HubButton({
         {variant === 'top' ? '01' : variant === 'left' ? '02' : '03'}
       </div>
       {/* edge-midpoint pixels — one standout pixel centered on each border edge */}
-      <span className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
-      <span className="absolute left-1/2 -translate-x-1/2 -bottom-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
-      <span className="absolute top-1/2 -translate-y-1/2 -left-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
-      <span className="absolute top-1/2 -translate-y-1/2 -right-[3px] w-[6px] h-[6px] bg-[#00ff9d]" />
+      <span className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[6px] h-[6px] bg-white" />
+      <span className="absolute left-1/2 -translate-x-1/2 -bottom-[3px] w-[6px] h-[6px] bg-white" />
+      <span className="absolute top-1/2 -translate-y-1/2 -left-[3px] w-[6px] h-[6px] bg-white" />
+      <span className="absolute top-1/2 -translate-y-1/2 -right-[3px] w-[6px] h-[6px] bg-white" />
       <div
         className={`flex flex-col h-full ${variant === 'top' ? 'p-8' : 'p-6'} ${
           variant === 'right'
