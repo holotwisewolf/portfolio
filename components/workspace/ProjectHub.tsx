@@ -26,9 +26,9 @@ function HubButton({
   variant: 'top' | 'left' | 'right'
   onClick: () => void
 }) {
-  // ponytail: shared button class, fills its positioned wrapper
+  // ponytail: shared button class, fills its positioned wrapper. No overflow-hidden — edge pixels must protrude.
   const base =
-    'group relative w-full h-full block border border-[#1c2e1c] bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left overflow-hidden'
+    'group relative w-full h-full block border border-[#1c2e1c] bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left'
   return (
     <button onClick={onClick} className={base}>
       {/* index marker */}
