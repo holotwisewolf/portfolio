@@ -37,45 +37,60 @@ export default function FolderView({ path }: Props) {
     : 'DIRECTORY'
 
   return (
-    <div className="p-8">
-      <div className="text-[10px] tracking-[0.3em] text-[#444] mb-2">{folderTypeLabel}</div>
-      <h1 className="text-3xl tracking-wider text-white mb-2">
-        {folder.type === 'root' ? 'projects' : folder.name}{folder.type !== 'root' && '/'}
-      </h1>
-      {folder.description && folder.type !== 'root' && (
-        <p className="text-[12px] text-gray-500 mb-8">{folder.description}</p>
-      )}
-      {folder.type === 'root' && (
-        <p className="text-[12px] text-gray-500 mb-8">All project categories</p>
-      )}
+    <div className="flex h-full">
+      {/* LEFT — title column: DIRECTORY label on top, folder name vertically centered */}
+      <div className="w-[30%] border-r border-[#1c2e1c] p-6 flex flex-col">
+        <div className="text-[9px] tracking-[0.3em] text-[#444]">{folderTypeLabel}</div>
+        <div className="flex-1 flex items-center">
+          <div>
+            <h1 className="text-[32px] sm:text-[42px] tracking-[0.05em] text-white font-orbit leading-none">
+              {folder.type === 'root' ? 'projects' : folder.name}{folder.type !== 'root' && '/'}
+            </h1>
+            {folder.description && folder.type !== 'root' && (
+              <p className="text-[11px] text-gray-500 mt-4 max-w-[280px] leading-relaxed">
+                {folder.description}
+              </p>
+            )}
+            {folder.type === 'root' && (
+              <p className="text-[11px] text-gray-500 mt-4">All project categories</p>
+            )}
+          </div>
+        </div>
+        <div className="text-[9px] tracking-[0.3em] text-[#333]">
+          {children.length} {children.length === 1 ? 'ENTRY' : 'ENTRIES'}
+        </div>
+      </div>
 
-      {children.length === 0 ? (
-        <div className="border border-[#1c2e1c] p-6 text-gray-600 text-[12px] tracking-[0.1em]">
-          EMPTY DIRECTORY
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-[2px]">
-          {children.map((child) => (
-            <button
-              key={child.name}
-              onClick={() => navigateWorkspace([...path, child.name])}
-              className="text-left border border-[#1c2e1c] p-4 hover:bg-[#0f1a0f] transition-colors group min-h-[110px] flex flex-col justify-between"
-            >
-              <div>
-                <div className="text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] mb-2 transition-colors">
-                  {typeIndicator(child)}
+      {/* RIGHT — file grid (cell-style: gap on colored bg draws continuous grid lines) */}
+      <div className="flex-1 p-6 overflow-auto">
+        {children.length === 0 ? (
+          <div className="border border-[#1c2e1c] p-6 text-gray-600 text-[12px] tracking-[0.1em]">
+            EMPTY DIRECTORY
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-[1px] bg-[#1c2e1c] border border-[#1c2e1c]">
+            {children.map((child) => (
+              <button
+                key={child.name}
+                onClick={() => navigateWorkspace([...path, child.name])}
+                className="text-left bg-[#0a0a0a] p-4 hover:bg-[#0f1a0f] transition-colors group min-h-[120px] flex flex-col justify-between"
+              >
+                <div>
+                  <div className="text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] mb-2 transition-colors">
+                    {typeIndicator(child)}
+                  </div>
+                  <div className="text-white text-[14px] tracking-wider group-hover:text-[#00ff9d] transition-colors">
+                    {nameDisplay(child)}
+                  </div>
                 </div>
-                <div className="text-white text-[14px] tracking-wider group-hover:text-[#00ff9d] transition-colors">
-                  {nameDisplay(child)}
+                <div className="text-[10px] text-gray-500 mt-3 leading-relaxed">
+                  {child.description}
                 </div>
-              </div>
-              <div className="text-[10px] text-gray-500 mt-3 leading-relaxed">
-                {child.description}
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
