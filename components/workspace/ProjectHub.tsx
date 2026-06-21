@@ -93,10 +93,10 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         />
       </div>
 
-      {/* TITLE — beside METHOD, below OVERVIEW, wide short (left edge ~36%) */}
+      {/* TITLE — beside METHOD, below OVERVIEW, wide short (left edge ~34%, shortened from right) */}
       <div
         className="absolute border border-[#1c2e1c] bg-black px-8 flex items-center"
-        style={{ left: '34%', top: '47%', width: '52%', height: '13%' }}
+        style={{ left: '34%', top: '47%', width: '40%', height: '13%' }}
       >
         <div className="text-[#00ff9d] text-[14px] tracking-[0.45em]">
           {projectNode.name.toUpperCase()}
