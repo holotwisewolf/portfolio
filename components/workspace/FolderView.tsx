@@ -61,35 +61,40 @@ export default function FolderView({ path }: Props) {
         </div>
       </div>
 
-      {/* RIGHT — file grid (cell-style: gap on colored bg draws continuous grid lines) */}
+      {/* RIGHT — file grid (cell-style: gap on colored bg draws continuous grid lines).
+           Empty folders still show the grid: 9 placeholder cells keep the structure visible. */}
       <div className="flex-1 p-6 overflow-auto">
-        {children.length === 0 ? (
-          <div className="border border-[#1c2e1c] p-6 text-gray-600 text-[12px] tracking-[0.1em]">
-            EMPTY DIRECTORY
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-[1px] bg-[#1c2e1c] border border-[#1c2e1c]">
-            {children.map((child) => (
-              <button
-                key={child.name}
-                onClick={() => navigateWorkspace([...path, child.name])}
-                className="text-left bg-[#0a0a0a] p-4 hover:bg-[#0f1a0f] transition-colors group min-h-[120px] flex flex-col justify-between"
-              >
-                <div>
-                  <div className="text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] mb-2 transition-colors">
-                    {typeIndicator(child)}
-                  </div>
-                  <div className="text-white text-[14px] tracking-wider group-hover:text-[#00ff9d] transition-colors">
-                    {nameDisplay(child)}
-                  </div>
-                </div>
-                <div className="text-[10px] text-gray-500 mt-3 leading-relaxed">
-                  {child.description}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
+        {(() => {
+          const isEmpty = children.length === 0
+          const cells = isEmpty ? Array.from({ length: 9 }) : children
+          return (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-[1px] bg-[#1c2e1c] border border-[#1c2e1c]">
+              {cells.map((child: any, i) =>
+                isEmpty ? (
+                  <div key={i} className="bg-[#0a0a0a] min-h-[120px]" />
+                ) : (
+                  <button
+                    key={child.name}
+                    onClick={() => navigateWorkspace([...path, child.name])}
+                    className="text-left bg-[#0a0a0a] p-4 hover:bg-[#0f1a0f] transition-colors group min-h-[120px] flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] mb-2 transition-colors">
+                        {typeIndicator(child)}
+                      </div>
+                      <div className="text-white text-[14px] tracking-wider group-hover:text-[#00ff9d] transition-colors">
+                        {nameDisplay(child)}
+                      </div>
+                    </div>
+                    <div className="text-[10px] text-gray-500 mt-3 leading-relaxed">
+                      {child.description}
+                    </div>
+                  </button>
+                )
+              )}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )
