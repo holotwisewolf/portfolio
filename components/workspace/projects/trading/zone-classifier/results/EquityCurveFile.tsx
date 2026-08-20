@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import TradingLineChart from '@/components/charts/TradingLineChart'
+import AnimatedLineChart from '@/components/charts/AnimatedLineChart'
 import TradingMetricsCard from '@/components/charts/TradingMetricsCard'
 import { generateBacktestData, defaultSettings } from '../data'
 
@@ -26,14 +26,11 @@ export default function ResultsEquityCurveFile() {
           { label: 'SHARPE', value: backtestData.metrics['Sharpe Ratio'] },
         ]}
       >
-        <TradingLineChart
+        <AnimatedLineChart
           data={backtestData.data}
           xKey="day"
           yKey="equity"
-          area
           color="#00cc77"
-          height={280}
-          formatTooltip={(value: any) => ['', `$${value}`]}
         />
       </TradingMetricsCard>
     </div>

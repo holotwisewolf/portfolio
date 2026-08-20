@@ -16,19 +16,19 @@ export default function ResultsPatternsFile() {
         <div className="border-r border-b border-[#1c2e1c] p-3">
           <div className="text-[10px] tracking-[0.2em] text-[#00ff9d] mb-1">BREAKOUT ZONE</div>
           <div className="text-[10px] text-[#444] mb-3">Volume surge + expansion = entry signal</div>
-          <TradingCandleChart data={BREAKOUT_EXAMPLE} height={180} showVolume interactive />
+          <TradingCandleChart data={BREAKOUT_EXAMPLE} height={180} showVolume interactive animate animateDelay={0} />
         </div>
 
         <div className="border-r border-b border-[#1c2e1c] p-3">
           <div className="text-[10px] tracking-[0.2em] text-[#00ff9d] mb-1">CONSOLIDATION ZONE</div>
           <div className="text-[10px] text-[#444] mb-3">Tight range, low volume = wait</div>
-          <TradingCandleChart data={CONSOLIDATION_EXAMPLE} height={180} showVolume interactive />
+          <TradingCandleChart data={CONSOLIDATION_EXAMPLE} height={180} showVolume interactive animate animateDelay={500} />
         </div>
 
         <div className="border-r border-b border-[#1c2e1c] p-3">
           <div className="text-[10px] tracking-[0.2em] text-[#00ff9d] mb-1">NEUTRAL ZONE</div>
           <div className="text-[10px] text-[#444] mb-3">No clear pattern, avoid trading</div>
-          <TradingCandleChart data={NEUTRAL_EXAMPLE} height={180} showVolume interactive />
+          <TradingCandleChart data={NEUTRAL_EXAMPLE} height={180} showVolume interactive animate animateDelay={1000} />
         </div>
       </div>
     </div>

@@ -16,10 +16,12 @@ interface CandleData {
 interface TradingCandleChartProps {
   data: CandleData[]
   height?: number
-  width?: number
+  width?: string | number
   showVolume?: boolean
   interactive?: boolean
   onCandleClick?: (candle: CandleData, index: number) => void
+  animate?: boolean
+  animateDelay?: number
 }
 
 const CANDLE_WIDTH = 8
@@ -48,6 +50,8 @@ export default function TradingCandleChart({
   showVolume = true,
   interactive = true,
   onCandleClick,
+  animate = false,
+  animateDelay = 0,
 }: TradingCandleChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [selectedCandle, setSelectedCandle] = useState<{ candle: CandleData; index: number } | null>(null)
@@ -69,6 +73,12 @@ export default function TradingCandleChart({
       priceRange: range + padding * 2,
     }
   }, [data])
+
+  // manim-style stagger: candles sweep in left→right when `animate` is set
+  const candleAnim = (i: number) =>
+    animate
+      ? { className: 'zc-anim', style: { animation: `zc-fade 300ms ease ${animateDelay + i * 60}ms both` } }
+      : {}
 
   const chartWidth = width || '100%'
   const chartHeight = height
@@ -135,6 +145,7 @@ export default function TradingCandleChart({
               width={CANDLE_WIDTH + CANDLE_GAP * 2}
               height={priceHeight}
               fill={ZONE_COLORS[candle.zone]}
+              {...candleAnim(i)}
             />
           )
         })}
@@ -154,7 +165,7 @@ export default function TradingCandleChart({
             : 0
 
           return (
-            <g key={i}>
+            <g key={i} {...candleAnim(i)}>
               {showVolume && candle.volume && (
                 <rect
                   x={x}
