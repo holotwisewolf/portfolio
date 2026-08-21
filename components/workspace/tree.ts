@@ -19,6 +19,9 @@ import * as vpoc from './projects/trading/vpoc/content'
 import * as ib from './projects/trading/ib-strategy/content'
 import * as walkforward from './projects/trading/walkforward/content'
 import * as symbolic from './projects/trading/symbolic/content'
+import * as mlConsol from './projects/trading/ml-consolidation/content'
+import * as orderflowViz from './projects/trading/orderflow-visualizer/content'
+import * as neutralCandle from './projects/trading/neutral-candle/content'
 import OrderflowDemo from '@/components/projects/OrderflowDemo'
 import VPOCDemo from '@/components/projects/VPOCDemo'
 
@@ -258,6 +261,98 @@ const tradingChildren = [
         children: [
           { type: 'file' as const, name: 'validation', description: 'R² validation + model comparison', component: makeDoc(symbolic.validation) },
           { type: 'file' as const, name: 'evolution', description: 'Evolution run + feature weights', component: makeDoc(symbolic.evolution) },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'project' as const,
+    name: 'ml-consolidation',
+    description: 'ML consolidation detection',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(mlConsol.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'PIPELINE.md', description: 'Training pipeline + features', component: makeDoc(mlConsol.pipeline) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'model-accuracy', description: 'Model comparison + importance', component: makeDoc(mlConsol.modelAccuracyFile) },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'project' as const,
+    name: 'orderflow-visualizer',
+    description: 'Tick data quality diagnostics',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(orderflowViz.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'data-quality', description: 'Feed audit results', component: makeDoc(orderflowViz.dataQuality) },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'project' as const,
+    name: 'neutral-candle',
+    description: '12-filter grid search optimizer',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(neutralCandle.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'FILTERS.md', description: 'Filter vocabulary + grid search', component: makeDoc(neutralCandle.filters) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'best-combos', description: 'Top filter combinations', component: makeDoc(neutralCandle.bestCombos) },
+          { type: 'file' as const, name: 'monte-carlo', description: 'Luck distribution analysis', component: makeDoc(neutralCandle.monteCarlo) },
         ],
       },
     ],
