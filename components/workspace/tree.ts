@@ -1,4 +1,5 @@
 import type { FolderNode } from './registry'
+import { makeDoc, makeDemo } from './DocFile'
 import {
   ReadmeFile,
   MethodologyFile,
@@ -12,6 +13,9 @@ import {
   ResultsZoneDistributionFile,
   ResultsFeatureImportanceFile,
 } from './projects/trading/zone-classifier'
+import * as orderflow from './projects/trading/orderflow/content'
+import * as hmm from './projects/trading/hmm/content'
+import OrderflowDemo from '@/components/projects/OrderflowDemo'
 
 const zoneClassifierChildren = [
   {
@@ -58,14 +62,72 @@ const tradingChildren = [
   {
     type: 'project' as const,
     name: 'orderflow',
-    description: 'Delta acceleration analysis (legacy window)',
-    children: [],
+    description: 'Delta acceleration analysis',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(orderflow.readme) },
+          { type: 'file' as const, name: 'FINDINGS.md', description: 'Cross-validation results', component: makeDoc(orderflow.findings) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'METHODOLOGY.md', description: 'Elasticity + delta acceleration', component: makeDoc(orderflow.methodology) },
+          { type: 'file' as const, name: 'DATA_NOTES.md', description: 'MBP-1 vs trade data', component: makeDoc(orderflow.dataNotes) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'ev-decay', description: 'EV per trade over time', component: makeDoc(orderflow.evDecay) },
+          { type: 'file' as const, name: 'quartiles', description: 'Performance by quartile', component: makeDoc(orderflow.quartiles) },
+          { type: 'file' as const, name: 'elasticity-dist', description: 'Elasticity distribution', component: makeDoc(orderflow.elasticityDistFile) },
+          { type: 'file' as const, name: 'demo', description: 'Interactive simulator', component: makeDemo(OrderflowDemo, { path: '// results/demo', title: 'ORDERFLOW DEMO', intro: 'Interactive delta/zone simulator on generated data.' }) },
+        ],
+      },
+    ],
   },
   {
     type: 'project' as const,
     name: 'hmm',
-    description: 'Hidden Markov Models (legacy window)',
-    children: [],
+    description: 'Hidden Markov regime detection',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(hmm.readme) },
+          { type: 'file' as const, name: 'FINDINGS.md', description: 'HMM vs Zone Classifier', component: makeDoc(hmm.findings) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'METHODOLOGY.md', description: 'States + training params', component: makeDoc(hmm.methodology) },
+          { type: 'file' as const, name: 'FEATURES.md', description: 'The 4 HMM features', component: makeDoc(hmm.features) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'regime-transitions', description: 'Regime over time', component: makeDoc(hmm.regimeTransitions) },
+          { type: 'file' as const, name: 'state-distribution', description: 'Time in each state', component: makeDoc(hmm.stateDistributionFile) },
+        ],
+      },
+    ],
   },
   {
     type: 'project' as const,
