@@ -6,7 +6,6 @@ import {
   FeaturesFile,
   FindingsFile,
   BuildLogFile,
-  SettingsConf,
   BacktestDemoFile,
   ResultsPatternsFile,
   ResultsEquityCurveFile,
@@ -45,7 +44,6 @@ const zoneClassifierChildren = [
       { type: 'file' as const, name: 'METHODOLOGY.md', description: 'How the model works', component: MethodologyFile },
       { type: 'file' as const, name: 'FEATURES.md', description: '68 engineered features', component: FeaturesFile },
       { type: 'file' as const, name: 'BUILD_LOG.md', description: 'How I built this', component: BuildLogFile },
-      { type: 'file' as const, name: 'settings.conf', description: 'Model parameters', component: SettingsConf },
     ],
   },
   {
@@ -98,7 +96,6 @@ const tradingChildren = [
         description: 'The proof',
         children: [
           { type: 'file' as const, name: 'ev-decay', description: 'EV per trade over time', component: makeDoc(orderflow.evDecay) },
-          { type: 'file' as const, name: 'quartiles', description: 'Performance by quartile', component: makeDoc(orderflow.quartiles) },
           { type: 'file' as const, name: 'elasticity-dist', description: 'Elasticity distribution', component: makeDoc(orderflow.elasticityDistFile) },
           { type: 'file' as const, name: 'demo', description: 'Interactive simulator', component: makeDemo(OrderflowDemo, { path: '// results/demo', title: 'ORDERFLOW DEMO', intro: 'Interactive delta/zone simulator on generated data.' }) },
         ],
@@ -133,7 +130,6 @@ const tradingChildren = [
         name: 'results',
         description: 'The proof',
         children: [
-          { type: 'file' as const, name: 'regime-transitions', description: 'Regime over time', component: makeDoc(hmm.regimeTransitions) },
           { type: 'file' as const, name: 'state-distribution', description: 'Time in each state', component: makeDoc(hmm.stateDistributionFile) },
         ],
       },

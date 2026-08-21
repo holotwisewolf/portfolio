@@ -78,23 +78,16 @@ export const methodology: DocContent = {
   ],
 }
 
-const windowSharpe = [
-  { window: 'W1', sharpe: 1.95 },
-  { window: 'W2', sharpe: 1.72 },
-  { window: 'W3', sharpe: 1.68 },
-  { window: 'W4', sharpe: 1.55 },
-  { window: 'W5', sharpe: 1.48 },
-  { window: 'W6', sharpe: 1.36 },
-  { window: 'W7', sharpe: 1.24 },
-  { window: 'W8', sharpe: 1.02 },
-  { window: 'W9', sharpe: 0.88 },
-  { window: 'W10', sharpe: 0.65 },
+const sharpeSummary = [
+  { window: 'BEST', sharpe: 1.95 },
+  { window: 'AVG', sharpe: 1.45 },
+  { window: 'WORST', sharpe: 0.65 },
 ]
 
 export const windows: DocContent = {
   path: '// results/windows',
   title: 'WINDOW PERFORMANCE',
-  intro: 'Sharpe per rolling window — the decay pattern walk-forward exists to expose.',
+  intro: 'Sharpe summary across the 10 rolling windows.',
   blocks: [
     {
       kind: 'metrics',
@@ -105,12 +98,12 @@ export const windows: DocContent = {
         { label: 'WORST WINDOW', value: '0.65', trend: 'down' },
         { label: 'PROFITABLE', value: '9 / 10', trend: 'up' },
       ],
-      chart: { kind: 'bar', data: windowSharpe, xKey: 'window', yKey: 'sharpe', illustrative: true },
+      chart: { kind: 'bar', data: sharpeSummary, xKey: 'window', yKey: 'sharpe' },
     },
     {
       kind: 'text',
       paras: [
-        { text: 'A gentle monotonic decay — not a cliff — is the healthy signature: the edge erodes as regimes shift but the strategy adapts.' },
+        { text: 'The gap between best and worst window is the number that matters: a strategy that only works in its best window is a curve-fit, not an edge.' },
       ],
     },
   ],

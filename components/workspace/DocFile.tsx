@@ -60,6 +60,20 @@ function cellText(cell: string | { text: string; tone?: Tone }) {
   return typeof cell === 'string' ? { text: cell, tone: 'default' as Tone } : { text: cell.text, tone: cell.tone ?? 'default' }
 }
 
+// ASCII-style list marks (no unicode glyphs): checked = bordered box with a filled
+// inner dot, cross = empty bordered rectangle, none = short dim dash.
+function Mark({ kind }: { kind?: 'check' | 'cross' | 'none' }) {
+  if (kind === 'check')
+    return (
+      <span className="w-[9px] h-[9px] mt-[3px] border border-[#00ff9d] flex items-center justify-center flex-shrink-0">
+        <span className="w-[3px] h-[3px] bg-[#00ff9d]" />
+      </span>
+    )
+  if (kind === 'cross')
+    return <span className="w-[9px] h-[9px] mt-[3px] border border-[#ef4444] flex-shrink-0" />
+  return <span className="w-[9px] h-[1px] mt-[7px] bg-[#444] flex-shrink-0" />
+}
+
 function Chart({ spec }: { spec: ChartSpec }) {
   const chart =
     spec.kind === 'anim-line' ? (
@@ -108,13 +122,7 @@ function BlockView({ block }: { block: Block }) {
           <div className="space-y-1">
             {block.items.map((item, i) => (
               <div key={i} className="flex gap-2 text-[11px] text-gray-400 leading-relaxed">
-                <span
-                  className={
-                    item.mark === 'check' ? 'text-[#00ff9d]' : item.mark === 'cross' ? 'text-[#ef4444]' : 'text-[#444]'
-                  }
-                >
-                  {item.mark === 'check' ? '✓' : item.mark === 'cross' ? '✗' : '·'}
-                </span>
+                <Mark kind={item.mark} />
                 <span>{item.text}</span>
               </div>
             ))}

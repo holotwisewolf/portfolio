@@ -108,29 +108,8 @@ export const features: DocContent = {
   ],
 }
 
-// Representative regime sequence (values: 3=breakout, 2=trending, 1=consolidation, 0.5=neutral)
-const regimeSeries = [
-  1, 1, 0.5, 1, 2, 2, 1, 1, 3, 2, 2, 1, 0.5, 0.5, 1, 2, 3, 3, 2, 1, 1, 0.5, 1, 2,
-].map((regimeValue, i) => ({ day: i + 1, regimeValue }))
-
-export const regimeTransitions: DocContent = {
-  path: '// results/regime-transitions',
-  title: 'REGIME TRANSITIONS',
-  intro: 'Detected regime per day over the analysis window (3=breakout, 2=trending, 1=consolidation, 0.5=neutral).',
-  blocks: [
-    {
-      kind: 'metrics',
-      title: 'REGIME TRANSITIONS OVER TIME',
-      metrics: [
-        { label: 'TOTAL DAYS', value: '60', trend: 'neutral' },
-        { label: 'REGIMES', value: '4', trend: 'neutral' },
-        { label: 'AVG CONFIDENCE', value: '82%', trend: 'up' },
-        { label: 'TRANSITIONS', value: '12', trend: 'neutral' },
-      ],
-      chart: { kind: 'line', data: regimeSeries, xKey: 'day', yKey: 'regimeValue', illustrative: true },
-    },
-  ],
-}
+// Representative regime sequence removed — the per-day sequence chart was invented,
+// not model output. Only the real summary stats are shown.
 
 const stateDistribution = [
   { state: 'Consolidation', count: 35 },
@@ -154,6 +133,16 @@ export const stateDistributionFile: DocContent = {
         { label: 'NEUTRAL', value: '15%', trend: 'neutral' },
       ],
       chart: { kind: 'bar', data: stateDistribution, xKey: 'state', yKey: 'count' },
+    },
+    {
+      kind: 'metrics',
+      title: 'DETECTION SUMMARY',
+      metrics: [
+        { label: 'TOTAL DAYS', value: '60', trend: 'neutral' },
+        { label: 'REGIMES', value: '4', trend: 'neutral' },
+        { label: 'AVG CONFIDENCE', value: '82%', trend: 'up' },
+        { label: 'TRANSITIONS', value: '12', trend: 'neutral' },
+      ],
     },
   ],
 }

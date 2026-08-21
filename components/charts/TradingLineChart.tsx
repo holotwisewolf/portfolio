@@ -81,6 +81,10 @@ export default function TradingLineChart({
           tick={{ fill: AXIS_COLOR, fontSize: 10, fontFamily: 'Orbit, monospace' }}
           tickLine={false}
           axisLine={{ stroke: AXIS_LINE }}
+          domain={[
+            (v: number) => (v > 0 ? v * 0.98 : v * 1.02),
+            (v: number) => (v > 0 ? v * 1.02 : v * 0.98),
+          ]}
         />
         <Tooltip
           content={<CustomTooltip formatTooltip={formatTooltip} />}

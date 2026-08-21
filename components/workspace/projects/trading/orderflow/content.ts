@@ -129,24 +129,28 @@ export const dataNotes: DocContent = {
       ],
     },
     {
-      kind: 'text',
+      kind: 'table',
       heading: 'MBP-1 vs TRADE DATA',
+      headers: ['FEED', 'CONTAINS', 'VERDICT'],
+      rows: [
+        ['MBP-1 (Market-by-Price)', 'Full orderbook depth, bid/ask changes, limit order placement', { text: 'What orderflow needs', tone: 'good' }],
+        ['Trade Data', 'Filled orders only — execution price, volume, timestamp', { text: 'Measures noise', tone: 'bad' }],
+      ],
+    },
+    {
+      kind: 'text',
       paras: [
-        { text: 'MBP-1 (Market-by-Price): Full orderbook depth, bid/ask changes, limit order placement', tone: 'good' },
-        { text: 'Trade Data: Filled orders only — execution price, volume, timestamp', tone: 'bad' },
         { text: 'Conclusion: Without MBP-1 orderbook data, this is not measuring orderflow — it is measuring noise.', tone: 'key' },
       ],
     },
   ],
 }
 
-// Real EV figures across the validation window
+// Real EV figures across the validation window (the four measured points)
 const evSeries = [
   { month: "Aug '24", ev: 23.38 },
-  { month: "Nov '24", ev: 12.5 },
-  { month: "Feb '25", ev: 7.8 },
+  { month: "Dec '24", ev: 12.5 },
   { month: "Apr '25", ev: 5.2 },
-  { month: "Jun '25", ev: 2.9 },
   { month: "Aug '25", ev: 1.61 },
 ]
 
@@ -175,44 +179,9 @@ export const evDecay: DocContent = {
   ],
 }
 
-const quartileWin = [
-  { bucket: 'Q1 Decel', winRate: 48 },
-  { bucket: 'Q2', winRate: 50 },
-  { bucket: 'Q3', winRate: 52 },
-  { bucket: 'Q4 Accel', winRate: 53 },
-]
-const quartileEv = [
-  { bucket: 'Q1 Decel', ev: 17 },
-  { bucket: 'Q2', ev: 13 },
-  { bucket: 'Q3', ev: 9 },
-  { bucket: 'Q4 Accel', ev: 6 },
-]
-
-export const quartiles: DocContent = {
-  path: '// results/quartiles',
-  title: 'QUARTILE PERFORMANCE',
-  intro: 'Performance bucketed by delta-acceleration quartile.',
-  blocks: [
-    {
-      kind: 'metrics',
-      title: 'BY DELTA ACCELERATION QUARTILE',
-      metrics: [
-        { label: 'BEST QUARTILE', value: 'Q1 (Decel)', trend: 'up' },
-        { label: 'Q1 EV/TRADE', value: '$17', trend: 'up' },
-        { label: 'Q4 EV/TRADE', value: '$6', trend: 'down' },
-        { label: 'EDGE', value: 'Decel > Accel', trend: 'neutral' },
-      ],
-      chart: { kind: 'bar', data: quartileEv, xKey: 'bucket', yKey: 'ev', illustrative: true },
-    },
-    {
-      kind: 'text',
-      heading: 'READ',
-      paras: [
-        { text: 'Win rates are flat across quartiles — the edge lives in payoff asymmetry, not hit rate. Deceleration (exhaustion) quarters carry the EV.' },
-      ],
-    },
-  ],
-}
+// Quartile performance file removed — those win-rate/EV values were procedural
+// (formula-derived in the legacy window), not measured results. The measured
+// cross-period figures live in FINDINGS.md and results/ev-decay.
 
 const elasticityDist = [
   { range: '0-2', count: 35 },

@@ -169,26 +169,19 @@ const featureImportance = [
   { feature: 'volatility', importance: 0.09 },
 ]
 
-const lossCurve = Array.from({ length: 20 }, (_, i) => ({
-  generation: (i + 1) * 10,
-  loss: Number((1.0 * Math.pow(0.955, i + 1) + 0.2).toFixed(3)),
-}))
-
 export const evolution: DocContent = {
   path: '// results/evolution',
   title: 'EVOLUTION RUN',
-  intro: 'Loss and feature weights across a 200-generation run.',
+  intro: 'Run configuration and the feature weights it converged to.',
   blocks: [
     {
-      kind: 'metrics',
-      title: 'EVOLUTION PROGRESS',
-      metrics: [
-        { label: 'GENERATIONS', value: '200', trend: 'neutral' },
-        { label: 'FINAL LOSS', value: '0.24', trend: 'down' },
-        { label: 'TOP FEATURE', value: 'volume_surge', trend: 'neutral' },
-        { label: 'R² SCORE', value: '0.73', trend: 'up' },
+      kind: 'stats',
+      items: [
+        { label: 'GENERATIONS', value: '200' },
+        { label: 'POPULATION', value: '100' },
+        { label: 'PARSIMONY λ', value: '0.1' },
+        { label: 'FEATURES USED', value: '4' },
       ],
-      chart: { kind: 'line', data: lossCurve, xKey: 'generation', yKey: 'loss', illustrative: true },
     },
     {
       kind: 'metrics',
@@ -196,7 +189,7 @@ export const evolution: DocContent = {
       metrics: [
         { label: 'VOLUME SURGE', value: '42%', trend: 'up' },
         { label: 'RANGE EXPANSION', value: '31%', trend: 'up' },
-        { label: 'FEATURES USED', value: '4', trend: 'neutral' },
+        { label: 'TOP FEATURE', value: 'volume_surge', trend: 'neutral' },
         { label: 'R² SCORE', value: '0.73', trend: 'up' },
       ],
       chart: { kind: 'bar', data: featureImportance, xKey: 'feature', yKey: 'importance' },
