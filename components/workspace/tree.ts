@@ -24,6 +24,8 @@ import * as orderflowViz from './projects/trading/orderflow-visualizer/content'
 import * as neutralCandle from './projects/trading/neutral-candle/content'
 import OrderflowDemo from '@/components/projects/OrderflowDemo'
 import VPOCDemo from '@/components/projects/VPOCDemo'
+import ProjectDiscord from '@/components/windows/ProjectDiscord'
+import * as discord from './projects/discord/content'
 
 const zoneClassifierChildren = [
   {
@@ -363,8 +365,33 @@ const discordChildren = [
   {
     type: 'project' as const,
     name: 'discord-bot',
-    description: 'Research bot (legacy window)',
-    children: [],
+    description: 'Multi-AI research bot',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Bot + command reference', component: makeDoc(discord.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'ARCHITECTURE.md', description: 'Routing + costs', component: makeDoc(discord.architecture) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'demo', description: 'Interactive chat demo', component: makeDemo(ProjectDiscord, { path: '// results/demo', title: 'LIVE DEMO', intro: 'Type a command or click one of the quick commands to see the bot respond.' }) },
+        ],
+      },
+    ],
   },
 ]
 
