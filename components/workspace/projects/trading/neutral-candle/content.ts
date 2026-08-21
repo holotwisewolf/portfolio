@@ -17,6 +17,13 @@ export const readme: DocContent = {
     },
     {
       kind: 'text',
+      heading: 'OUTCOME',
+      paras: [
+        { text: 'The full grid verdict: 99% of 4,775 configurations lost money, and the earlier star configuration collapsed under the fuller evaluation. The engine did its job — it killed its own best result before it could be trusted with capital.', tone: 'warn' },
+      ],
+    },
+    {
+      kind: 'text',
       heading: 'LEGACY SYSTEM',
       paras: [
         { text: 'Preserved in archive_legacy/old_systems/original_research/neutral_candle.py. Logic has been incorporated into newer systems (Zone Classifier, IB Strategy).', tone: 'warn' },
@@ -59,66 +66,102 @@ export const filters: DocContent = {
   ],
 }
 
-const combos = [
-  { combo: 'F9+F12+F17', winRate: 58 },
-  { combo: 'F9+F12', winRate: 54 },
-  { combo: 'F9+F17', winRate: 52 },
-  { combo: 'F12+F17', winRate: 50 },
-  { combo: 'All 12', winRate: 47 },
+// Real grid-search results from full_grid_search_results_2026-01-13_05-39-19.csv
+// (4,775 configs, 941,882 trades) and top_10_configurations.csv (earlier parameterization).
+const wrDistribution = [
+  { bucket: '<40%', configs: 3617 },
+  { bucket: '40-50%', configs: 81 },
+  { bucket: '50-60%', configs: 10 },
+  { bucket: '60-70%', configs: 1 },
+  { bucket: '70%+', configs: 0 },
 ]
 
 export const bestCombos: DocContent = {
   path: '// results/best-combos',
-  title: 'BEST COMBINATIONS',
-  intro: 'Top filter combinations from the 4,096-combo grid search.',
+  title: 'GRID SEARCH VERDICT',
+  intro: 'The full run, and it is brutal: 4,775 configurations, 941,882 simulated trades, 44 profitable.',
   blocks: [
     {
       kind: 'metrics',
-      title: 'GRID SEARCH RESULTS',
+      title: 'FULL GRID SEARCH (2026-01-13 RUN)',
       metrics: [
-        { label: 'COMBOS TESTED', value: '4,096', trend: 'neutral' },
-        { label: 'BEST WIN RATE', value: '58%', trend: 'up' },
-        { label: 'BEST SHARPE', value: '1.8', trend: 'up' },
-        { label: 'OVERFIT RISK', value: 'Low', trend: 'neutral' },
+        { label: 'CONFIGS TESTED', value: '4,775', trend: 'neutral' },
+        { label: 'TRADES', value: '941,882', trend: 'neutral' },
+        { label: 'PROFITABLE', value: '44 (1%)', trend: 'down' },
+        { label: 'BEST EV', value: '$372/trade', trend: 'up' },
       ],
-      chart: { kind: 'bar', data: combos, xKey: 'combo', yKey: 'winRate' },
+      chart: { kind: 'bar', data: wrDistribution, xKey: 'bucket', yKey: 'configs' },
+    },
+    {
+      kind: 'table',
+      heading: 'BEST CONFIG BY EV — FINAL FULL RUN',
+      headers: ['FILTERS', 'MODE', 'N', 'WIN RATE', 'EV/TRADE', 'RECOVERY'],
+      rows: [
+        ['{1, 3, 21}', 'fixed / A, 200t/100t', '10', '60.0%', { text: '$372.50', tone: 'good' }, '2.28'],
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'Sample-size caveat: the best-by-EV configuration traded only 10 times. That is not an edge, that is noise with good posture.', tone: 'warn' },
+      ],
+    },
+    {
+      kind: 'table',
+      heading: 'WHAT HAPPENED TO THE STAR CONFIG',
+      headers: ['RUN', 'FILTERS', 'N', 'WIN RATE', 'EV/TRADE'],
+      rows: [
+        ['Earlier parameterization', '{8, 1, 3, 5} vwap/B', '38', { text: '73.7%', tone: 'good' }, { text: '$1,042.76', tone: 'good' }],
+        ['Final full run (best of 162 variants)', '{8, 1, 3, 5} fixed/B', '132', { text: '32.6%', tone: 'bad' }, { text: '-$8.75', tone: 'bad' }],
+      ],
     },
     {
       kind: 'bullets',
       heading: 'KEY FINDINGS',
       items: [
-        { text: 'F9 (Smart Stop) + F12 (Dynamic VWAP) + F17 (Volume Surge) = best combo', mark: 'check' },
-        { text: 'More filters ≠ better results (diminishing returns after 3 filters)', mark: 'check' },
-        { text: 'Monte Carlo confirms edge is statistically significant', mark: 'check' },
+        { text: '99% of configurations lost money across the full grid', mark: 'cross' },
+        { text: 'The earlier "best" config collapsed under the fuller evaluation — classic selection survivorship', mark: 'cross' },
+        { text: 'Win rates above 60% essentially do not exist at realistic sample sizes', mark: 'none' },
         { text: 'These insights informed Zone Classifier filter design', mark: 'none' },
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'Source: old_systems/original_research/neutral_candle_results/ — full_grid_search_results_2026-01-13_05-39-19.csv (4,775 configs) and top_10_configurations.csv.', tone: 'default' },
       ],
     },
   ],
 }
 
-export const monteCarlo: DocContent = {
-  path: '// results/monte-carlo',
-  title: 'MONTE CARLO',
-  intro: 'Separating edge from luck with 1,000 random trade sequences.',
+const slippageSensitivity = [
+  { regime: '5-15t', ev: 565 },
+  { regime: '15-30t', ev: 522 },
+  { regime: '30-50t', ev: 451 },
+]
+
+export const slippage: DocContent = {
+  path: '// results/slippage',
+  title: 'SLIPPAGE SENSITIVITY',
+  intro: 'How the star configuration\'s EV decays as assumed execution costs rise.',
   blocks: [
     {
       kind: 'metrics',
-      title: 'LUCK DISTRIBUTION ANALYSIS',
+      title: 'EV BY SLIPPAGE REGIME — FILTERS {8,1,3,5}',
       metrics: [
-        { label: 'REAL RESULT', value: '$5,000', trend: 'up' },
-        { label: 'PERCENTILE', value: '97th', trend: 'up' },
-        { label: 'P-VALUE', value: '<0.05', trend: 'neutral' },
-        { label: 'SIGNIFICANT?', value: 'Yes', trend: 'up' },
+        { label: 'TIGHT (5-15t)', value: '$565', trend: 'up' },
+        { label: 'BASE (15-30t)', value: '$522', trend: 'neutral' },
+        { label: 'WIDE (30-50t)', value: '$451', trend: 'down' },
+        { label: 'DECAY', value: '-20%', trend: 'down' },
       ],
+      chart: { kind: 'bar', data: slippageSensitivity, xKey: 'regime', yKey: 'ev' },
     },
     {
       kind: 'text',
-      heading: 'METHOD',
+      heading: 'READ',
       paras: [
-        { text: 'Simulate 1,000 random trade sequences to build a "luck distribution."' },
-        { text: 'Purpose: Distinguish strategy edge from random chance.' },
-        { text: 'If real results fall outside 95% of simulations, the edge is statistically significant.', tone: 'good' },
-        { text: 'Result sits in the top 5% of simulations — statistically significant edge detected.', tone: 'good' },
+        { text: 'This is from the earlier parameterization where the config showed positive EV — the point of the table is the slope, not the level: every assumption of worse execution bleeds the edge, before the fuller run removed it entirely.' },
+        { text: 'Source: slippage_impact_analysis.csv.', tone: 'default' },
       ],
     },
   ],

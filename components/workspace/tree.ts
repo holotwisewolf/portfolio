@@ -349,8 +349,8 @@ const tradingChildren = [
         name: 'results',
         description: 'The proof',
         children: [
-          { type: 'file' as const, name: 'best-combos', description: 'Top filter combinations', component: makeDoc(neutralCandle.bestCombos) },
-          { type: 'file' as const, name: 'monte-carlo', description: 'Luck distribution analysis', component: makeDoc(neutralCandle.monteCarlo) },
+          { type: 'file' as const, name: 'grid-verdict', description: 'Full grid search results', component: makeDoc(neutralCandle.bestCombos) },
+          { type: 'file' as const, name: 'slippage', description: 'EV vs execution costs', component: makeDoc(neutralCandle.slippage) },
         ],
       },
     ],

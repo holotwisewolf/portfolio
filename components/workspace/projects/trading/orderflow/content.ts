@@ -27,7 +27,7 @@ export const readme: DocContent = {
       kind: 'text',
       heading: 'RESEARCH SUMMARY',
       paras: [
-        { text: '672,277 trade records analyzed from ES futures data. Full paper: docs/RESEARCH_FINDINGS.md' },
+        { text: '672,277 trade records analyzed from ES futures data (Dec 18 2024, main contract isolated from 7 instruments, core hours 9:45–15:45 ET, outlier prices removed). Full paper: docs/archive/orderflow_thesis.md' },
         { text: 'Conclusion: Low elasticity predicts better continuation than high elasticity — opposite of initial hypothesis. When aggressive flow meets resistance (price does not move), the resistance often breaks down and price continues.', tone: 'warn' },
       ],
     },
@@ -42,10 +42,16 @@ export const findings: DocContent = {
     {
       kind: 'table',
       heading: 'CROSS-VALIDATION RESULTS',
-      headers: ['PERIOD', 'BEST CELL', 'WIN RATE', 'EV/TRADE'],
+      headers: ['PERIOD', 'BEST SETUP', 'WIN RATE', 'EV/TRADE', 'MARKET CONDITIONS'],
       rows: [
-        ['Aug 2024', 'Low E + FastDecel + HighVol', '51.4%', { text: '$23.38', tone: 'good' }],
-        ['Aug 2025', 'Low E + FastDecel + LowVol', '45.3%', { text: '$1.61', tone: 'warn' }],
+        ['Aug 2024', '30t target / 20t stop', '51.4%', { text: '$23.38', tone: 'good' }, 'Avg range 18,697 — downtrend'],
+        ['Aug 2025', '15t target / 10t stop', '45.3%', { text: '$1.61', tone: 'warn' }, 'Avg range 22,752 — downtrend'],
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'The best-performing cell (Low E + FastDecel) is the same in both periods, which suggests the pattern captures real microstructure dynamics. The dramatic difference in profitability ($23.38 vs $1.61) indicates the optimal parameters are time-varying and the strategy as tested is not immediately tradeable without further refinement.', tone: 'key' },
       ],
     },
     {
@@ -64,6 +70,43 @@ export const findings: DocContent = {
         { text: 'Absolute profitability', mark: 'cross' },
         { text: 'Optimal target/stop parameters', mark: 'cross' },
         { text: "Volume's incremental value", mark: 'cross' },
+      ],
+    },
+    {
+      kind: 'table',
+      heading: 'CONTINUATION BY THRESHOLD (LOW vs HIGH ELASTICITY)',
+      headers: ['CONTINUATION THRESHOLD', 'HIGH ELAST', 'LOW ELAST', 'SPREAD'],
+      rows: [
+        ['1 tick', '48.6%', '81.6%', { text: '+33.0% for Low', tone: 'good' }],
+        ['3 ticks', '27.3%', '55.1%', { text: '+27.8% for Low', tone: 'good' }],
+        ['5 ticks', '16.4%', '38.4%', { text: '+22.0% for Low', tone: 'good' }],
+        ['10 ticks', '5.7%', '11.8%', '+6.1% for Low'],
+      ],
+    },
+    {
+      kind: 'table',
+      heading: 'CONTINUATION BY HORIZON',
+      headers: ['HORIZON', 'HIGH ELAST', 'LOW ELAST', 'SPREAD'],
+      rows: [
+        ['30s', '29.9%', '56.9%', { text: '+27.0%', tone: 'good' }],
+        ['60s', '38.4%', '55.3%', '+16.9%'],
+        ['120s', '41.3%', '60.4%', '+19.2%'],
+        ['300s', '41.5%', '67.9%', { text: '+26.4%', tone: 'good' }],
+      ],
+    },
+    {
+      kind: 'table',
+      heading: 'ELASTICITY × ACCELERATION MATRIX (CONTINUATION RATE)',
+      headers: ['', 'ACCELERATING', 'DECELERATING'],
+      rows: [
+        ['High Elasticity', '8.4%', '7.8%'],
+        ['Low Elasticity', '9.5%', { text: '10.8% — best cell', tone: 'good' }],
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'Source: docs/archive/RESEARCH_FINDINGS.md + orderflow_thesis.md — 672,277 ES trade records, Dec 18 2024, core hours 9:45–15:45 ET.', tone: 'default' },
       ],
     },
   ],
@@ -183,29 +226,56 @@ export const evDecay: DocContent = {
 // (formula-derived in the legacy window), not measured results. The measured
 // cross-period figures live in FINDINGS.md and results/ev-decay.
 
-const elasticityDist = [
-  { range: '0-2', count: 35 },
-  { range: '2-4', count: 42 },
-  { range: '4-6', count: 28 },
-  { range: '6-8', count: 18 },
-  { range: '8+', count: 12 },
+// Real elasticity distribution from elasticity_analysis.csv (43,180 high-delta events,
+// ES Dec 18 2024). Buckets = % of events.
+const elasticityHist = [
+  { range: '≤ -0.09', pct: 1.2 },
+  { range: '-0.09..-0.04', pct: 6.0 },
+  { range: '-0.04..0', pct: 51.1 },
+  { range: '0..0.04', pct: 37.3 },
+  { range: '0.04..0.09', pct: 3.7 },
+  { range: '> 0.09', pct: 0.8 },
+]
+
+const continuationSplit = [
+  { bucket: 'High E', rate: 8.2 },
+  { bucket: 'All events', rate: 9.1 },
+  { bucket: 'Low E', rate: 10.0 },
 ]
 
 export const elasticityDistFile: DocContent = {
   path: '// results/elasticity-dist',
   title: 'ELASTICITY DISTRIBUTION',
-  intro: 'Distribution of the elasticity metric across the sample.',
+  intro: '43,180 real high-delta events — where the elasticity metric actually lives.',
   blocks: [
     {
       kind: 'metrics',
-      title: 'ELASTICITY DISTRIBUTION',
+      title: 'ELASTICITY DISTRIBUTION (% OF EVENTS)',
       metrics: [
-        { label: 'MEAN E', value: '3.2', trend: 'neutral' },
-        { label: 'STD DEV', value: '1.8', trend: 'neutral' },
-        { label: 'LOW E %', value: '35%', trend: 'up' },
-        { label: 'HIGH E %', value: '28%', trend: 'neutral' },
+        { label: 'EVENTS', value: '43,180', trend: 'neutral' },
+        { label: 'MEAN E', value: '-0.0051', trend: 'neutral' },
+        { label: 'STD DEV', value: '0.0297', trend: 'neutral' },
+        { label: 'P10 / P90', value: '-0.037 / 0.024', trend: 'neutral' },
       ],
-      chart: { kind: 'bar', data: elasticityDist, xKey: 'range', yKey: 'count' },
+      chart: { kind: 'bar', data: elasticityHist, xKey: 'range', yKey: 'pct' },
+    },
+    {
+      kind: 'metrics',
+      title: 'CONTINUATION RATE BY ELASTICITY (10s HORIZON)',
+      metrics: [
+        { label: 'LOW E (≤ MEDIAN)', value: '10.0%', trend: 'up' },
+        { label: 'HIGH E (> MEDIAN)', value: '8.2%', trend: 'down' },
+        { label: 'OVERALL', value: '9.1%', trend: 'neutral' },
+        { label: 'SPREAD', value: '+1.8%', trend: 'up' },
+      ],
+      chart: { kind: 'bar', data: continuationSplit, xKey: 'bucket', yKey: 'rate' },
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'The distribution is tightly peaked around zero: in most high-delta events, price barely moves per unit of aggressive flow. The tail on the negative side is the absorption signature — large delta, no price movement — and that tail is where continuation concentrates.', tone: 'key' },
+        { text: 'Source: elasticity_analysis.csv — 43,180 events, ES Dec 18 2024, core hours.', tone: 'default' },
+      ],
     },
   ],
 }
