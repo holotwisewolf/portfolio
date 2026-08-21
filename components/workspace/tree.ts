@@ -1,4 +1,4 @@
-import type { FolderNode } from './registry'
+﻿import type { FolderNode } from './registry'
 import { makeDoc, makeDemo } from './DocFile'
 import {
   ReadmeFile,
@@ -21,8 +21,8 @@ import * as symbolic from './projects/trading/symbolic/content'
 import * as mlConsol from './projects/trading/ml-consolidation/content'
 import * as orderflowViz from './projects/trading/orderflow-visualizer/content'
 import * as neutralCandle from './projects/trading/neutral-candle/content'
-import OrderflowDemo from '@/components/projects/OrderflowDemo'
-import VPOCDemo from '@/components/projects/VPOCDemo'
+import VpocDayExplorer from './projects/trading/vpoc/VpocDayExplorer'
+import OrderflowDayExplorer from './projects/trading/orderflow/OrderflowDayExplorer'
 import ProjectDiscord from '@/components/windows/ProjectDiscord'
 import * as discord from './projects/discord/content'
 
@@ -97,7 +97,7 @@ const tradingChildren = [
         children: [
           { type: 'file' as const, name: 'ev-decay', description: 'EV per trade over time', component: makeDoc(orderflow.evDecay) },
           { type: 'file' as const, name: 'elasticity-dist', description: 'Elasticity distribution', component: makeDoc(orderflow.elasticityDistFile) },
-          { type: 'file' as const, name: 'demo', description: 'Interactive simulator', component: makeDemo(OrderflowDemo, { path: '// results/demo', title: 'ORDERFLOW DEMO', intro: 'Interactive delta/zone simulator on generated data.' }) },
+          { type: 'file' as const, name: 'demo', description: 'Real-tick delta explorer', component: makeDemo(OrderflowDayExplorer, { path: '// results/demo', title: 'ORDERFLOW EXPLORER', intro: 'Price vs real aggressor delta — cumulative intraday delta and per-bar buy/sell aggression from Databento NQ ticks.', realData: true }) },
         ],
       },
     ],
@@ -163,7 +163,7 @@ const tradingChildren = [
         description: 'The proof',
         children: [
           { type: 'file' as const, name: 'touch-analysis', description: 'Reaction types at VPOC', component: makeDoc(vpoc.touchAnalysis) },
-          { type: 'file' as const, name: 'demo', description: 'Interactive touch simulator', component: makeDemo(VPOCDemo, { path: '// results/demo', title: 'VPOC DEMO', intro: 'Interactive VPOC touch-test simulator on generated data.' }) },
+          { type: 'file' as const, name: 'demo', description: 'Real-tick VPOC explorer', component: makeDemo(VpocDayExplorer, { path: '// results/demo', title: 'VPOC EXPLORER', intro: 'Real trading days with the session VPOC pinned — every touch marked with its reaction extreme, volume profile on the right.', realData: true }) },
         ],
       },
     ],

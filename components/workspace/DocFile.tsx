@@ -234,11 +234,11 @@ export function makeDoc(c: DocContent): ComponentType {
   return GeneratedDoc
 }
 
-// Factory: wraps an interactive demo component (OrderflowDemo, VPOCDemo, ...) in the
-// standard file header + a SIMULATED DATA tag, for tree.ts results/demo nodes.
+// Factory: wraps an interactive demo component in the standard file header +
+// a data-provenance tag, for tree.ts results/demo nodes.
 export function makeDemo(
   Demo: ComponentType,
-  meta: { path: string; title: string; intro: string }
+  meta: { path: string; title: string; intro: string; realData?: boolean }
 ): ComponentType {
   function GeneratedDemo() {
     return (
@@ -246,7 +246,9 @@ export function makeDemo(
         <div className="text-[9px] tracking-[0.3em] text-[#444]">{meta.path}</div>
         <h1 className="text-[26px] tracking-[0.15em] text-white">{meta.title}</h1>
         <p className="text-[11px] text-gray-500 leading-relaxed max-w-[600px]">{meta.intro}</p>
-        <div className="text-[9px] tracking-[0.2em] text-[#eab308]">SIMULATED DATA — ILLUSTRATIVE</div>
+        <div className={`text-[9px] tracking-[0.2em] ${meta.realData ? 'text-[#00ff9d]' : 'text-[#eab308]'}`}>
+          {meta.realData ? 'REAL MARKET DATA' : 'SIMULATED DATA — ILLUSTRATIVE'}
+        </div>
         <div className="border border-[#1c2e1c]">
           <Demo />
         </div>
