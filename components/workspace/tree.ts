@@ -15,7 +15,12 @@ import {
 } from './projects/trading/zone-classifier'
 import * as orderflow from './projects/trading/orderflow/content'
 import * as hmm from './projects/trading/hmm/content'
+import * as vpoc from './projects/trading/vpoc/content'
+import * as ib from './projects/trading/ib-strategy/content'
+import * as walkforward from './projects/trading/walkforward/content'
+import * as symbolic from './projects/trading/symbolic/content'
 import OrderflowDemo from '@/components/projects/OrderflowDemo'
+import VPOCDemo from '@/components/projects/VPOCDemo'
 
 const zoneClassifierChildren = [
   {
@@ -132,20 +137,130 @@ const tradingChildren = [
   {
     type: 'project' as const,
     name: 'vpoc',
-    description: 'Volume Point of Control (legacy window)',
-    children: [],
+    description: 'Volume Point of Control analysis',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(vpoc.readme) },
+          { type: 'file' as const, name: 'FINDINGS.md', description: 'Evolution into Zone Classifier', component: makeDoc(vpoc.findings) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'METHODOLOGY.md', description: 'VPOC theory', component: makeDoc(vpoc.methodology) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'touch-analysis', description: 'Reaction types at VPOC', component: makeDoc(vpoc.touchAnalysis) },
+          { type: 'file' as const, name: 'demo', description: 'Interactive touch simulator', component: makeDemo(VPOCDemo, { path: '// results/demo', title: 'VPOC DEMO', intro: 'Interactive VPOC touch-test simulator on generated data.' }) },
+        ],
+      },
+    ],
   },
   {
     type: 'project' as const,
     name: 'ib-strategy',
-    description: 'Initial Balance trading (legacy window)',
-    children: [],
+    description: 'Initial Balance trading',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(ib.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'RULES.md', description: 'Cloned box geometry + playbooks', component: makeDoc(ib.rules) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'backtest', description: 'Trade log + equity', component: makeDoc(ib.backtest) },
+        ],
+      },
+    ],
   },
   {
     type: 'project' as const,
     name: 'walkforward',
-    description: 'Walk-forward validation (legacy window)',
-    children: [],
+    description: 'Walk-forward validation framework',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(walkforward.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'METHODOLOGY.md', description: 'Rolling-window process', component: makeDoc(walkforward.methodology) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'windows', description: 'Per-window performance', component: makeDoc(walkforward.windows) },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'project' as const,
+    name: 'symbolic',
+    description: 'Symbolic regression research',
+    children: [
+      {
+        type: 'folder' as const,
+        name: 'overview',
+        description: 'What it is',
+        children: [
+          { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(symbolic.readme) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'method',
+        description: 'How it works',
+        children: [
+          { type: 'file' as const, name: 'METHODOLOGY.md', description: 'Genetic programming + parsimony', component: makeDoc(symbolic.methodology) },
+          { type: 'file' as const, name: 'FORMULAS.md', description: 'Discovered formulas', component: makeDoc(symbolic.formulas) },
+        ],
+      },
+      {
+        type: 'folder' as const,
+        name: 'results',
+        description: 'The proof',
+        children: [
+          { type: 'file' as const, name: 'validation', description: 'R² validation + model comparison', component: makeDoc(symbolic.validation) },
+          { type: 'file' as const, name: 'evolution', description: 'Evolution run + feature weights', component: makeDoc(symbolic.evolution) },
+        ],
+      },
+    ],
   },
 ]
 
