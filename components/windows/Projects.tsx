@@ -8,6 +8,7 @@ interface Project {
   title: string
   description: string
   tech: string[]
+  workspacePath: string[]
 }
 
 const projects: Project[] = [
@@ -16,20 +17,22 @@ const projects: Project[] = [
     title: 'Trading Research',
     description: 'ML Zone Classification System with symbolic regression. Classifies market regimes (Neutral/Consolidation/Breakout) using interpretable AI.',
     tech: ['Python', 'ML', 'FastAPI', 'NumPy'],
+    workspacePath: ['trading'],
   },
   {
     id: 'discord',
     title: 'Discord Research Bot',
     description: 'Multi-AI research assistant coordinating Claude, GPT-4, and Gemini by cost/capability routing.',
     tech: ['Python', 'Discord.py', 'LLM API'],
+    workspacePath: ['discord', 'discord-bot', 'overview', 'README.md'],
   },
 ]
 
 export default function Projects() {
-  const openWindow = useWindowStore((s) => s.openWindow)
+  const openWorkspace = useWindowStore((s) => s.openWorkspace)
 
   const handleProjectClick = (project: Project) => {
-    openWindow(`project-${project.id}` as any)
+    openWorkspace(project.workspacePath)
   }
 
   return (
