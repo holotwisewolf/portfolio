@@ -1,11 +1,12 @@
 'use client'
 
-// VPOC day explorer on REAL Databento NQ tick data (March 2025). Shows one trading
-// day at a time: price path, the session VPOC level, pinned touch moments with the
-// reaction extreme, and the volume-at-price profile that produced the VPOC.
+// VPOC day explorer on REAL Databento NQ tick data (March 2025). Candle bars,
+// session VPOC level, pinned touch moments with reaction extremes, and the
+// volume-at-price profile that produced the VPOC.
 
 import { useMemo, useState } from 'react'
 import data from './demo-data.json'
+import { Candles, scales, type Bar } from '../candle-utils'
 
 interface Touch {
   t: string
@@ -19,7 +20,7 @@ interface Day {
   lo: number
   hi: number
   vpoc: number
-  points: [string, number][]
+  bars: [string, number, number, number, number, number, number, number][]
   profile: [number, number][]
   touches: Touch[]
 }
@@ -29,46 +30,44 @@ const days = (data as unknown as { instrument: string; source: string; days: Day
 const VB_W = 900
 const VB_H = 400
 const PAD = { l: 58, r: 92, t: 26, b: 26 }
-const PLOT_W = VB_W - PAD.l - PAD.r
-const PLOT_H = VB_H - PAD.t - PAD.b
 const FONT = 'Orbit, monospace'
 const GRID = '#1c2e1c'
+
+const asBar = (b: [string, number, number, number, number, number, number, number]): Bar => ({
+  t: b[0], o: b[1], h: b[2], l: b[3], c: b[4],
+})
 
 export default function VpocDayExplorer() {
   const [dayIdx, setDayIdx] = useState(0)
   const [hover, setHover] = useState<number | null>(null)
   const day = days[dayIdx]
+  const bars = useMemo(() => day.bars.map(asBar), [day])
 
-  const { xs, ys, maxVol, labeled } = useMemo(() => {
-    const pad = (day.hi - day.lo) * 0.06
-    const lo = day.lo - pad
-    const hi = day.hi + pad
-    const x = (i: number) => PAD.l + (i / Math.max(1, day.points.length - 1)) * PLOT_W
-    const y = (p: number) => PAD.t + (1 - (p - lo) / (hi - lo)) * PLOT_H
-    const mv = Math.max(...day.profile.map(([, v]) => v), 1)
-    // label only the 3 strongest reactions — every touch gets a pin, not every pin a label
-    const labeled = new Set(
-      [...day.touches].sort((a, b) => Math.abs(b.move) - Math.abs(a.move)).slice(0, 3).map((t) => t.t + t.price)
-    )
-    return { xs: x, ys: y, maxVol: mv, labeled }
-  }, [day])
+  const sc = useMemo(() => scales(bars, VB_W, VB_H, PAD), [bars])
+  const maxVol = Math.max(...day.profile.map(([, v]) => v), 1)
+  // every touch gets a pin; only the 3 strongest reactions get labels
+  const labeled = useMemo(
+    () =>
+      new Set(
+        [...day.touches].sort((a, b) => Math.abs(b.move) - Math.abs(a.move)).slice(0, 3).map((t) => t.t + t.price)
+      ),
+    [day]
+  )
 
-  const idxOf = (t: string) => day.points.findIndex((p) => p[0] === t)
-  const path = day.points.map(([, p], i) => `${i === 0 ? 'M' : 'L'}${xs(i).toFixed(1)},${ys(p).toFixed(1)}`).join(' ')
+  const idxOf = (t: string) => bars.findIndex((b) => b.t === t)
   const best = Math.max(...day.touches.map((t) => Math.abs(t.move)), 0)
 
   const onMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const relX = ((e.clientX - rect.left) / rect.width) * VB_W
-    const i = Math.round(((relX - PAD.l) / PLOT_W) * (day.points.length - 1))
-    setHover(Math.max(0, Math.min(day.points.length - 1, i)))
+    const i = Math.floor((relX - PAD.l) / sc.step)
+    setHover(Math.max(0, Math.min(bars.length - 1, i)))
   }
 
-  const hp = hover !== null ? day.points[hover] : null
+  const hb = hover !== null ? bars[hover] : null
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
-      {/* day selector */}
       <div className="flex flex-wrap gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c]">
         {days.map((d, i) => (
           <button
@@ -94,54 +93,57 @@ export default function VpocDayExplorer() {
           const p = day.lo + ((day.hi - day.lo) * i) / 4
           return (
             <g key={i}>
-              <line x1={PAD.l} y1={ys(p)} x2={PAD.l + PLOT_W} y2={ys(p)} stroke={GRID} strokeWidth={1} strokeDasharray="3 3" />
-              <text x={PAD.l - 8} y={ys(p) + 3} fill="#666" fontSize={10} fontFamily={FONT} textAnchor="end">
+              <line x1={PAD.l} y1={sc.y(p)} x2={PAD.l + (VB_W - PAD.l - PAD.r)} y2={sc.y(p)} stroke={GRID} strokeWidth={1} strokeDasharray="3 3" />
+              <text x={PAD.l - 8} y={sc.y(p) + 3} fill="#666" fontSize={10} fontFamily={FONT} textAnchor="end">
                 {p.toFixed(0)}
               </text>
             </g>
           )
         })}
 
-        {/* volume-at-price profile — right edge; the VPOC bin highlighted */}
-        {day.profile.map(([p, v], i) => (
-          <rect
-            key={i}
-            x={PAD.l + PLOT_W + 8}
-            y={ys(p) - 2}
-            width={Math.max(1, (v / maxVol) * 68)}
-            height={4}
-            fill={Math.abs(p - day.vpoc) < (day.hi - day.lo) / 60 ? '#00ff9d' : '#00cc77'}
-            opacity={Math.abs(p - day.vpoc) < (day.hi - day.lo) / 60 ? 0.6 : 0.2}
-          />
-        ))}
+        {/* volume-at-price profile — right edge; VPOC bin highlighted */}
+        {day.profile.map(([p, v], i) => {
+          const isVpoc = Math.abs(p - day.vpoc) < (day.hi - day.lo) / 60
+          return (
+            <rect
+              key={i}
+              x={PAD.l + (VB_W - PAD.l - PAD.r) + 8}
+              y={sc.y(p) - 2}
+              width={Math.max(1, (v / maxVol) * 68)}
+              height={4}
+              fill={isVpoc ? '#00ff9d' : '#00cc77'}
+              opacity={isVpoc ? 0.6 : 0.2}
+            />
+          )
+        })}
 
         {/* VPOC level */}
-        <line x1={PAD.l} y1={ys(day.vpoc)} x2={PAD.l + PLOT_W} y2={ys(day.vpoc)} stroke="#00ff9d" strokeWidth={1} strokeDasharray="6 4" opacity={0.8} />
-        <text x={PAD.l + 4} y={ys(day.vpoc) - 5} fill="#00ff9d" fontSize={10} fontFamily={FONT}>
+        <line x1={PAD.l} y1={sc.y(day.vpoc)} x2={PAD.l + (VB_W - PAD.l - PAD.r)} y2={sc.y(day.vpoc)} stroke="#00ff9d" strokeWidth={1} strokeDasharray="6 4" opacity={0.8} />
+        <text x={PAD.l + 4} y={sc.y(day.vpoc) - 5} fill="#00ff9d" fontSize={10} fontFamily={FONT}>
           VPOC {day.vpoc.toFixed(2)}
         </text>
 
-        {/* price path */}
-        <path d={path} fill="none" stroke="#00cc77" strokeWidth={1.5} />
+        {/* candles */}
+        <Candles bars={bars} sc={sc} />
 
         {/* touch + reaction pins */}
         {day.touches.map((t, i) => {
           const ti = idxOf(t.t)
           if (ti < 0) return null
-          const x = xs(ti)
+          const x = sc.x(ti)
           const show = labeled.has(t.t + t.price)
           const up = t.move > 0
           return (
             <g key={i}>
-              <rect x={x - 3} y={ys(t.price) - 3} width={6} height={6} fill="#00ff9d" />
-              <line x1={x} y1={ys(t.price)} x2={x} y2={ys(t.rprice)} stroke="#00ff9d" strokeWidth={1} strokeDasharray="2 2" opacity={0.5} />
-              <rect x={xs(idxOf(t.rt)) - 3} y={ys(t.rprice) - 3} width={6} height={6} fill="none" stroke="#ffffff" strokeWidth={1} />
+              <rect x={x - 3} y={sc.y(t.price) - 3} width={6} height={6} fill="#00ff9d" />
+              <line x1={x} y1={sc.y(t.price)} x2={sc.x(idxOf(t.rt))} y2={sc.y(t.rprice)} stroke="#00ff9d" strokeWidth={1} strokeDasharray="2 2" opacity={0.5} />
+              <rect x={sc.x(idxOf(t.rt)) - 3} y={sc.y(t.rprice) - 3} width={6} height={6} fill="none" stroke="#ffffff" strokeWidth={1} />
               {show && (
                 <g>
-                  <text x={x + 6} y={ys(t.price) - 8} fill="#00ff9d" fontSize={9} fontFamily={FONT}>
+                  <text x={x + 6} y={sc.y(t.price) - 8} fill="#00ff9d" fontSize={9} fontFamily={FONT}>
                     {`TOUCH ${t.t} ${t.price.toFixed(0)}`}
                   </text>
-                  <text x={xs(idxOf(t.rt)) + 6} y={ys(t.rprice) + (up ? 14 : -6)} fill="#fff" fontSize={9} fontFamily={FONT}>
+                  <text x={sc.x(idxOf(t.rt)) + 6} y={sc.y(t.rprice) + (up ? 14 : -6)} fill="#fff" fontSize={9} fontFamily={FONT}>
                     {`REACT ${t.rt} ${up ? '+' : ''}${t.move.toFixed(2)}%`}
                   </text>
                 </g>
@@ -151,12 +153,11 @@ export default function VpocDayExplorer() {
         })}
 
         {/* hover crosshair */}
-        {hp && (
+        {hb && (
           <g pointerEvents="none">
-            <line x1={xs(hover!)} y1={PAD.t} x2={xs(hover!)} y2={PAD.t + PLOT_H} stroke="#00ff9d" strokeWidth={1} strokeOpacity={0.3} />
-            <rect x={xs(hover!) - 3} y={ys(hp[1]) - 3} width={6} height={6} fill="#00ff9d" />
-            <text x={Math.min(xs(hover!) + 8, VB_W - 120)} y={PAD.t + 14} fill="#00ff9d" fontSize={10} fontFamily={FONT}>
-              {`${hp[0]}  ${hp[1].toFixed(2)}`}
+            <line x1={sc.x(hover!)} y1={PAD.t} x2={sc.x(hover!)} y2={PAD.t + (VB_H - PAD.t - PAD.b)} stroke="#00ff9d" strokeWidth={1} strokeOpacity={0.3} />
+            <text x={Math.min(sc.x(hover!) + 8, VB_W - 130)} y={PAD.t + 14} fill="#00ff9d" fontSize={10} fontFamily={FONT}>
+              {`${hb.t}  O${hb.o.toFixed(2)} H${hb.h.toFixed(2)} L${hb.l.toFixed(2)} C${hb.c.toFixed(2)}`}
             </text>
           </g>
         )}
@@ -165,7 +166,7 @@ export default function VpocDayExplorer() {
       <div className="border-t border-[#1c2e1c] px-3 py-2 flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
         <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> TOUCH (all pinned)</span>
         <span><span className="inline-block w-[7px] h-[7px] border border-white mr-1 align-middle" /> REACTION EXTREME</span>
-        <span className="ml-auto">{(data as any).source} — 2-min bars</span>
+        <span className="ml-auto">{(data as unknown as { source: string }).source} — 5-min candles</span>
       </div>
     </div>
   )

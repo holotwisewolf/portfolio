@@ -6,10 +6,9 @@ import {
   FeaturesFile,
   FindingsFile,
   BuildLogFile,
-  BacktestDemoFile,
-  ResultsPatternsFile,
   ResultsEquityCurveFile,
   ResultsZoneDistributionFile,
+  ZoneLabelGallery,
 } from './projects/trading/zone-classifier'
 import * as orderflow from './projects/trading/orderflow/content'
 import * as hmm from './projects/trading/hmm/content'
@@ -51,8 +50,7 @@ const zoneClassifierChildren = [
     name: 'results',
     description: 'The proof',
     children: [
-      { type: 'file' as const, name: 'demo', description: 'Interactive backtest demo', component: BacktestDemoFile },
-      { type: 'file' as const, name: 'patterns', description: 'Pattern examples', component: ResultsPatternsFile },
+      { type: 'file' as const, name: 'labels', description: 'The benchmark — hand-labeled zones on real candles', component: makeDemo(ZoneLabelGallery, { path: '// results/labels', title: 'THE LABELED ZONES', intro: 'The ground truth this project trains against: 88 hand-labeled zones on real NQ candles. Click any zone to expand it and judge for yourself whether the label fits.', realData: true }) },
       { type: 'file' as const, name: 'model-training', description: 'Real training metrics + importances', component: ResultsEquityCurveFile },
       { type: 'file' as const, name: 'zone-distribution', description: 'Labeled vs measured distribution', component: ResultsZoneDistributionFile },
     ],

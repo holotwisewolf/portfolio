@@ -1,67 +1,77 @@
 'use client'
 
-// Orderflow day explorer on REAL Databento NQ tick data (March 2025). Price path on
-// top; per-bar aggressor delta and cumulative intraday delta below — actual buy/sell
-// aggression computed from trade sides, not generated.
+// Orderflow day explorer on REAL Databento NQ tick data (March 2025). Candle
+// bars colored by close direction, per-bar aggressor delta strip, and cumulative
+// intraday delta — actual buy/sell aggression computed from trade sides.
 
 import { useMemo, useState } from 'react'
 import data from './demo-data.json'
+import { Candles, scales, type Bar } from '../candle-utils'
 
 interface Day {
   date: string
   lo: number
   hi: number
   vpoc: number
-  points: [string, number][]
-  delta: number[]
-  buy: number[]
-  sell: number[]
+  bars: [string, number, number, number, number, number, number, number][]
 }
 
 const days = (data as unknown as { days: Day[] }).days
 
 const VB_W = 900
-const VB_H = 460
+const VB_H = 470
 const PAD = { l: 58, r: 20, t: 26, b: 26 }
-const PRICE_H = 240
-const GAP = 34
+const PRICE_H = 250
+const GAP = 30
 const DELTA_H = VB_H - PAD.t - PAD.b - PRICE_H - GAP
 const PLOT_W = VB_W - PAD.l - PAD.r
 const FONT = 'Orbit, monospace'
 const GRID = '#1c2e1c'
 
+const asBar = (b: [string, number, number, number, number, number, number, number]): Bar => ({
+  t: b[0], o: b[1], h: b[2], l: b[3], c: b[4],
+})
+
 export default function OrderflowDayExplorer() {
   const [dayIdx, setDayIdx] = useState(0)
   const [hover, setHover] = useState<number | null>(null)
   const day = days[dayIdx]
-  const n = day.points.length
+  const bars = useMemo(() => day.bars.map(asBar), [day])
+  const deltas = day.bars.map((b) => b[5])
+  const n = bars.length
 
-  const { px, py, cum, dMax, yPrice, yCum, yDelta } = useMemo(() => {
-    const pad = (day.hi - day.lo) * 0.06
-    const yPrice = (p: number) => PAD.t + (1 - (p - (day.lo - pad)) / (day.hi + pad - day.lo + pad)) * PRICE_H
+  const priceSc = useMemo(() => {
+    const sc = scales(bars, VB_W, PRICE_H + PAD.t + PAD.b, PAD)
+    return sc
+  }, [bars])
+
+  const { cum, dMax, cumMax } = useMemo(() => {
     let c = 0
-    const cum = day.delta.map((d) => (c += d))
-    const cMax = Math.max(...cum.map(Math.abs), 1)
-    const dMax = Math.max(...day.delta.map(Math.abs), 1)
-    const yCum = (v: number) => PAD.t + PRICE_H + GAP + DELTA_H / 2 - (v / cMax) * (DELTA_H / 2)
-    const yDelta = (v: number) => yCum(0) - (v / dMax) * (DELTA_H / 2 - 6)
-    return { px: (i: number) => PAD.l + (i / Math.max(1, n - 1)) * PLOT_W, py: yPrice, cum, dMax, yPrice, yCum, yDelta }
-  }, [day, n])
+    const cum = deltas.map((d) => (c += d))
+    return {
+      cum,
+      cumMax: Math.max(...cum.map(Math.abs), 1),
+      dMax: Math.max(...deltas.map(Math.abs), 1),
+    }
+  }, [deltas])
 
-  const pricePath = day.points.map(([, p], i) => `${i === 0 ? 'M' : 'L'}${px(i).toFixed(1)},${py(p).toFixed(1)}`).join(' ')
-  const cumPath = cum.map((v, i) => `${i === 0 ? 'M' : 'L'}${px(i).toFixed(1)},${yCum(v).toFixed(1)}`).join(' ')
+  const deltaTop = PAD.t + PRICE_H + GAP
+  const cumY = (v: number) => deltaTop + DELTA_H / 2 - (v / cumMax) * (DELTA_H / 2)
+  const deltaY = (v: number) => cumY(0) - (v / dMax) * (DELTA_H / 2 - 4)
+
+  const cumPath = cum.map((v, i) => `${i === 0 ? 'M' : 'L'}${priceSc.x(i).toFixed(1)},${cumY(v).toFixed(1)}`).join(' ')
   const finalCum = cum[cum.length - 1]
-  const buyVol = day.buy.reduce((a, b) => a + b, 0)
-  const sellVol = day.sell.reduce((a, b) => a + b, 0)
+  const buyVol = day.bars.reduce((a, b) => a + b[6], 0)
+  const sellVol = day.bars.reduce((a, b) => a + b[7], 0)
 
   const onMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const relX = ((e.clientX - rect.left) / rect.width) * VB_W
-    const i = Math.round(((relX - PAD.l) / PLOT_W) * (n - 1))
+    const i = Math.floor((relX - PAD.l) / priceSc.step)
     setHover(Math.max(0, Math.min(n - 1, i)))
   }
 
-  const hp = hover !== null ? day.points[hover] : null
+  const hb = hover !== null ? bars[hover] : null
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
@@ -90,33 +100,33 @@ export default function OrderflowDayExplorer() {
           const p = day.lo + ((day.hi - day.lo) * i) / 3
           return (
             <g key={`p${i}`}>
-              <line x1={PAD.l} y1={py(p)} x2={PAD.l + PLOT_W} y2={py(p)} stroke={GRID} strokeWidth={1} strokeDasharray="3 3" />
-              <text x={PAD.l - 8} y={py(p) + 3} fill="#666" fontSize={10} fontFamily={FONT} textAnchor="end">
+              <line x1={PAD.l} y1={priceSc.y(p)} x2={PAD.l + PLOT_W} y2={priceSc.y(p)} stroke={GRID} strokeWidth={1} strokeDasharray="3 3" />
+              <text x={PAD.l - 8} y={priceSc.y(p) + 3} fill="#666" fontSize={10} fontFamily={FONT} textAnchor="end">
                 {p.toFixed(0)}
               </text>
             </g>
           )
         })}
-        <text x={PAD.l + 4} y={PAD.t + 12} fill="#444" fontSize={9} fontFamily={FONT} letterSpacing={2}>PRICE</text>
-        <path d={pricePath} fill="none" stroke="#00cc77" strokeWidth={1.5} />
+        <text x={PAD.l + 4} y={PAD.t + 12} fill="#444" fontSize={9} fontFamily={FONT} letterSpacing={2}>PRICE — 5-MIN CANDLES</text>
+        <Candles bars={bars} sc={priceSc} />
 
         {/* delta pane */}
-        <line x1={PAD.l} y1={yCum(0)} x2={PAD.l + PLOT_W} y2={yCum(0)} stroke={GRID} strokeWidth={1} />
-        <text x={PAD.l + 4} y={yCum(0) - 6} fill="#444" fontSize={9} fontFamily={FONT} letterSpacing={2}>CUM DELTA / BAR DELTA</text>
+        <line x1={PAD.l} y1={cumY(0)} x2={PAD.l + PLOT_W} y2={cumY(0)} stroke={GRID} strokeWidth={1} />
+        <text x={PAD.l + 4} y={cumY(0) - 6} fill="#444" fontSize={9} fontFamily={FONT} letterSpacing={2}>CUM DELTA / BAR DELTA</text>
 
-        {/* per-bar aggressor delta */}
-        {day.delta.map((d, i) => {
-          const h = Math.abs(d) / dMax * (DELTA_H / 2 - 6)
+        {/* per-bar aggressor delta, colored by side */}
+        {deltas.map((d, i) => {
+          const h = (Math.abs(d) / dMax) * (DELTA_H / 2 - 4)
           if (h < 0.5) return null
           return (
             <rect
               key={i}
-              x={px(i) - 1}
-              y={d > 0 ? yDelta(d) : yCum(0)}
+              x={priceSc.x(i) - 1}
+              y={d > 0 ? deltaY(d) : cumY(0)}
               width={2}
               height={h}
               fill={d > 0 ? '#00cc77' : '#ef4444'}
-              opacity={0.45}
+              opacity={0.5}
             />
           )
         })}
@@ -125,13 +135,13 @@ export default function OrderflowDayExplorer() {
         <path d={cumPath} fill="none" stroke="#00ff9d" strokeWidth={1.5} />
 
         {/* hover crosshair across both panes */}
-        {hp && (
+        {hb && (
           <g pointerEvents="none">
-            <line x1={px(hover!)} y1={PAD.t} x2={px(hover!)} y2={PAD.t + PRICE_H + GAP + DELTA_H} stroke="#00ff9d" strokeWidth={1} strokeOpacity={0.3} />
-            <rect x={px(hover!) - 3} y={py(hp[1]) - 3} width={6} height={6} fill="#00ff9d" />
-            <rect x={px(hover!) - 3} y={yCum(cum[hover!]) - 3} width={6} height={6} fill="none" stroke="#00ff9d" />
-            <text x={Math.min(px(hover!) + 8, VB_W - 150)} y={PAD.t + 14} fill="#00ff9d" fontSize={10} fontFamily={FONT}>
-              {`${hp[0]}  ${hp[1].toFixed(2)}  Δ${cum[hover!] >= 0 ? '+' : ''}${cum[hover!].toLocaleString()}`}
+            <line x1={priceSc.x(hover!)} y1={PAD.t} x2={priceSc.x(hover!)} y2={deltaTop + DELTA_H} stroke="#00ff9d" strokeWidth={1} strokeOpacity={0.3} />
+            <rect x={priceSc.x(hover!) - 3} y={priceSc.y(hb.c) - 3} width={6} height={6} fill="#00ff9d" />
+            <rect x={priceSc.x(hover!) - 3} y={cumY(cum[hover!]) - 3} width={6} height={6} fill="none" stroke="#00ff9d" />
+            <text x={Math.min(priceSc.x(hover!) + 8, VB_W - 170)} y={PAD.t + 14} fill="#00ff9d" fontSize={10} fontFamily={FONT}>
+              {`${hb.t}  C${hb.c.toFixed(2)}  Δ${cum[hover!] >= 0 ? '+' : ''}${cum[hover!].toLocaleString()}`}
             </text>
           </g>
         )}
@@ -141,7 +151,7 @@ export default function OrderflowDayExplorer() {
         <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> CUMULATIVE DELTA</span>
         <span><span className="inline-block w-[3px] h-[7px] bg-[#00cc77] mr-1 align-middle" /> BUY AGGRESSION</span>
         <span><span className="inline-block w-[3px] h-[7px] bg-[#ef4444] mr-1 align-middle" /> SELL AGGRESSION</span>
-        <span className="ml-auto">{(data as any).source} — 2-min bars</span>
+        <span className="ml-auto">{(data as unknown as { source: string }).source} — 5-min candles</span>
       </div>
     </div>
   )
