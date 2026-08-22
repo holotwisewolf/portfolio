@@ -1,7 +1,6 @@
 'use client'
 
 import { useWindowStore } from '../window-manager/useWindows'
-import ProjectDetail from './ProjectDetail'
 
 interface Project {
   id: string

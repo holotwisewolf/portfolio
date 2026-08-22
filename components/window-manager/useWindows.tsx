@@ -12,17 +12,6 @@ import TerminalNav from '@/components/windows/TerminalNav'
 import Settings from '@/components/windows/Settings'
 import AdvancedSettings from '@/components/windows/AdvancedSettings'
 import TradingProjects from '@/components/windows/TradingProjects'
-import ProjectZone from '@/components/windows/ProjectZone'
-import ProjectOrderflow from '@/components/windows/ProjectOrderflow'
-import ProjectVPOC from '@/components/windows/ProjectVPOC'
-import ProjectIB from '@/components/windows/ProjectIB'
-import ProjectHMM from '@/components/windows/ProjectHMM'
-import ProjectWalkForward from '@/components/windows/ProjectWalkForward'
-import ProjectSymbolic from '@/components/windows/ProjectSymbolic'
-import ProjectMLConsol from '@/components/windows/ProjectMLConsol'
-import ProjectOrderflowViz from '@/components/windows/ProjectOrderflowViz'
-import ProjectNeutralCandle from '@/components/windows/ProjectNeutralCandle'
-import ProjectDiscord from '@/components/windows/ProjectDiscord'
 
 // Re-export WindowId type for use in other components
 export type { WindowId }
@@ -40,17 +29,6 @@ windowContentRegistry.set('terminalnav', TerminalNav)
 windowContentRegistry.set('settings', Settings)
 windowContentRegistry.set('advanced-physics-settings', AdvancedSettings)
 windowContentRegistry.set('project-trading', TradingProjects)
-windowContentRegistry.set('project-zone', ProjectZone)
-windowContentRegistry.set('project-orderflow', ProjectOrderflow)
-windowContentRegistry.set('project-vpoc', ProjectVPOC)
-windowContentRegistry.set('project-ib', ProjectIB)
-windowContentRegistry.set('project-hmm', ProjectHMM)
-windowContentRegistry.set('project-walkforward', ProjectWalkForward)
-windowContentRegistry.set('project-symbolic', ProjectSymbolic)
-windowContentRegistry.set('project-ml-consol', ProjectMLConsol)
-windowContentRegistry.set('project-of-viz', ProjectOrderflowViz)
-windowContentRegistry.set('project-neutral', ProjectNeutralCandle)
-windowContentRegistry.set('project-discord', ProjectDiscord)
 
 export function registerWindowContent(id: WindowId, component: React.ComponentType) {
   windowContentRegistry.set(id, component)
