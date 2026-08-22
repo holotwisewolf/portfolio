@@ -24,11 +24,10 @@ export const readme: DocContent = {
       ],
     },
     {
-      kind: 'formula',
-      heading: 'EXAMPLE DISCOVERED FORMULA',
-      formulas: ['score = 0.35 × volume_surge + 0.21 × range_expansion − 0.18 × volatility × body_strength'],
-      notes: [
-        { text: 'Clear, interpretable, auditable.' },
+      kind: 'text',
+      heading: 'THE REAL OUTPUT',
+      paras: [
+        { text: 'The actual evolved equation lives in method/FORMULAS.md — a nested max/sqrt/log tree over zone-range and duration variables, 11 operations, 75% test accuracy. Not pretty. Auditable.' },
       ],
     },
   ],
@@ -83,31 +82,30 @@ export const methodology: DocContent = {
 
 export const formulas: DocContent = {
   path: '// method/FORMULAS.md',
-  title: 'DISCOVERED FORMULAS',
-  intro: 'The outputs — each deployable as a single line of code.',
+  title: 'DISCOVERED FORMULA',
+  intro: 'The actual gplearn output from the 2026-08-21 run on zone features — not a prettied-up rewrite.',
   blocks: [
     {
       kind: 'formula',
-      heading: 'BREAKOUT PROBABILITY',
-      formulas: ['P_breakout = 0.42 × (range/ATR) + 0.31 × volume_ratio − 0.18 × (body/close)'],
-    },
-    {
-      kind: 'formula',
-      heading: 'CONSOLIDATION SCORE',
-      formulas: ['S_consol = 1 − (0.67 × range_pct + 0.33 × volatility)'],
-    },
-    {
-      kind: 'formula',
-      heading: 'TREND STRENGTH',
-      formulas: ['T_strength = 0.55 × (close − SMA20) + 0.28 × volume_surge'],
+      heading: 'BEST EVOLVED EQUATION (11 OPERATIONS)',
+      formulas: [
+        'sqrt(add(log(div(max(duration_minutes5, zone_low1), zone_low6)),',
+        '  sqrt(max(max(max(add(sqrt(max(zone_range5, duration_minutes3)),',
+        '    sqrt(max(duration_minutes5, zone_low1))), duration_minutes3),',
+        '    duration_minutes3), duration_minutes3))))',
+      ],
+      notes: [
+        { text: 'Readable? Barely. Honest? Completely. This is what genetic programming actually evolves on 25 samples × 53 features — a nested max/sqrt/log tree that prefers zone-range and duration variables.', tone: 'key' },
+        { text: 'Prettier hand-written approximations previously shown here were fabricated for the portfolio and have been removed.', tone: 'warn' },
+      ],
     },
     {
       kind: 'bullets',
-      heading: 'INTERPRETATION',
+      heading: 'WHAT THE TREE PREFERS',
       items: [
-        { text: 'Each coefficient shows feature importance', mark: 'check' },
-        { text: 'Can manually verify logic (e.g., "range expansion increases breakout prob")', mark: 'check' },
-        { text: 'Can deploy as simple SQL or Excel formula', mark: 'check' },
+        { text: 'zone_range / duration_minutes dominate the formula interior', mark: 'check' },
+        { text: 'Price-level variables (zone_low) appear only as guards inside max()', mark: 'none' },
+        { text: 'Deployable as a single expression — no ML runtime needed', mark: 'check' },
       ],
     },
   ],
@@ -116,83 +114,85 @@ export const formulas: DocContent = {
 export const validation: DocContent = {
   path: '// results/validation',
   title: 'VALIDATION',
-  intro: 'Chronological train/validate — the same rule the walk-forward framework enforces.',
+  intro: 'Measured performance of the 2026-08-21 gplearn run (25 zones × 53 features).',
   blocks: [
     {
       kind: 'metrics',
-      title: 'PERFORMANCE',
+      title: 'RUN PERFORMANCE',
       metrics: [
-        { label: 'TRAINING R²', value: '0.73', trend: 'up' },
-        { label: 'VALIDATION R²', value: '0.68', trend: 'up' },
-        { label: 'OVERFIT GAP', value: '0.05', trend: 'neutral' },
-        { label: 'FORMULA OPS', value: '8', trend: 'neutral' },
+        { label: 'TRAIN ACC', value: '82.4%', trend: 'up' },
+        { label: 'TEST ACC', value: '75.0%', trend: 'up' },
+        { label: 'OVERFIT GAP', value: '7.4%', trend: 'neutral' },
+        { label: 'TEST F1', value: '0.746', trend: 'up' },
       ],
     },
     {
-      kind: 'text',
-      heading: 'CHRONOLOGICAL VALIDATION',
-      paras: [
-        { text: 'Formulas evolved on training data, validated on future held-out data.' },
-        { text: 'Never shuffle time series randomly — creates look-ahead bias.', tone: 'bad' },
-        { text: 'Always train on [t₀, t₁], validate on [t₁, t₂] where t₁ < t₂.', tone: 'good' },
-        { text: 'Entry point: core/symbolic_regression.py' },
+      kind: 'stats',
+      items: [
+        { label: 'POPULATION', value: '1,000' },
+        { label: 'GENERATIONS', value: '20' },
+        { label: 'PARSIMONY', value: '0.001' },
+        { label: 'COMPLEXITY', value: '11 operations' },
+        { label: 'TRAIN MSE', value: '0.138' },
+        { label: 'TEST MSE', value: '0.301' },
       ],
     },
     {
       kind: 'table',
-      heading: 'MODEL COMPARISON',
+      heading: 'MODEL COMPARISON (SAME FEATURES)',
       headers: ['MODEL', 'ACCURACY', 'INTERPRETABLE'],
       rows: [
-        ['Random Forest', '76%', { text: 'No — black box', tone: 'bad' }],
-        ['Gradient Boosting', '78%', { text: 'No — opaque, slower', tone: 'bad' }],
-        ['Logistic Regression', '68%', { text: 'Yes, but too simple', tone: 'warn' }],
-        [{ text: 'Symbolic Regression', tone: 'key' }, '74%', { text: 'Yes — auditable formula', tone: 'good' }],
+        ['Gradient Boosting (zone trainer)', '~100% train', { text: 'No — and CV collapses to 55%', tone: 'bad' }],
+        ['Random Forest (zone trainer)', '80% CV', { text: 'Importance table only', tone: 'warn' }],
+        [{ text: 'Symbolic Regression (this run)', tone: 'key' }, '75% test', { text: 'Yes — auditable formula', tone: 'good' }],
       ],
     },
     {
-      kind: 'bullets',
-      heading: 'DEPLOYMENT READINESS',
-      items: [
-        { text: 'Formula validated on out-of-sample data', mark: 'check' },
-        { text: 'Complexity low enough for production use', mark: 'check' },
-        { text: 'No significant overfitting detected', mark: 'check' },
-        { text: 'Ready for integration into Zone Classifier', mark: 'check' },
+      kind: 'text',
+      paras: [
+        { text: 'Entry point: core/symbolic_regression.py. Run reproduced 2026-08-21 via scripts/run_symbolic.py; equation saved to ml_models/symbolic_equation.txt.', tone: 'default' },
       ],
     },
   ],
 }
 
-const featureImportance = [
-  { feature: 'volume_surge', importance: 0.42 },
-  { feature: 'range_expansion', importance: 0.31 },
-  { feature: 'body_strength', importance: 0.18 },
-  { feature: 'volatility', importance: 0.09 },
+// Real best-individual fitness by generation from the 2026-08-21 run log
+// (gplearn fitness = error; lower is better)
+const fitnessByGen = [
+  { gen: 0, fitness: 0.471 },
+  { gen: 2, fitness: 0.366 },
+  { gen: 4, fitness: 0.283 },
+  { gen: 6, fitness: 0.270 },
+  { gen: 8, fitness: 0.283 },
+  { gen: 10, fitness: 0.277 },
+  { gen: 12, fitness: 0.264 },
+  { gen: 14, fitness: 0.257 },
+  { gen: 16, fitness: 0.238 },
+  { gen: 19, fitness: 0.243 },
 ]
 
 export const evolution: DocContent = {
   path: '// results/evolution',
   title: 'EVOLUTION RUN',
-  intro: 'Run configuration and the feature weights it converged to.',
+  intro: 'Best-individual fitness per generation, measured from the real run log.',
   blocks: [
     {
-      kind: 'stats',
-      items: [
-        { label: 'GENERATIONS', value: '200' },
-        { label: 'POPULATION', value: '100' },
-        { label: 'PARSIMONY λ', value: '0.1' },
-        { label: 'FEATURES USED', value: '4' },
+      kind: 'metrics',
+      title: 'BEST FITNESS BY GENERATION (ERROR — LOWER IS BETTER)',
+      metrics: [
+        { label: 'GEN 0', value: '0.471', trend: 'neutral' },
+        { label: 'GEN 19', value: '0.243', trend: 'down' },
+        { label: 'IMPROVEMENT', value: '−48%', trend: 'up' },
+        { label: 'POPULATION', value: '1,000', trend: 'neutral' },
       ],
+      chart: { kind: 'line', data: fitnessByGen, xKey: 'gen', yKey: 'fitness' },
     },
     {
-      kind: 'metrics',
-      title: 'FEATURE IMPORTANCE',
-      metrics: [
-        { label: 'VOLUME SURGE', value: '42%', trend: 'up' },
-        { label: 'RANGE EXPANSION', value: '31%', trend: 'up' },
-        { label: 'TOP FEATURE', value: 'volume_surge', trend: 'neutral' },
-        { label: 'R² SCORE', value: '0.73', trend: 'up' },
+      kind: 'text',
+      paras: [
+        { text: 'Most of the gain lands in the first 6 generations; after that the parsimony pressure trades fitness for simplicity and the curve flattens.', tone: 'key' },
+        { text: 'The previously shown feature-importance weights (42/31/18/9%) were invented for the portfolio and are removed. What the formula actually uses is visible in its tree: zone-range and duration variables dominate.', tone: 'warn' },
       ],
-      chart: { kind: 'bar', data: featureImportance, xKey: 'feature', yKey: 'importance' },
     },
   ],
 }

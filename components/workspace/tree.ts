@@ -10,7 +10,6 @@ import {
   ResultsPatternsFile,
   ResultsEquityCurveFile,
   ResultsZoneDistributionFile,
-  ResultsFeatureImportanceFile,
 } from './projects/trading/zone-classifier'
 import * as orderflow from './projects/trading/orderflow/content'
 import * as hmm from './projects/trading/hmm/content'
@@ -25,6 +24,7 @@ import VpocDayExplorer from './projects/trading/vpoc/VpocDayExplorer'
 import OrderflowDayExplorer from './projects/trading/orderflow/OrderflowDayExplorer'
 import ProjectDiscord from '@/components/windows/ProjectDiscord'
 import * as discord from './projects/discord/content'
+import { terms } from './projects/trading/terms'
 
 const zoneClassifierChildren = [
   {
@@ -53,9 +53,8 @@ const zoneClassifierChildren = [
     children: [
       { type: 'file' as const, name: 'demo', description: 'Interactive backtest demo', component: BacktestDemoFile },
       { type: 'file' as const, name: 'patterns', description: 'Pattern examples', component: ResultsPatternsFile },
-      { type: 'file' as const, name: 'equity-curve', description: 'Equity curve over time', component: ResultsEquityCurveFile },
-      { type: 'file' as const, name: 'zone-distribution', description: 'Zone distribution', component: ResultsZoneDistributionFile },
-      { type: 'file' as const, name: 'feature-importance', description: 'Feature importance ranking', component: ResultsFeatureImportanceFile },
+      { type: 'file' as const, name: 'model-training', description: 'Real training metrics + importances', component: ResultsEquityCurveFile },
+      { type: 'file' as const, name: 'zone-distribution', description: 'Labeled vs measured distribution', component: ResultsZoneDistributionFile },
     ],
   },
 ]
@@ -194,7 +193,7 @@ const tradingChildren = [
         name: 'results',
         description: 'The proof',
         children: [
-          { type: 'file' as const, name: 'backtest', description: 'Trade log + equity', component: makeDoc(ib.backtest) },
+          { type: 'file' as const, name: 'backtest', description: 'Real backtest — Mar 2025', component: makeDoc(ib.backtest) },
         ],
       },
     ],
@@ -402,7 +401,10 @@ export const projectTree: FolderNode = {
       type: 'category',
       name: 'trading',
       description: 'Quantitative trading research',
-      children: tradingChildren,
+      children: [
+        { type: 'file' as const, name: 'TERMS.md', description: 'Vocabulary + formulas used everywhere', component: makeDoc(terms) },
+        ...tradingChildren,
+      ],
     },
     {
       type: 'category',

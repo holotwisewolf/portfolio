@@ -78,32 +78,37 @@ export const methodology: DocContent = {
   ],
 }
 
-const sharpeSummary = [
-  { window: 'BEST', sharpe: 1.95 },
-  { window: 'AVG', sharpe: 1.45 },
-  { window: 'WORST', sharpe: 0.65 },
+// Real consistency metrics from walk_forward_analytics/outputs/results/
+// walk_forward_report_20260209_085720.html (2026-02-09 run, gradient-boosting windows)
+const consistency = [
+  { metric: 'Return', score: 0.94 },
+  { metric: 'Sharpe', score: 0.998 },
+  { metric: 'Win Rate', score: 1.0 },
+  { metric: 'Drawdown', score: 0.999 },
 ]
 
 export const windows: DocContent = {
   path: '// results/windows',
   title: 'WINDOW PERFORMANCE',
-  intro: 'Sharpe summary across the 10 rolling windows.',
+  intro: 'Robustness metrics from the real February 2026 walk-forward run (126 trained window models).',
   blocks: [
     {
       kind: 'metrics',
-      title: 'ROLLING WINDOW PERFORMANCE',
+      title: 'CONSISTENCY ACROSS WINDOWS (1.0 = IDENTICAL BEHAVIOR)',
       metrics: [
-        { label: 'AVG SHARPE', value: '1.45', trend: 'up' },
-        { label: 'BEST WINDOW', value: '1.95', trend: 'up' },
-        { label: 'WORST WINDOW', value: '0.65', trend: 'down' },
-        { label: 'PROFITABLE', value: '9 / 10', trend: 'up' },
+        { label: 'ROBUSTNESS SCORE', value: '0.984', trend: 'up' },
+        { label: 'WINDOWS PROFITABLE', value: '100%', trend: 'up' },
+        { label: 'SIGNIFICANCE', value: 'p = 0.0031', trend: 'up' },
+        { label: 'MC P(POSITIVE)', value: '1.000', trend: 'up' },
       ],
-      chart: { kind: 'bar', data: sharpeSummary, xKey: 'window', yKey: 'sharpe' },
+      chart: { kind: 'bar', data: consistency, xKey: 'metric', yKey: 'score' },
     },
     {
       kind: 'text',
       paras: [
-        { text: 'The gap between best and worst window is the number that matters: a strategy that only works in its best window is a curve-fit, not an edge.' },
+        { text: 'Consistency near 1.0 means the strategy behaved the same in every window — no parameter cliff, no single window carrying the result. Monte Carlo resampling puts probability of positive returns at 1.000 and the result is significant at the 5% level.' },
+        { text: 'One honest asterisk from the same report: probability of beating the benchmark was 0.000 — consistent and positive, but not better than the comparison. The framework reports that too; that is the point of it.', tone: 'warn' },
+        { text: 'Source: walk_forward_analytics outputs — 2026-02-09 run, 126 window models.', tone: 'default' },
       ],
     },
   ],

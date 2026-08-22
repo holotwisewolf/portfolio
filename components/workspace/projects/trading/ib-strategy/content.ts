@@ -1,5 +1,7 @@
-// ib-strategy project content — migrated from components/windows/ProjectIB.tsx.
-// Trade log is the legacy simulated backtest — charts carry illustrative: true.
+// ib-strategy project content — REAL backtest run 2026-08-21 via scripts/run_real_ib.py:
+// the author's ib_strategy.py on NQ March 2025 (9.9M clean ticks, 21 days, 254 trades,
+// net of slippage/fees). Trade log: ./trade-log.csv in this folder.
+// The previous 10-trade simulated log was fiction and is gone.
 
 import type { DocContent } from '../../../DocFile'
 
@@ -21,8 +23,17 @@ export const readme: DocContent = {
       kind: 'stats',
       items: [
         { label: 'IB PERIOD', value: '9:30 - 10:30 AM ET' },
-        { label: 'INSTRUMENT', value: 'NQ / ES Futures' },
-        { label: 'RETEST LEEWAY', value: '10% on entries' },
+        { label: 'INSTRUMENT', value: 'NQ (NQH5, March 2025)' },
+        { label: 'DATA', value: '9,912,376 clean ticks' },
+        { label: 'CONFIRMATION', value: '5-min bars' },
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'REAL BACKTEST VERDICT',
+      paras: [
+        { text: '254 trades across 21 days: 13.8% win rate overall. The mean-reversion book won 70-90% of its trades and lost six figures per variant. Only short-side break & retest finished positive.', tone: 'bad' },
+        { text: 'High win rate with uncapped losers is not an edge — it is a steamroller with good marketing.', tone: 'key' },
       ],
     },
   ],
@@ -60,7 +71,7 @@ export const rules: DocContent = {
     },
     {
       kind: 'bullets',
-      heading: 'STOP TYPES',
+      heading: 'STOP TYPES (ALL THREE TESTED)',
       items: [
         { text: 'Structure Stop: 2 ticks beyond trigger candle high/low', mark: 'none' },
         { text: 'Smart Stop: Zone Height + 5 ticks (Filter 9 logic)', mark: 'none' },
@@ -79,67 +90,74 @@ export const rules: DocContent = {
   ],
 }
 
-// Equity series computed from the legacy simulated trade log (start $10,000)
-const equity = [
-  { trade: 1, equity: 10150 },
-  { trade: 2, equity: 10350 },
-  { trade: 3, equity: 10325 },
-  { trade: 4, equity: 10475 },
-  { trade: 5, equity: 10650 },
-  { trade: 6, equity: 10640 },
-  { trade: 7, equity: 10790 },
-  { trade: 8, equity: 10940 },
-  { trade: 9, equity: 10865 },
-  { trade: 10, equity: 11040 },
+// Real per-strategy aggregates from trade-log.csv
+const strategyPnl = [
+  { strategy: 'B&R Short', pnl: 8148 },
+  { strategy: 'B&R Long', pnl: -663 },
+  { strategy: 'MR IB Mid', pnl: -121578 },
+  { strategy: 'MR IB Edge', pnl: -201440 },
+  { strategy: 'MR 100% Ext', pnl: -451875 },
+  { strategy: 'MR 150% Ext', pnl: -575458 },
 ]
 
-const strategySplit = [
-  { strategy: 'Break & Retest', avgPnL: 125 },
-  { strategy: 'Mean Reversion', avgPnL: 83 },
+// Real cumulative PnL of all Break & Retest trades in exit order (38 trades)
+const brEquity = [
+  -747, -1481, -2216, -2694, -3173, -3709, -1174, 989, 527, 66, -460, -985, -1611,
+  -2237, 150, -356, -993, -1630, -2023, -203, 1617, 3437, 2669, 1902, 939, 177, -509,
+  -1196, -1553, -1814, -2025, 435, 40, -354, 2728, 5811, 5356, 7486,
 ]
 
 export const backtest: DocContent = {
   path: '// results/backtest',
-  title: 'BACKTEST LOG',
-  intro: 'Simulated NQ backtest — 0.25 tick size, $5/tick. Net of 2-tick slippage + 1-tick commission per round-trip.',
+  title: 'REAL BACKTEST',
+  intro: 'NQH5 March 2025 — 254 trades, net of slippage and fees. Trade log: trade-log.csv.',
   blocks: [
     {
       kind: 'metrics',
-      title: 'EQUITY CURVE',
+      title: 'TOTAL PnL BY STRATEGY ($)',
       metrics: [
-        { label: 'TOTAL P&L', value: '$1,040', trend: 'up' },
-        { label: 'WIN RATE', value: '78%', trend: 'up' },
-        { label: 'AVG P&L', value: '$104', trend: 'up' },
-        { label: 'RECORD', value: '7W/2L/1F', trend: 'up' },
+        { label: 'TOTAL TRADES', value: '254', trend: 'neutral' },
+        { label: 'ONLY WINNER', value: 'B&R Short', trend: 'up' },
+        { label: 'B&R SHORT', value: '+$8,148', trend: 'up' },
+        { label: 'WORST VARIANT', value: '-$575,458', trend: 'down' },
       ],
-      chart: { kind: 'anim-line', data: equity, xKey: 'trade', yKey: 'equity', illustrative: true },
+      chart: { kind: 'bar', data: strategyPnl, xKey: 'strategy', yKey: 'pnl' },
     },
     {
       kind: 'metrics',
-      title: 'STRATEGY COMPARISON',
+      title: 'BREAK & RETEST EQUITY — CUMULATIVE PnL ($, 38 TRADES)',
       metrics: [
-        { label: 'BEST STRATEGY', value: 'Break & Retest', trend: 'neutral' },
-        { label: 'B&R AVG', value: '$125/trade', trend: 'up' },
-        { label: 'MR AVG', value: '$83/trade', trend: 'up' },
-        { label: 'FLAT TRADES', value: '1', trend: 'neutral' },
+        { label: 'FINAL', value: '+$7,486', trend: 'up' },
+        { label: 'MEAN TRADE', value: '$452.69', trend: 'up' },
+        { label: 'SHARPE (ANN.)', value: '4.51', trend: 'up' },
+        { label: 'MAX DD (MEDIAN)', value: '$3,057', trend: 'neutral' },
       ],
-      chart: { kind: 'bar', data: strategySplit, xKey: 'strategy', yKey: 'avgPnL', illustrative: true },
+      chart: { kind: 'anim-line', data: brEquity.map((equity, i) => ({ trade: i + 1, equity })), xKey: 'trade', yKey: 'equity' },
     },
     {
       kind: 'table',
-      heading: 'TRADE LOG',
-      headers: ['DATE', 'STRATEGY', 'ENTRY', 'RESULT', 'P&L'],
+      heading: 'WIN RATE vs OUTCOME — THE LESSON',
+      headers: ['STRATEGY', 'TRADES', 'WIN RATE', 'TOTAL PnL'],
       rows: [
-        ['2024-12-02', 'Break & Retest Long', '15150.0', { text: 'WIN', tone: 'good' }, { text: '+$150', tone: 'good' }],
-        ['2024-12-03', 'Mean Rev 100% Short', '15220.0', { text: 'WIN', tone: 'good' }, { text: '+$200', tone: 'good' }],
-        ['2024-12-04', 'Break & Retest Short', '15100.0', { text: 'LOSS', tone: 'bad' }, { text: '-$25', tone: 'bad' }],
-        ['2024-12-05', 'Mean Rev 50% Long', '15080.0', { text: 'WIN', tone: 'good' }, { text: '+$150', tone: 'good' }],
-        ['2024-12-06', 'Break & Retest Long', '15140.0', { text: 'WIN', tone: 'good' }, { text: '+$175', tone: 'good' }],
-        ['2024-12-09', 'Mean Rev 100% Short', '15200.0', 'FLAT', '-$10'],
-        ['2024-12-10', 'Mean Rev 50% Long', '15090.0', { text: 'WIN', tone: 'good' }, { text: '+$150', tone: 'good' }],
-        ['2024-12-11', 'Break & Retest Short', '15130.0', { text: 'WIN', tone: 'good' }, { text: '+$150', tone: 'good' }],
-        ['2024-12-12', 'Mean Rev 100% Short', '15225.0', { text: 'LOSS', tone: 'bad' }, { text: '-$75', tone: 'bad' }],
-        ['2024-12-13', 'Break & Retest Long', '15125.0', { text: 'WIN', tone: 'good' }, { text: '+$175', tone: 'good' }],
+        ['Break & Retest (Short)', '18', { text: '30%', tone: 'warn' }, { text: '+$8,148', tone: 'good' }],
+        ['Break & Retest (Long)', '20', '20%', { text: '-$663', tone: 'bad' }],
+        ['Mean Rev (IB Mid)', '54', { text: '70%', tone: 'good' }, { text: '-$121,578', tone: 'bad' }],
+        ['Mean Rev (IB Edge)', '54', { text: '80%', tone: 'good' }, { text: '-$201,440', tone: 'bad' }],
+        ['Mean Rev (100% Ext)', '54', { text: '90%', tone: 'good' }, { text: '-$451,875', tone: 'bad' }],
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'PROP FIRM SIMULATOR (TOPSTEP MODEL, 1,000 SIMULATIONS)',
+      paras: [
+        { text: 'Break & Retest Short on a 100k account ($6k target / $3k trail): 84.2% pass rate, median 4 days. 50k account: 70.0% pass. Probability of loss: 0.0%. Monte Carlo 95% worst-case drawdown $4,886.' },
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'Caveat: one month, one instrument, one-sided survivor (short) in a down-trending March. The asymmetry lesson generalizes; the Sharpe does not.', tone: 'warn' },
+        { text: 'Source: ib_strategy.py via scripts/run_real_ib.py — full per-trade log with entries, exits, MAE in this folder.', tone: 'default' },
       ],
     },
   ],

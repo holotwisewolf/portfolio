@@ -1,4 +1,8 @@
-// hmm project content — migrated from components/windows/ProjectHMM.tsx.
+// hmm project content — RE-RUN for real on 2026-08-21: 4-state GaussianHMM
+// (hmmlearn, full covariance, seed 42) on 1,331 15-min NQH5 bars (March 2025)
+// built from raw Databento ticks. Deviations from the original tool, both noted:
+// bars built directly from ticks (its data cleaner dropped 85% of candles) and
+// features standardized before fit.
 
 import type { DocContent } from '../../../DocFile'
 
@@ -20,7 +24,14 @@ export const readme: DocContent = {
         { label: 'STATES', value: '4 states' },
         { label: 'FEATURES', value: '4 features' },
         { label: 'LIBRARY', value: 'hmmlearn' },
-        { label: 'ENTRY POINT', value: 'core/hmm_analysis_tool.py' },
+        { label: 'RUN', value: 'NQH5 Mar 2025 — 1,331 bars' },
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'RE-RUN RESULT',
+      paras: [
+        { text: 'Trained on 1,331 fifteen-minute bars from real NQH5 ticks (March 2025). 97.7% of bar assignments carry >70% model confidence. Consolidation dominates at 49% of bars; true breakout conditions are 11%. Full distribution below in results.', tone: 'key' },
       ],
     },
   ],
@@ -84,7 +95,7 @@ export const methodology: DocContent = {
         { text: '4-state Gaussian HMM', mark: 'none' },
         { text: 'Full covariance matrix', mark: 'none' },
         { text: '100 iteration convergence', mark: 'none' },
-        { text: 'Random state initialization', mark: 'none' },
+        { text: 'Random state 42', mark: 'none' },
       ],
     },
   ],
@@ -104,44 +115,88 @@ export const features: DocContent = {
         '3. volume_ratio = volume / volume_MA20   — relative volume',
         '4. volatility   = range_pct rolling std(20) — volatility regime',
       ],
+      notes: [
+        { text: 'Features standardized before fitting (full-covariance HMMs need comparable scales).' },
+      ],
     },
   ],
 }
 
-// Representative regime sequence removed — the per-day sequence chart was invented,
-// not model output. Only the real summary stats are shown.
-
+// Real state profiles from the March 2025 run (means in original units)
 const stateDistribution = [
-  { state: 'Consolidation', count: 35 },
-  { state: 'Trending', count: 28 },
-  { state: 'Breakout', count: 22 },
-  { state: 'Neutral', count: 15 },
+  { state: 'Consolidation', bars: 49.0 },
+  { state: 'Trending', bars: 23.2 },
+  { state: 'Neutral', bars: 16.9 },
+  { state: 'Breakout', bars: 10.9 },
 ]
 
 export const stateDistributionFile: DocContent = {
   path: '// results/state-distribution',
   title: 'STATE DISTRIBUTION',
-  intro: 'Share of time the market spent in each detected state.',
+  intro: 'Measured on 1,331 real 15-min NQH5 bars, March 2025.',
   blocks: [
     {
       kind: 'metrics',
-      title: 'STATE DISTRIBUTION',
+      title: 'TIME IN EACH STATE (% OF BARS)',
       metrics: [
         { label: 'MOST COMMON', value: 'Consolidation', trend: 'neutral' },
-        { label: '% TIME', value: '35%', trend: 'neutral' },
-        { label: 'BREAKOUTS', value: '22%', trend: 'up' },
-        { label: 'NEUTRAL', value: '15%', trend: 'neutral' },
+        { label: 'CONSOLIDATION', value: '49.0%', trend: 'neutral' },
+        { label: 'BREAKOUT', value: '10.9%', trend: 'up' },
+        { label: 'HIGH CONFIDENCE', value: '97.7%', trend: 'up' },
       ],
-      chart: { kind: 'bar', data: stateDistribution, xKey: 'state', yKey: 'count' },
+      chart: { kind: 'bar', data: stateDistribution, xKey: 'state', yKey: 'bars' },
     },
     {
+      kind: 'table',
+      heading: 'STATE PROFILES (FEATURE MEANS) — HOW STATES WERE LABELED',
+      headers: ['STATE', 'RANGE %', 'BODY %', 'VOL RATIO', 'VOLATILITY'],
+      rows: [
+        ['Consolidation (49.0%)', '0.16', '0.08', '1.16', '0.00065'],
+        ['Trending (23.2%)', '0.40', '0.20', '0.89', '0.00174'],
+        ['Neutral (16.9%)', '0.14', '0.07', { text: '0.17', tone: 'warn' }, '0.00172'],
+        ['Breakout (10.9%)', { text: '0.53', tone: 'good' }, '0.27', { text: '3.05', tone: 'good' }, '0.00206'],
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'Labeling follows the classification rules: the tightest range/body state is consolidation, the widest-range state with 3× relative volume is breakout, the lowest-volume state is neutral, and the remaining wide-range normal-volume state is trending.', tone: 'default' },
+        { text: 'Source: re-run 2026-08-21 via scripts/run_real_models2.py — hmmlearn GaussianHMM on raw Databento NQH5 ticks.', tone: 'default' },
+      ],
+    },
+  ],
+}
+
+// Real daily dominant-state sequence (18 trading days, March 2025)
+const dailyStates = [
+  { day: 1, state: 1 }, { day: 2, state: 1 }, { day: 3, state: 1 }, { day: 4, state: 1 },
+  { day: 5, state: 1 }, { day: 6, state: 1 }, { day: 7, state: 0 }, { day: 8, state: 0 },
+  { day: 9, state: 1 }, { day: 10, state: 1 }, { day: 11, state: 1 }, { day: 12, state: 1 },
+  { day: 13, state: 2 }, { day: 14, state: 1 }, { day: 15, state: 1 }, { day: 16, state: 1 },
+  { day: 17, state: 1 }, { day: 18, state: 1 },
+]
+
+export const regimeTransitions: DocContent = {
+  path: '// results/regime-transitions',
+  title: 'REGIME SEQUENCE',
+  intro: 'Dominant state per trading day, March 2025 (0=trending, 1=consolidation, 2=neutral, 3=breakout).',
+  blocks: [
+    {
       kind: 'metrics',
-      title: 'DETECTION SUMMARY',
+      title: 'REGIME SEQUENCE — DAILY DOMINANT STATE',
       metrics: [
-        { label: 'TOTAL DAYS', value: '60', trend: 'neutral' },
-        { label: 'REGIMES', value: '4', trend: 'neutral' },
-        { label: 'AVG CONFIDENCE', value: '82%', trend: 'up' },
-        { label: 'TRANSITIONS', value: '12', trend: 'neutral' },
+        { label: 'TRADING DAYS', value: '18', trend: 'neutral' },
+        { label: 'TRANSITIONS (BAR-LEVEL)', value: '103', trend: 'neutral' },
+        { label: 'CONSOL. DAYS', value: '15 / 18', trend: 'neutral' },
+        { label: 'TRENDING DAYS', value: '3 / 18', trend: 'neutral' },
+      ],
+      chart: { kind: 'line', data: dailyStates, xKey: 'day', yKey: 'state' },
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'March 2025 was a grinding consolidation month with one trending stretch (days 7-8) and one quiet day (13). Bar-level regime flips (103 across 1,331 bars) are frequent — the daily mode smooths them into what a human would call "the kind of day it was."', tone: 'key' },
+        { text: 'Source: re-run 2026-08-21 — same model as state-distribution.', tone: 'default' },
       ],
     },
   ],
