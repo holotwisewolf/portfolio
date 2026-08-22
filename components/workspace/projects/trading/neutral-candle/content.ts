@@ -35,32 +35,53 @@ export const readme: DocContent = {
 export const filters: DocContent = {
   path: '// method/FILTERS.md',
   title: 'FILTERS',
-  intro: 'The filter vocabulary the grid search composes.',
+  intro: 'How a neutral-candle trade forms, and the full filter vocabulary the grid composes.',
   blocks: [
     {
-      kind: 'formula',
-      heading: 'NOTABLE FILTERS',
-      formulas: [
-        'Filter 9 : Smart Stop    — dynamic stop, Zone Height + 5 ticks',
-        'Filter 12: Dynamic VWAP  — targets progressive VWAP lines',
-        'Filter 17: Volume Surge  — Breakout Vol / Neutral Vol > 1.25',
-        'Filter 20: VPOC Filter   — requires VPOC inside zone',
+      kind: 'text',
+      heading: 'HOW A TRADE FORMS',
+      paras: [
+        { text: 'A NEUTRAL candle is a quiet bar — small body, inside the recent range. A BREAKOUT is the next candle (or up to 4, chained while momentum holds) closing beyond the neutral candle\'s high or low. Entry: at the neutral candle\'s extreme in the breakout direction. Each return to that level later in the day is a TOUCH — the simulator re-attempts the trade per touch. Filters are yes/no conditions a candidate must pass before entry; stops and targets come from the config.' },
+      ],
+    },
+    {
+      kind: 'table',
+      heading: 'THE 18 FILTERS — REAL RULES FROM neutral_candle.py',
+      headers: ['ID', 'NAME', 'RULE'],
+      rows: [
+        ['1', 'Breakout Strength', { text: 'breakout body > 10 ticks', tone: 'key' }],
+        ['3', 'Trend Alignment', 'neutral close > SMA(20)'],
+        ['4', 'Time Filter', '10:00 AM – 12:00 PM only'],
+        ['5', 'Volume Filter', { text: 'breakout volume > 1.5 × average volume', tone: 'key' }],
+        ['8', 'Strict Ratio', { text: 'neutral / breakout body ratio < 0.40', tone: 'key' }],
+        ['9', 'Smart Stop', 'stop = zone height + 5 ticks (dynamic)'],
+        ['10', 'HTF Breakout', 'combined multi-bar breakout body logic'],
+        ['11', 'VWAP Trend', 'neutral close > VWAP'],
+        ['12', 'Dynamic VWAP', 'target = progressive VWAP line'],
+        ['13', 'Vol Confirmation', 'breakout volume > neutral volume'],
+        ['15', 'Distance Confirm', 'entry only after price moves 30+ ticks away'],
+        ['16', 'Vol Ratio', 'neutral efficiency / breakout efficiency'],
+        ['17', 'Volume Surge', { text: 'breakout volume / neutral volume > 1.25', tone: 'key' }],
+        ['18', 'Hybrid', 'combines 17 (surge) + 16 (ratio)'],
+        ['19', 'Stop Protection', 'stop = zone + 12 ticks (safety override)'],
+        ['20', 'VPOC Filter', 'VPOC must be inside the zone'],
+        ['21', 'Vol ROC Allocation', 'volume acceleration > 0 and ROC > 0.3'],
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'READING A FILTER SET',
+      paras: [
+        { text: 'A config like {8, 1, 3, 5} means: breakout body > 10 ticks (1) AND neutral/breakout ratio < 0.40 (8) AND neutral close above SMA(20) (3) AND breakout volume > 1.5× average (5) — all must pass before the entry fires.' },
       ],
     },
     {
       kind: 'bullets',
       heading: 'GRID SEARCH ENGINE',
       items: [
-        { text: 'Tests all combinations of enabled filters', mark: 'none' },
-        { text: 'Evaluates by win rate, total P&L, Sharpe ratio', mark: 'none' },
-        { text: 'Returns ranked list of filter combinations', mark: 'none' },
-      ],
-    },
-    {
-      kind: 'text',
-      heading: 'FAST PATH OPTIMIZATION',
-      paras: [
-        { text: 'Pre-calculates 0-500 tick outcomes for O(1) lookup during simulation.' },
+        { text: 'Tests all combinations of enabled filters × entry modes × target/stop pairs × slippage assumptions', mark: 'none' },
+        { text: 'Evaluates by win rate, total PnL, recovery factor, EV per trade', mark: 'none' },
+        { text: 'Fast path: pre-computes 0–500 tick outcomes for O(1) lookup during simulation', mark: 'none' },
       ],
     },
   ],
@@ -81,6 +102,15 @@ export const bestCombos: DocContent = {
   title: 'GRID SEARCH VERDICT',
   intro: 'The full run, and it is brutal: 4,775 configurations, 941,882 simulated trades, 44 profitable.',
   blocks: [
+    {
+      kind: 'text',
+      heading: 'HOW TO READ THIS — WHAT THE NUMBERS MEAN',
+      paras: [
+        { text: 'One CONFIGURATION = a filter set + an entry mode + a target/stop pair + a slippage assumption (e.g. filters {8,1,3,5}, entry mode B, 200-tick target / 100-tick stop, 15-tick slip). The grid tests every combination and lets each one trade the same months of data.' },
+        { text: 'N = how many trades that configuration actually took. WIN RATE (WR) = the fraction of those trades that hit target before stop — not a percentage of anything else. EV = average dollars per trade after slippage and commissions; negative EV means the config lost money on average.' },
+        { text: 'The chart below counts CONFIGURATIONS per win-rate bucket: 3,617 of the 4,775 won under 40% of their trades. That bar chart is a distribution of strategies, not of trades.', tone: 'key' },
+      ],
+    },
     {
       kind: 'metrics',
       title: 'FULL GRID SEARCH (2026-01-13 RUN)',

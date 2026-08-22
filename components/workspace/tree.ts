@@ -17,6 +17,7 @@ import * as ib from './projects/trading/ib-strategy/content'
 import * as walkforward from './projects/trading/walkforward/content'
 import * as symbolic from './projects/trading/symbolic/content'
 import * as mlConsol from './projects/trading/ml-consolidation/content'
+import LabelGapExamples from './projects/trading/ml-consolidation/LabelGapExamples'
 import * as orderflowViz from './projects/trading/orderflow-visualizer/content'
 import * as neutralCandle from './projects/trading/neutral-candle/content'
 import VpocDayExplorer from './projects/trading/vpoc/VpocDayExplorer'
@@ -287,6 +288,7 @@ const tradingChildren = [
         description: 'The proof',
         children: [
           { type: 'file' as const, name: 'model-accuracy', description: 'Model comparison + importance', component: makeDoc(mlConsol.modelAccuracyFile) },
+          { type: 'file' as const, name: 'label-vs-outcome', description: 'The gap — labels vs what happened next', component: makeDemo(LabelGapExamples, { path: '// results/label-vs-outcome', title: 'LABEL vs OUTCOME', intro: 'Label accuracy is measured backwards; trading needs it forwards. Real labeled zones with the 10 bars that followed each one — the gap between "correct label" and "usable signal", on actual candles.', realData: true }) },
         ],
       },
     ],
