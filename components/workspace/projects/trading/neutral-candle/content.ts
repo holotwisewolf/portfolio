@@ -97,6 +97,14 @@ const wrDistribution = [
   { bucket: '70%+', configs: 0 },
 ]
 
+const recoveryDist = [
+  { bucket: '< -1', configs: 3251 },
+  { bucket: '-1..0', configs: 1480 },
+  { bucket: '0..1', configs: 35 },
+  { bucket: '1..2', configs: 7 },
+  { bucket: '> 2', configs: 2 },
+]
+
 export const bestCombos: DocContent = {
   path: '// results/best-combos',
   title: 'GRID SEARCH VERDICT',
@@ -107,7 +115,7 @@ export const bestCombos: DocContent = {
       heading: 'HOW TO READ THIS — WHAT THE NUMBERS MEAN',
       paras: [
         { text: 'One CONFIGURATION = a filter set + an entry mode + a target/stop pair + a slippage assumption (e.g. filters {8,1,3,5}, entry mode B, 200-tick target / 100-tick stop, 15-tick slip). The grid tests every combination and lets each one trade the same months of data.' },
-        { text: 'N = how many trades that configuration actually took. WIN RATE (WR) = the fraction of those trades that hit target before stop — not a percentage of anything else. EV = average dollars per trade after slippage and commissions; negative EV means the config lost money on average.' },
+        { text: 'N = how many trades that configuration actually took. WIN RATE (WR) = the fraction of those trades that hit target before stop — not a percentage of anything else. EV = average dollars per trade after slippage and commissions; negative EV means the config lost money on average. RECOVERY = total PnL / max drawdown — below zero means it never dug itself out.' },
         { text: 'The chart below counts CONFIGURATIONS per win-rate bucket: 3,617 of the 4,775 won under 40% of their trades. That bar chart is a distribution of strategies, not of trades.', tone: 'key' },
       ],
     },
@@ -118,23 +126,71 @@ export const bestCombos: DocContent = {
         { label: 'CONFIGS TESTED', value: '4,775', trend: 'neutral' },
         { label: 'TRADES', value: '941,882', trend: 'neutral' },
         { label: 'PROFITABLE', value: '44 (1%)', trend: 'down' },
-        { label: 'BEST EV', value: '$372/trade', trend: 'up' },
+        { label: 'NO-FILTER BASELINE', value: '-$90/trade', trend: 'down' },
       ],
       chart: { kind: 'bar', data: wrDistribution, xKey: 'bucket', yKey: 'configs' },
     },
     {
+      kind: 'text',
+      heading: 'THE ANCHOR — NO-FILTER BASELINE',
+      paras: [
+        { text: 'The empty filter set, traded on the same data: 1,170 trades, 28% win rate, −$90 EV, −$105,150 total. Everything else in the grid is measured against doing nothing clever. Only 44 of 4,775 attempts beat it.', tone: 'key' },
+      ],
+    },
+    {
       kind: 'table',
-      heading: 'BEST CONFIG BY EV — FINAL FULL RUN',
-      headers: ['FILTERS', 'MODE', 'N', 'WIN RATE', 'EV/TRADE', 'RECOVERY'],
+      heading: 'TOP 10 BY EV WITH A SAMPLE FLOOR (N ≥ 20) — THE HONEST LEADERBOARD',
+      headers: ['FILTERS', 'MODE', 'TF', 'N', 'WR', 'EV/TRADE', 'TOTAL PnL', 'RECOVERY'],
       rows: [
-        ['{1, 3, 21}', 'fixed / A, 200t/100t', '10', '60.0%', { text: '$372.50', tone: 'good' }, '2.28'],
+        [{ text: '{1, 3, 4}', tone: 'good' }, 'fixed/A', '5m', '39', '43.6%', { text: '$155.00', tone: 'good' }, { text: '$6,045', tone: 'good' }, { text: '2.89', tone: 'good' }],
+        ['{1, 3, 4}', 'hybrid/A', '15m', '26', '53.8%', '$38.27', '$995', '0.67'],
+        ['{1, 3, 4}', 'vwap/A', '15m', '23', '60.9%', '$29.35', '$675', '0.94'],
+        ['{1, 3, 4}', 'vwap/A', '15m', '25', '52.0%', '$29.00', '$725', '0.47'],
+        ['{8, 1, 11, 15}', 'fixed/A', '5m', '77', '31.2%', '$13.96', '$1,075', '0.09'],
+        ['{8, 1}', 'fixed/A', '5m', '183', '32.8%', '$10.44', '$1,910', '0.13'],
+        ['{16}', 'fixed/A', '5m', '45', '37.8%', '$9.00', '$405', '0.25'],
+        ['{8, 1, 3, 13}', 'fixed/A', '5m', '76', '30.3%', '$3.62', '$275', '0.03'],
+        ['{8, 1, 3}', 'fixed/A', '1m', '144', '34.0%', '$1.91', '$275', '0.05'],
+        ['{8, 1, 3, 13}', 'fixed/A', '1m', '152', '33.6%', { text: '-$5.39', tone: 'bad' }, { text: '-$820', tone: 'bad' }, { text: '-0.10', tone: 'bad' }],
       ],
     },
     {
       kind: 'text',
       paras: [
-        { text: 'Sample-size caveat: the best-by-EV configuration traded only 10 times. That is not an edge, that is noise with good posture.', tone: 'warn' },
+        { text: 'The honest leaderboard\'s best ({1,3,4} on 5-min bars: breakout strength + trend alignment + time window) made $155/trade over 39 trades — but its recovery factor of 2.89 rode a $2,090 drawdown to make $6,045. The 10th row is already underwater. The leaderboard decays from $155 to negative within ten rows.', tone: 'key' },
       ],
+    },
+    {
+      kind: 'table',
+      heading: 'SLICE BY TIMEFRAME',
+      headers: ['TIMEFRAME', 'CONFIGS', 'PROFITABLE', 'MAX EV'],
+      rows: [
+        ['1min', '1,621', '24', { text: '$372 (n=10 — tiny sample)', tone: 'warn' }],
+        ['5min', '1,642', '13', '$155'],
+        ['15min', '1,512', '7', '$48'],
+      ],
+    },
+    {
+      kind: 'table',
+      heading: 'SLICE BY TARGET/STOP MODE',
+      headers: ['TS MODE', 'PROFITABLE CONFIGS (OF 44)', 'MEDIAN WR'],
+      rows: [
+        ['fixed', { text: '31', tone: 'good' }, '11.4%'],
+        ['vwap', '7', '15.2%'],
+        ['hybrid', '3', '17.0%'],
+        ['smart', '3', '7.7%'],
+      ],
+    },
+    {
+      kind: 'metrics',
+      title: 'RECOVERY FACTOR DISTRIBUTION (HOW MANY CONFIGS EVER DUG OUT)',
+      metrics: [
+        { label: 'NEVER RECOVERED', value: '4,731', trend: 'down' },
+        { label: 'RF > 1', value: '9', trend: 'up' },
+        { label: 'RF > 2', value: '2', trend: 'up' },
+        { label: 'BASELINE RF', value: '-0.94', trend: 'down' },
+      ],
+      chart: { kind: 'bar', data: recoveryDist, xKey: 'bucket', yKey: 'configs' },
     },
     {
       kind: 'table',
@@ -152,6 +208,7 @@ export const bestCombos: DocContent = {
         { text: '99% of configurations lost money across the full grid', mark: 'cross' },
         { text: 'The earlier "best" config collapsed under the fuller evaluation — classic selection survivorship', mark: 'cross' },
         { text: 'Win rates above 60% essentially do not exist at realistic sample sizes', mark: 'none' },
+        { text: 'Simple 2-3 filter sets ({1,3,4}, {8,1}) beat the elaborate 4-filter sets once a sample floor is applied', mark: 'check' },
         { text: 'These insights informed Zone Classifier filter design', mark: 'none' },
       ],
     },
