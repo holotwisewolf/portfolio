@@ -80,6 +80,17 @@ export const terms: DocContent = {
     },
     {
       kind: 'formula',
+      heading: 'SLIPPAGE, FILLS & FEES — THE REALITY-CHECK LAYER',
+      formulas: [
+        'fill_price = price + (direction × slippage_ticks × tick_size)',
+        'net_pnl    = raw_pnl − commissions_per_trade',
+      ],
+      notes: [
+        { text: 'From core/skepticism.py — "if it looks too good to be true, run this module." Buys pay more, sells receive less; friction always cuts against you. Every positive result on these pages was computed with this layer applied, and most still died under the skepticism notes that follow them.', tone: 'key' },
+      ],
+    },
+    {
+      kind: 'formula',
       heading: 'EXPECTED VALUE PER TRADE (EV)',
       formulas: ['EV = (win_rate × avg_win) − (loss_rate × avg_loss) − costs'],
       notes: [

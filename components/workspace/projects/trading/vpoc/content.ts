@@ -103,5 +103,12 @@ export const touchAnalysis: DocContent = {
         { text: 'Bounces were the modal reaction, but the edge over coin-flip was marginal — not enough to trade alone.', tone: 'warn' },
       ],
     },
+    {
+      kind: 'text',
+      heading: 'WHY +2.1% IS LIKELY NOISE',
+      paras: [
+        { text: '58% win rate over 45 bounces is ~26 of 45. The 95% confidence interval on that spans roughly 43%–72% — a coin flip lives comfortably inside it. Add spread + slippage (the reality-check formulas in TERMS.md) and the +2.1% evaporates before the order fills. This is why VPOC-touch became an input to regime classification instead of a strategy.', tone: 'key' },
+      ],
+    },
   ],
 }

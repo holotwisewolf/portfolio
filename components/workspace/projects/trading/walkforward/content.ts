@@ -105,9 +105,24 @@ export const windows: DocContent = {
     },
     {
       kind: 'text',
+      heading: 'WHY PERFECTION IS SUSPICIOUS',
       paras: [
-        { text: 'Consistency near 1.0 means the strategy behaved the same in every window — no parameter cliff, no single window carrying the result. Monte Carlo resampling puts probability of positive returns at 1.000 and the result is significant at the 5% level.' },
-        { text: 'One honest asterisk from the same report: probability of beating the benchmark was 0.000 — consistent and positive, but not better than the comparison. The framework reports that too; that is the point of it.', tone: 'warn' },
+        { text: 'Consistency 0.984, 100% of windows profitable, Monte Carlo P(positive) = 1.000. Results this clean are usually a leak, not an edge. If this framework certified real money-making, it would be a fund by now.', tone: 'key' },
+      ],
+    },
+    {
+      kind: 'bullets',
+      items: [
+        { text: 'The walk-forwarded models predict labels, not PnL — "consistent" means consistently agreeing with hand-labels, which is one person\'s opinion of the chart', mark: 'cross' },
+        { text: 'Rolling windows overlap: adjacent windows share most of their data, so "independent confirmation" isn\'t independent', mark: 'cross' },
+        { text: 'P(positive) = 1.000 from Monte Carlo resampling of the same trade sequence — the simulator resamples the sample (same self-referential trap as the prop-firm simulator)', mark: 'cross' },
+        { text: 'The report itself flags probability of beating the benchmark as 0.000 — positive, but not better than the naive comparison', mark: 'cross' },
+        { text: 'Robustness of the pipeline, yes; robustness of an edge, unproven — the two are not the same claim', mark: 'none' },
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
         { text: 'Source: walk_forward_analytics outputs — 2026-02-09 run, 126 window models.', tone: 'default' },
       ],
     },

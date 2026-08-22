@@ -103,6 +103,13 @@ export const modelAccuracyFile: DocContent = {
       ],
     },
     {
+      kind: 'text',
+      heading: 'WHY 78% IS NOT WHAT IT SOUNDS LIKE',
+      paras: [
+        { text: 'The models predict my hand-labels of consolidation — not returns. 78% accuracy means the forest agrees with the labeler 78% of the time; whether the labeler\'s consolidation zones contain tradeable structure is a different question this project never answered. That gap (label accuracy → market edge) is where every project in this folder went to die.', tone: 'key' },
+      ],
+    },
+    {
       kind: 'metrics',
       title: 'FEATURE IMPORTANCE',
       metrics: [

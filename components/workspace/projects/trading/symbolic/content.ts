@@ -149,6 +149,22 @@ export const validation: DocContent = {
     },
     {
       kind: 'text',
+      heading: 'WHY 75% IS LIKELY INFLATED',
+      paras: [
+        { text: '25 zones, 5 of them in the test set — "75% test accuracy" means 4 of 5 zones. One different fold and this is a different number.', tone: 'key' },
+      ],
+    },
+    {
+      kind: 'bullets',
+      items: [
+        { text: '53 features vs 25 samples — the model has more knobs than data; parsimony punishes complexity but cannot create out-of-sample statistics', mark: 'cross' },
+        { text: 'The run log itself shows it: the best individual\'s out-of-bag fitness (0.56–0.99) was consistently worse than its training fitness (0.23–0.47) in nearly every generation', mark: 'cross' },
+        { text: 'Ground truth is one person\'s hand-labels — agreeing with the labeler is not predicting the market', mark: 'cross' },
+        { text: 'Chance level on this label split is 40% (majority class) — the signal above chance is real but the sample is too small to trust its size', mark: 'none' },
+      ],
+    },
+    {
+      kind: 'text',
       paras: [
         { text: 'Entry point: core/symbolic_regression.py. Run reproduced 2026-08-21 via scripts/run_symbolic.py; equation saved to ml_models/symbolic_equation.txt.', tone: 'default' },
       ],

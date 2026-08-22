@@ -59,12 +59,25 @@ export default function ResultsEquityCurveFile() {
       </TradingMetricsCard>
 
       <div className="border border-[#1c2e1c] bg-black p-4 space-y-2">
-        <div className="text-[10px] tracking-[0.2em] text-[#00ff9d]">HONEST READ</div>
+        <div className="text-[10px] tracking-[0.2em] text-[#ef4444]">WHY 80% IS LIKELY INFLATED</div>
+        <div className="space-y-1">
+          {[
+            'The test set is 5 zones — 80% means 4 of 5. One fold reshuffle and this is a different number; the CV spread (±10) is the honest headline.',
+            'Features are computed on zones whose boundaries the labeler drew AFTER seeing the chart — range_vs_5before is honest, but the zone selection itself carries hindsight.',
+            'Ground truth is one person\'s labels (see results/labels — you can check whether you agree). Agreement with a human is not market edge.',
+            'Gradient boosting hitting 100% train with CV collapsing to 55% is the overfit signature this small sample guarantees.',
+          ].map((t, i) => (
+            <div key={i} className="flex gap-2 text-[11px] text-gray-400 leading-relaxed">
+              <span className="w-[9px] h-[9px] mt-[3px] border border-[#ef4444] flex-shrink-0" />
+              <span>{t}</span>
+            </div>
+          ))}
+        </div>
+        <div className="text-[10px] tracking-[0.2em] text-[#00ff9d] pt-2">WHAT SURVIVES</div>
         <p className="text-[11px] text-gray-400 leading-relaxed">
-          With 25 labeled zones and a 5-zone test set, these accuracies are directional, not definitive —
-          the CV standard deviations say so themselves. What the model consistently ranks as signal:
-          range and body relative to the candles before the zone. The 68-feature story narrows to a
-          handful of range-context features actually carrying weight.
+          The consistent feature ranking: range and body relative to the candles before the zone.
+          The 68-feature story narrows to a handful of range-context features — that direction is
+          robust across models even when the accuracy is not.
         </p>
         <p className="text-[10px] text-[#444]">
           Source: zone_classifier_trainer.py via scripts/run_real_models.py — 2026-08-21 run.

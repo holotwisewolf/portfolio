@@ -155,9 +155,40 @@ export const backtest: DocContent = {
     },
     {
       kind: 'text',
+      heading: 'WHY THE POSITIVE RESULT IS LIKELY A FALSE POSITIVE',
       paras: [
-        { text: 'Caveat: one month, one instrument, one-sided survivor (short) in a down-trending March. The asymmetry lesson generalizes; the Sharpe does not.', tone: 'warn' },
-        { text: 'Source: ib_strategy.py via scripts/run_real_ib.py — full per-trade log with entries, exits, MAE in this folder.', tone: 'default' },
+        { text: 'If +$452/trade with Sharpe 4.51 were real, this page would be a footnote under a fund. It is almost certainly selection noise, for five stacking reasons:', tone: 'key' },
+      ],
+    },
+    {
+      kind: 'bullets',
+      items: [
+        { text: '18 trades. A Sharpe ratio annualized from 18 observations is a random number generator with formatting.', mark: 'cross' },
+        { text: 'The winner is SHORT-only, in a month where NQ fell ~4%. Direction aligned with regime is luck wearing a suit — flip to a rally month and the sign likely flips.', mark: 'cross' },
+        { text: 'Max-of-many: the grid tested 6 strategies × 3 stop types × multiple target modes. The best of dozens of variants will look good by chance alone.', mark: 'cross' },
+        { text: 'The 84% Topstep pass rate is simulated FROM the same 18 trades — the simulator resamples the sample, it does not validate it.', mark: 'cross' },
+        { text: 'Slippage is an assumption in the code, not a measurement from live fills.', mark: 'cross' },
+        { text: 'And the same run shows it: Break & Retest LONG lost money in the identical geometry. A real microstructure edge should not care which way the box breaks.', mark: 'cross' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'THE REALITY-CHECK LAYER — core/skepticism.py ("if it looks too good to be true, run this module")',
+      formulas: [
+        'fill_price  = price + (direction × slippage_ticks × tick_size)',
+        'net_pnl     = raw_pnl − commissions_per_trade',
+        'monte_carlo = resample trade sequence × 1,000 → drawdown distribution',
+      ],
+      notes: [
+        { text: 'Buys pay more, sells receive less — slippage always cuts against you. Every trade in this log already has these applied (2-tick slip + commission per round trip).' },
+        { text: 'The residual catch: the tick count is an assumption, not a measurement. The formula is honest; its input is a guess — and a strategy whose survival depends on slippage being exactly 2 ticks has no margin of safety.', tone: 'warn' },
+      ],
+    },
+    {
+      kind: 'text',
+      paras: [
+        { text: 'What survives skepticism: the negative result (mean reversion\'s high win rate hiding catastrophic tails) and the failed-auction filter logic. Not the Sharpe.', tone: 'warn' },
+        { text: 'Source: ib_strategy.py via scripts/run_real_ib.py — full per-trade log with entries, exits, MAE in this folder. Slippage/commission formulas: core/skepticism.py.', tone: 'default' },
       ],
     },
   ],
