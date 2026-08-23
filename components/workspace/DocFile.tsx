@@ -149,11 +149,11 @@ function BlockView({ block }: { block: Block }) {
             <div className="text-[10px] tracking-[0.2em] text-[#00ff9d] mb-2">{block.heading}</div>
           )}
           <div className="border border-[#1c2e1c] overflow-x-auto">
-            <table className="w-full text-left min-w-[480px]">
+            <table className="w-full text-left min-w-[480px] table-fixed">
               <thead>
                 <tr className="border-b border-[#1c2e1c]">
                   {block.headers.map((h) => (
-                    <th key={h} className="text-[9px] tracking-[0.2em] text-[#444] font-normal px-3 py-2">
+                    <th key={h} className="text-[9px] tracking-[0.2em] text-[#444] font-normal px-3 py-2 align-top overflow-hidden">
                       {h}
                     </th>
                   ))}
@@ -165,7 +165,7 @@ function BlockView({ block }: { block: Block }) {
                     {row.map((cell, ci) => {
                       const { text, tone } = cellText(cell)
                       return (
-                        <td key={ci} className={`text-[11px] px-3 py-2 ${TONE_CLASS[tone]}`}>
+                        <td key={ci} className={`text-[11px] px-3 py-2 align-top break-words ${TONE_CLASS[tone]}`}>
                           {text}
                         </td>
                       )

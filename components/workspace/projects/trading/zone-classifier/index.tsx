@@ -6,6 +6,7 @@ import BuildLogFile from './BuildLogFile'
 import ResultsEquityCurveFile from './results/EquityCurveFile'
 import ResultsZoneDistributionFile from './results/ZoneDistributionFile'
 import ZoneLabelGallery from './results/ZoneLabelGallery'
+import ZonePredictions from './results/ZonePredictions'
 
 export {
   ReadmeFile,
@@ -16,4 +17,5 @@ export {
   ResultsEquityCurveFile,
   ResultsZoneDistributionFile,
   ZoneLabelGallery,
+  ZonePredictions,
 }
