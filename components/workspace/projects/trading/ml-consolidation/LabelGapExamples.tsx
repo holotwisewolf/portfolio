@@ -5,7 +5,7 @@
 // forwards. Every example computed live from the real zone-labels.json candles.
 
 import { useMemo, useState } from 'react'
-import zoneData from '../zone-classifier/zone-labels.json'
+import { useJson } from '../useJson'
 import { Candles, scales, type Bar } from '../candle-utils'
 
 interface Zone {
@@ -16,8 +16,10 @@ interface Zone {
   zone_to: number
   bars: [string, number, number, number, number, number, number, number][]
 }
-
-const zones = (zoneData as unknown as { zones: Zone[] }).zones
+interface Payload {
+  source: string
+  zones: Zone[]
+}
 
 const LABELS: Record<number, { name: string; color: string }> = {
   1: { name: 'NEUTRAL', color: '#666666' },
@@ -45,6 +47,18 @@ interface Example {
 }
 
 export default function LabelGapExamples() {
+  const data = useJson<Payload>('/data/zone-labels.json')
+  if (!data) {
+    return (
+      <div className="h-[200px] flex items-center justify-center text-[#444] text-[11px] tracking-[0.3em]">
+        LOADING…
+      </div>
+    )
+  }
+  return <Examples zones={data.zones} />
+}
+
+function Examples({ zones }: { zones: Zone[] }) {
   const [show, setShow] = useState(false)
 
   // forward window = the bars after the labeled zone (zone end + up to 10 bars,

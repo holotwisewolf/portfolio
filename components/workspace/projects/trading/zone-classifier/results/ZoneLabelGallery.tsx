@@ -5,7 +5,7 @@
 // into a full chart — so visitors can judge whether they agree with the label.
 
 import { useMemo, useState } from 'react'
-import data from '../zone-labels.json'
+import { useJson } from '../../useJson'
 import { Candles, scales, type Bar } from '../../candle-utils'
 
 interface Zone {
@@ -17,8 +17,10 @@ interface Zone {
   zone_to: number
   bars: [string, number, number, number, number, number, number, number][]
 }
-
-const zones = (data as unknown as { zones: Zone[] }).zones
+interface Payload {
+  source: string
+  zones: Zone[]
+}
 
 const LABELS: Record<number, { name: string; color: string; blurb: string }> = {
   1: { name: 'NEUTRAL', color: '#666666', blurb: 'No edge — wait' },
@@ -73,6 +75,18 @@ function ZoneChart({ zone, big }: { zone: Zone; big?: boolean }) {
 }
 
 export default function ZoneLabelGallery() {
+  const data = useJson<Payload>('/data/zone-labels.json')
+  if (!data) {
+    return (
+      <div className="h-[300px] flex items-center justify-center text-[#444] text-[11px] tracking-[0.3em]">
+        LOADING…
+      </div>
+    )
+  }
+  return <Gallery zones={data.zones} />
+}
+
+function Gallery({ zones }: { zones: Zone[] }) {
   const [showAll, setShowAll] = useState(false)
   const [filter, setFilter] = useState<number | null>(null)
   const [expanded, setExpanded] = useState<number | null>(null)

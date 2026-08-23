@@ -2,10 +2,11 @@
 
 // VPOC day explorer on REAL Databento NQ tick data (March 2025). Candle bars,
 // session VPOC level, pinned touch moments with reaction extremes, and the
-// volume-at-price profile that produced the VPOC.
+// volume-at-price profile that produced the VPOC. Dataset fetched from
+// /public/data so it stays out of the JS bundle.
 
 import { useMemo, useState } from 'react'
-import data from './demo-data.json'
+import { useJson } from '../useJson'
 import { Candles, scales, type Bar } from '../candle-utils'
 
 interface Touch {
@@ -24,8 +25,11 @@ interface Day {
   profile: [number, number][]
   touches: Touch[]
 }
-
-const days = (data as unknown as { instrument: string; source: string; days: Day[] }).days
+interface Payload {
+  instrument: string
+  source: string
+  days: Day[]
+}
 
 const VB_W = 900
 const VB_H = 400
@@ -38,6 +42,19 @@ const asBar = (b: [string, number, number, number, number, number, number, numbe
 })
 
 export default function VpocDayExplorer() {
+  const data = useJson<Payload>('/data/vpoc-days.json')
+  if (!data) {
+    return (
+      <div className="h-[300px] flex items-center justify-center text-[#444] text-[11px] tracking-[0.3em]">
+        LOADING…
+      </div>
+    )
+  }
+  return <Explorer data={data} />
+}
+
+function Explorer({ data }: { data: Payload }) {
+  const days = data.days
   const [dayIdx, setDayIdx] = useState(0)
   const [hover, setHover] = useState<number | null>(null)
   const day = days[dayIdx]
@@ -166,7 +183,7 @@ export default function VpocDayExplorer() {
       <div className="border-t border-[#1c2e1c] px-3 py-2 flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
         <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> TOUCH (all pinned)</span>
         <span><span className="inline-block w-[7px] h-[7px] border border-white mr-1 align-middle" /> REACTION EXTREME</span>
-        <span className="ml-auto">{(data as unknown as { source: string }).source} — 5-min candles</span>
+        <span className="ml-auto">{data.source} — 5-min candles</span>
       </div>
     </div>
   )

@@ -5,7 +5,7 @@
 // intraday delta — actual buy/sell aggression computed from trade sides.
 
 import { useMemo, useState } from 'react'
-import data from './demo-data.json'
+import { useJson } from '../useJson'
 import { Candles, scales, type Bar } from '../candle-utils'
 
 interface Day {
@@ -15,8 +15,10 @@ interface Day {
   vpoc: number
   bars: [string, number, number, number, number, number, number, number][]
 }
-
-const days = (data as unknown as { days: Day[] }).days
+interface Payload {
+  source: string
+  days: Day[]
+}
 
 const VB_W = 900
 const VB_H = 470
@@ -33,6 +35,19 @@ const asBar = (b: [string, number, number, number, number, number, number, numbe
 })
 
 export default function OrderflowDayExplorer() {
+  const data = useJson<Payload>('/data/orderflow-days.json')
+  if (!data) {
+    return (
+      <div className="h-[300px] flex items-center justify-center text-[#444] text-[11px] tracking-[0.3em]">
+        LOADING…
+      </div>
+    )
+  }
+  return <Explorer data={data} />
+}
+
+function Explorer({ data }: { data: Payload }) {
+  const days = data.days
   const [dayIdx, setDayIdx] = useState(0)
   const [hover, setHover] = useState<number | null>(null)
   const day = days[dayIdx]
@@ -151,7 +166,7 @@ export default function OrderflowDayExplorer() {
         <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> CUMULATIVE DELTA</span>
         <span><span className="inline-block w-[3px] h-[7px] bg-[#00cc77] mr-1 align-middle" /> BUY AGGRESSION</span>
         <span><span className="inline-block w-[3px] h-[7px] bg-[#ef4444] mr-1 align-middle" /> SELL AGGRESSION</span>
-        <span className="ml-auto">{(data as unknown as { source: string }).source} — 5-min candles</span>
+        <span className="ml-auto">{data.source} — 5-min candles</span>
       </div>
     </div>
   )

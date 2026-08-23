@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 
 DATA_LIB = Path(r"C:\Users\YJ\Desktop\claude\projects\Orderflow Research\data_library\NQ")
 RESEARCH = Path(r"C:\Users\YJ\Desktop\Orderflow Research")
-OUT_DIR = Path(__file__).resolve().parents[1] / "components/workspace/projects/trading"
+OUT_DIR = Path(__file__).resolve().parents[1] / "public/data"
 SRC = DATA_LIB / "NQ.FUT_2025-03-01_2025-04-01.parquet"
 
 BAR_MIN = 5          # candle size in minutes
@@ -106,7 +106,7 @@ picked = [days[int(i * (len(days) - 1) / (N_DAYS - 1))] for i in range(N_DAYS)]
 
 meta = {"instrument": dominant, "source": "Databento NQ futures, March 2025 (real trades)", "bar": f"{BAR_MIN}min"}
 
-for name, keep in (("vpoc/demo-data.json", ("profile", "touches")), ("orderflow/demo-data.json", ())):
+for name, keep in (("vpoc-days.json", ("profile", "touches")), ("orderflow-days.json", ())):
     slim = []
     for d in picked:
         s = {"date": d["date"], "lo": d["lo"], "hi": d["hi"], "vpoc": d["vpoc"], "bars": d["bars"]}
@@ -160,6 +160,6 @@ for month, zg in zl.groupby(zl["start_time"].dt.to_period("M")):
 for label, name in zone_names.items():
     print(f"  {name}: {sum(1 for z in zones if z['label'] == label)} zones")
 
-out = OUT_DIR / "zone-classifier/zone-labels.json"
+out = OUT_DIR / "zone-labels.json"
 out.write_text(json.dumps({"source": "hand-labeled zones (my_zone_labels.csv) on real NQ ticks", "zones": zones}))
 print(f"wrote {out} ({out.stat().st_size / 1024:.0f} KB, {len(zones)} zones)")
