@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { useJson } from '../../useJson'
 import { Candles, scales, type Bar } from '../../candle-utils'
+import { BracketHover } from '../../../../brackets'
 
 interface Window {
   start: string
@@ -68,23 +69,19 @@ export default function ZonePredictions() {
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
-      <div className="flex flex-wrap gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c] text-[9px] tracking-[0.2em]">
-        <span className="bg-[#0a0a0a] px-3 py-2 text-[#444] flex items-center">
-          THE MODEL, LIVE — RF TRAINED ON 25 ZONES, PREDICTING UNSEEN JUNE 2025
-        </span>
-        <span className="bg-[#0a0a0a] px-3 py-2 flex items-center gap-3">
+      <div className="flex flex-wrap items-end gap-x-7 px-5 border-b border-[#1c1c1c] text-[9px] tracking-[0.2em]">
+        <span className="pb-2 text-[#555]">THE MODEL, LIVE — RF TRAINED ON 25 ZONES, PREDICTING UNSEEN JUNE 2025</span>
+        <span className="pb-2 flex items-center gap-4">
           {(['breakout', 'consolidation', 'neutral'] as const).map((n) => (
             <span key={n} style={{ color: LABELS[n].color }}>
-              {n.toUpperCase()} {counts[n]}
+              {n.toUpperCase()} <span className="font-orbit text-[12px]">{counts[n]}</span>
             </span>
           ))}
         </span>
-        <span className="ml-auto bg-[#0a0a0a] px-3 py-2 text-[#444] flex items-center">
-          NO GROUND TRUTH EXISTS — YOU ARE THE GROUND TRUTH
-        </span>
+        <span className="ml-auto pb-2 text-[#555]">NO GROUND TRUTH EXISTS — YOU ARE THE GROUND TRUTH</span>
       </div>
 
-      <div className="max-h-[560px] overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-[#1c2e1c]">
+      <div className="max-h-[560px] overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 p-5">
         {wins.map((w, i) => {
           const big = expanded === i
           const bars = w.bars.map(asBar)
@@ -99,8 +96,9 @@ export default function ZonePredictions() {
             <button
               key={i}
               onClick={() => setExpanded(big ? null : i)}
-              className={`bg-[#0a0a0a] p-2 text-left transition-colors ${big ? 'col-span-2 md:col-span-4 ring-1 ring-[#00ff9d]' : 'hover:bg-[#0f1a0f]'}`}
+              className={`group relative text-left p-2 -mx-2 transition-colors ${big ? 'col-span-2 md:col-span-4 ring-1 ring-[#00ff9d]' : 'hover:bg-[#0e120e]'}`}
             >
+              <BracketHover />
               <div className="flex justify-between items-baseline mb-1">
                 <span className="text-[9px] tracking-[0.15em]" style={{ color: meta.color }}>
                   PRED: {w.predicted_name.toUpperCase()}

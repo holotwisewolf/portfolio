@@ -7,6 +7,7 @@
 import { useMemo, useState } from 'react'
 import { useJson } from '../../useJson'
 import { Candles, scales, type Bar } from '../../candle-utils'
+import { BracketHover } from '../../../../brackets'
 
 interface Zone {
   date: string
@@ -98,13 +99,15 @@ function Gallery({ zones }: { zones: Zone[] }) {
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
-      <div className="flex flex-wrap gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c] text-[9px] tracking-[0.2em]">
-        <span className="bg-[#0a0a0a] px-3 py-2 text-[#444] flex items-center">THE BENCHMARK — {zones.length} HAND-LABELED ZONES ON REAL NQ CANDLES</span>
+      <div className="flex flex-wrap items-end gap-x-7 px-5 border-b border-[#1c1c1c] text-[9px] tracking-[0.2em]">
+        <span className="pb-2 text-[#555]">THE BENCHMARK — {zones.length} HAND-LABELED ZONES ON REAL NQ CANDLES</span>
         {([1, 2, 3] as const).map((l) => (
           <button
             key={l}
             onClick={() => setFilter(filter === l ? null : l)}
-            className={`px-3 py-2 transition-colors ${filter === l ? 'bg-[#0a1a0a]' : 'bg-[#0a0a0a] hover:bg-[#0f1a0f]'}`}
+            className={`pt-2 pb-2 border-b-2 -mb-px transition-colors ${
+              filter === l ? 'border-[#00ff9d]' : 'border-transparent'
+            }`}
             style={{ color: LABELS[l].color }}
           >
             {LABELS[l].name} — {counts[l]}
@@ -112,7 +115,9 @@ function Gallery({ zones }: { zones: Zone[] }) {
         ))}
         <button
           onClick={() => { setShowAll(!showAll); setExpanded(null) }}
-          className={`ml-auto px-3 py-2 transition-colors ${showAll ? 'text-[#00ff9d] bg-[#0a1a0a]' : 'text-gray-500 hover:text-white bg-[#0a0a0a]'}`}
+          className={`ml-auto pt-2 pb-2 border-b-2 -mb-px transition-colors ${
+            showAll ? 'text-[#00ff9d] border-[#00ff9d]' : 'text-[#666] border-transparent hover:text-white'
+          }`}
         >
           {showAll ? '[x] COLLAPSE' : `> VIEW ALL (${visible.length})`}
         </button>
@@ -120,9 +125,10 @@ function Gallery({ zones }: { zones: Zone[] }) {
 
       {/* previews */}
       {!showAll && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 p-5">
           {previews.map((z, i) => (
-            <button key={i} onClick={() => { setShowAll(true); setExpanded(zones.indexOf(z)) }} className="bg-[#0a0a0a] p-3 text-left hover:bg-[#0f1a0f] transition-colors">
+            <button key={i} onClick={() => { setShowAll(true); setExpanded(zones.indexOf(z)) }} className="group relative text-left p-2 -mx-2 hover:bg-[#0e120e] transition-colors">
+              <BracketHover />
               <div className="flex justify-between items-baseline mb-2">
                 <span className="text-[9px] tracking-[0.2em]" style={{ color: LABELS[z.label].color }}>
                   {LABELS[z.label].name}
@@ -138,15 +144,18 @@ function Gallery({ zones }: { zones: Zone[] }) {
 
       {/* full grid */}
       {showAll && (
-        <div className="max-h-[520px] overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-[#1c2e1c]">
+        <div className="max-h-[520px] overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-8 p-5">
           {visible.map((z) => {
             const gi = zones.indexOf(z)
             return (
               <button
                 key={gi}
                 onClick={() => setExpanded(expanded === gi ? null : gi)}
-                className={`bg-[#0a0a0a] p-2 text-left transition-colors ${expanded === gi ? 'ring-1 ring-[#00ff9d]' : 'hover:bg-[#0f1a0f]'}`}
+                className={`group relative text-left p-2 -mx-2 transition-colors ${
+                  expanded === gi ? 'ring-1 ring-[#00ff9d]' : 'hover:bg-[#0e120e]'
+                }`}
               >
+                <BracketHover />
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="text-[9px] tracking-[0.15em]" style={{ color: LABELS[z.label].color }}>
                     {LABELS[z.label].name}

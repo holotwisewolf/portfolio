@@ -7,6 +7,7 @@
 import { useWindowStore } from '@/components/window-manager/useWindows'
 import { projectTree } from './tree'
 import { getNodeAtPath, isFolder, type TreeNode, type FolderNode } from './registry'
+import { BracketHover } from './brackets'
 
 interface Props {
   path: string[]
@@ -22,18 +23,6 @@ function typeIndicator(node: TreeNode): string {
 
 function nameDisplay(node: TreeNode): string {
   return isFolder(node) ? `${node.name}/` : node.name
-}
-
-// corner brackets revealed on hover — the entry "selects" like a print crop mark
-function BracketHover() {
-  return (
-    <>
-      <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
-    </>
-  )
 }
 
 export default function FolderView({ path }: Props) {

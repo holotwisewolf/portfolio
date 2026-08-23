@@ -90,22 +90,22 @@ function Explorer({ data }: { data: Payload }) {
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
-      <div className="flex flex-wrap gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c]">
+      <div className="flex flex-wrap items-end gap-x-7 px-5 border-b border-[#1c1c1c]">
         {days.map((d, i) => (
           <button
             key={d.date}
             onClick={() => { setDayIdx(i); setHover(null) }}
-            className={`px-3 py-2 text-[10px] tracking-[0.15em] transition-colors ${
-              i === dayIdx ? 'bg-[#0a1a0a] text-[#00ff9d]' : 'bg-[#0a0a0a] text-gray-500 hover:text-white'
+            className={`pt-2 pb-2 text-[10px] tracking-[0.15em] transition-colors border-b-2 -mb-px ${
+              i === dayIdx ? 'text-white border-[#00ff9d]' : 'text-[#666] border-transparent hover:text-white'
             }`}
           >
             {d.date}
           </button>
         ))}
-        <div className="flex-1 bg-[#0a0a0a] px-3 py-2 text-right text-[9px] tracking-[0.2em] text-[#444] flex items-center justify-end gap-4">
-          <span>FINAL CUM Δ <span className={finalCum >= 0 ? 'text-[#00ff9d]' : 'text-[#ef4444]'}>{finalCum >= 0 ? '+' : ''}{finalCum.toLocaleString()}</span></span>
-          <span>BUY <span className="text-[#00cc77]">{(buyVol / 1e6).toFixed(2)}M</span></span>
-          <span>SELL <span className="text-[#ef4444]">{(sellVol / 1e6).toFixed(2)}M</span></span>
+        <div className="ml-auto flex items-center gap-6 pb-2 text-[9px] tracking-[0.2em] text-[#555]">
+          <span>FINAL CUM Δ <span className={`text-[13px] font-orbit ml-1 ${finalCum >= 0 ? 'text-[#00ff9d]' : 'text-[#ef4444]'}`}>{finalCum >= 0 ? '+' : ''}{finalCum.toLocaleString()}</span></span>
+          <span>BUY <span className="text-[13px] text-[#00cc77] font-orbit ml-1">{(buyVol / 1e6).toFixed(2)}M</span></span>
+          <span>SELL <span className="text-[13px] text-[#ef4444] font-orbit ml-1">{(sellVol / 1e6).toFixed(2)}M</span></span>
         </div>
       </div>
 

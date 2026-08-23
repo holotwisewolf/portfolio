@@ -100,14 +100,14 @@ function Examples({ zones }: { zones: Zone[] }) {
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
-      <div className="flex gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c] items-stretch">
-        <span className="bg-[#0a0a0a] px-3 py-2 text-[9px] tracking-[0.2em] text-[#444] flex items-center">
+      <div className="flex flex-wrap items-end gap-x-7 px-5 border-b border-[#1c1c1c]">
+        <span className="pb-2 text-[9px] tracking-[0.2em] text-[#555]">
           THE GAP — LABEL vs WHAT HAPPENED NEXT (REAL ZONES, REAL CANDLES)
         </span>
         <button
           onClick={() => setShow(!show)}
-          className={`ml-auto px-3 py-2 text-[10px] tracking-[0.15em] transition-colors ${
-            show ? 'text-[#00ff9d] bg-[#0a1a0a]' : 'text-gray-500 hover:text-white bg-[#0a0a0a]'
+          className={`ml-auto pt-2 pb-2 text-[10px] tracking-[0.15em] border-b-2 -mb-px transition-colors ${
+            show ? 'text-[#00ff9d] border-[#00ff9d]' : 'text-[#666] border-transparent hover:text-white'
           }`}
         >
           {show ? '[x] HIDE EXAMPLES' : '> SHOW REAL EXAMPLES'}
@@ -115,7 +115,7 @@ function Examples({ zones }: { zones: Zone[] }) {
       </div>
 
       {show && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[1px] bg-[#1c2e1c]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-5">
           {examples.map((ex, i) => {
             const bars = ex.zone.bars.map(asBar)
             const w = 300
@@ -127,7 +127,7 @@ function Examples({ zones }: { zones: Zone[] }) {
             const z1 = sc.x(ex.zone.zone_to - 1) + sc.step / 2
             const f1 = Math.min(w - pad.r, sc.x(Math.min(ex.zone.zone_to + 10, bars.length) - 1) + sc.step / 2)
             return (
-              <div key={i} className="bg-[#0a0a0a] p-3">
+              <div key={i} className="relative p-3 -mx-1">
                 <div className="flex justify-between items-baseline mb-2">
                   <span className="text-[9px] tracking-[0.2em]" style={{ color: meta.color }}>{meta.name}</span>
                   <span className="text-[9px] text-[#444]">{ex.zone.start}</span>

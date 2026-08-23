@@ -85,22 +85,22 @@ function Explorer({ data }: { data: Payload }) {
 
   return (
     <div className="bg-[#0a0a0a] font-orbit">
-      <div className="flex flex-wrap gap-[1px] bg-[#1c2e1c] border-b border-[#1c2e1c]">
+      <div className="flex flex-wrap items-end gap-x-7 px-5 border-b border-[#1c1c1c]">
         {days.map((d, i) => (
           <button
             key={d.date}
             onClick={() => { setDayIdx(i); setHover(null) }}
-            className={`px-3 py-2 text-[10px] tracking-[0.15em] transition-colors ${
-              i === dayIdx ? 'bg-[#0a1a0a] text-[#00ff9d]' : 'bg-[#0a0a0a] text-gray-500 hover:text-white'
+            className={`pt-2 pb-2 text-[10px] tracking-[0.15em] transition-colors border-b-2 -mb-px ${
+              i === dayIdx ? 'text-white border-[#00ff9d]' : 'text-[#666] border-transparent hover:text-white'
             }`}
           >
             {d.date}
           </button>
         ))}
-        <div className="flex-1 bg-[#0a0a0a] px-3 py-2 text-right text-[9px] tracking-[0.2em] text-[#444] flex items-center justify-end gap-4">
-          <span>VPOC <span className="text-[#00ff9d]">{day.vpoc.toFixed(2)}</span></span>
-          <span>TOUCHES <span className="text-white">{day.touches.length}</span></span>
-          <span>BEST REACTION <span className="text-[#00ff9d]">{best.toFixed(2)}%</span></span>
+        <div className="ml-auto flex items-center gap-6 pb-2 text-[9px] tracking-[0.2em] text-[#555]">
+          <span>VPOC <span className="text-[13px] text-[#00ff9d] font-orbit ml-1">{day.vpoc.toFixed(2)}</span></span>
+          <span>TOUCHES <span className="text-[13px] text-white font-orbit ml-1">{day.touches.length}</span></span>
+          <span>BEST REACTION <span className="text-[13px] text-[#00ff9d] font-orbit ml-1">{best.toFixed(2)}%</span></span>
         </div>
       </div>
 
