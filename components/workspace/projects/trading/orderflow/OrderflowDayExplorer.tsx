@@ -162,11 +162,39 @@ function Explorer({ data }: { data: Payload }) {
         )}
       </svg>
 
-      <div className="border-t border-[#1c2e1c] px-3 py-2 flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
-        <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> CUMULATIVE DELTA</span>
-        <span><span className="inline-block w-[3px] h-[7px] bg-[#00cc77] mr-1 align-middle" /> BUY AGGRESSION</span>
-        <span><span className="inline-block w-[3px] h-[7px] bg-[#ef4444] mr-1 align-middle" /> SELL AGGRESSION</span>
-        <span className="ml-auto">{data.source} — 5-min candles</span>
+      <div className="border-t border-[#1c2e1c] px-3 py-2 space-y-2">
+        <div className="flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
+          <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> CUMULATIVE DELTA</span>
+          <span><span className="inline-block w-[3px] h-[7px] bg-[#00cc77] mr-1 align-middle" /> BUY AGGRESSION</span>
+          <span><span className="inline-block w-[3px] h-[7px] bg-[#ef4444] mr-1 align-middle" /> SELL AGGRESSION</span>
+          <span className="ml-auto">{data.source} — 5-min candles</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-[#1c2e1c] border border-[#1c2e1c]">
+          <div className="bg-[#0a0a0a] p-2">
+            <div className="text-[9px] tracking-[0.2em] text-[#00ff9d] mb-1">WHAT THIS IS</div>
+            <div className="text-[9px] text-gray-500 leading-relaxed">
+              One real trading day. Top pane: price as 5-min candles. Bottom pane: aggression — each tick
+              signed by who crossed the spread (green = buyer aggressed, red = seller), shown per bar and
+              as the running total for the day.
+            </div>
+          </div>
+          <div className="bg-[#0a0a0a] p-2">
+            <div className="text-[9px] tracking-[0.2em] text-[#00ff9d] mb-1">WHAT TO LOOK FOR — DIVERGENCE</div>
+            <div className="text-[9px] text-gray-500 leading-relaxed">
+              Price pushing to new highs while cumulative delta flattens or falls = buyers printing volume
+              into passive sellers without moving price. That is absorption — the low-elasticity condition
+              from this project&apos;s method page, visible in the raw feed.
+            </div>
+          </div>
+          <div className="bg-[#0a0a0a] p-2">
+            <div className="text-[9px] tracking-[0.2em] text-[#00ff9d] mb-1">WHAT TO LOOK FOR — SPIKES</div>
+            <div className="text-[9px] text-gray-500 leading-relaxed">
+              A tall one-sided delta bar with a small candle body = heavy aggression, no movement = a wall
+              of passive liquidity. The header&apos;s FINAL CUM Δ is the day&apos;s net aggression: positive
+              means buyers dominated the session.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

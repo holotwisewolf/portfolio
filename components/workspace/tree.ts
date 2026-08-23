@@ -26,6 +26,7 @@ import OrderflowDayExplorer from './projects/trading/orderflow/OrderflowDayExplo
 import ProjectDiscord from '@/components/windows/ProjectDiscord'
 import * as discord from './projects/discord/content'
 import { terms } from './projects/trading/terms'
+import { rootReadme } from './projects/readme'
 
 const zoneClassifierChildren = [
   {
@@ -399,6 +400,7 @@ export const projectTree: FolderNode = {
   name: 'projects',
   description: 'All projects',
   children: [
+    { type: 'file' as const, name: 'README.md', description: 'How this workspace is organized', component: makeDoc(rootReadme) },
     {
       type: 'category',
       name: 'trading',
