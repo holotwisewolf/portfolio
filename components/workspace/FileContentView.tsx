@@ -23,7 +23,7 @@ export default function FileContentView({ path }: Props) {
   if (isFile(node) && node.component) {
     const Component = node.component
     return (
-      <div className="flex-1 overflow-y-auto bg-[#0a0a0a]">
+      <div className="absolute inset-0 overflow-y-auto dotted-bg">
         <Component />
       </div>
     )
@@ -43,7 +43,7 @@ export default function FileContentView({ path }: Props) {
       return <ProjectHub projectNode={node} projectPath={path} />
     }
     return (
-      <div className="flex-1 overflow-y-auto bg-[#0a0a0a]">
+      <div className="absolute inset-0 overflow-y-auto dotted-bg">
         <FolderView path={path} />
       </div>
     )
