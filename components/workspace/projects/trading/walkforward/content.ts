@@ -17,10 +17,17 @@ export const readme: DocContent = {
     {
       kind: 'stats',
       items: [
-        { label: 'WINDOWS', value: 'Multiple rolling windows' },
-        { label: 'OUTPUT', value: 'HTML + JSON reports' },
-        { label: 'STATUS', value: 'Complete framework' },
+        { label: 'WINDOW PRESETS', value: 'conservative / balanced / aggressive / quick' },
+        { label: 'MODELS TRAINED', value: 'gradient-boosting per window — 126 saved artifacts' },
+        { label: 'OUTPUT', value: 'HTML + JSON reports per run' },
         { label: 'LOCATION', value: 'walk_forward_analytics/' },
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'WHAT IT ACTUALLY RAN',
+      paras: [
+        { text: 'The February 2026 runs trained a gradient-boosting model per rolling window on the zone features, then scored each window\'s model on the NEXT window\'s data — 126 window models accumulated across runs, each saved as a .joblib artifact with its HTML report. The consistency metrics on the results page come from comparing per-window behavior across those runs.' },
       ],
     },
     {

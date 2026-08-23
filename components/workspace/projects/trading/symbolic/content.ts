@@ -60,6 +60,25 @@ export const methodology: DocContent = {
       ],
     },
     {
+      kind: 'stats',
+      items: [
+        { label: 'POPULATION', value: '1,000 equations/generation' },
+        { label: 'GENERATIONS', value: '20' },
+        { label: 'TOURNAMENT SIZE', value: '20' },
+        { label: 'PARSIMONY λ', value: '0.001' },
+        { label: 'STOPPING ERROR', value: '0.01' },
+        { label: 'SEED', value: '42' },
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'THE OPERATOR VOCABULARY — WHAT EVOLUTION COULD BUILD WITH',
+      paras: [
+        { text: 'The function set is exactly nine operators: add, sub, mul, div, sqrt, log, abs, max, min. No if-statements, no learned coefficients beyond what constants mutation injects. The nested max()/sqrt()/log() shape of the discovered equation is a direct consequence of this vocabulary — max() acts as the only "conditional" available, which is why it appears as guards throughout the tree.', tone: 'key' },
+        { text: 'Inputs: the 53 zone-feature columns (range/context/body/volume families). Target: the zone label (1/2/3).', tone: 'default' },
+      ],
+    },
+    {
       kind: 'text',
       heading: 'GENETIC OPERATORS',
       paras: [

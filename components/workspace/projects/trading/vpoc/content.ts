@@ -52,24 +52,57 @@ export const findings: DocContent = {
 
 export const methodology: DocContent = {
   path: '// method/METHODOLOGY.md',
-  title: 'THEORY',
-  intro: 'The market-microstructure reasoning behind VPOC levels.',
+  title: 'METHODOLOGY',
+  intro: 'The exact mechanics from vpoc_analysis.py — how a touch became a measurable trade.',
   blocks: [
     {
+      kind: 'formula',
+      heading: 'STEP 1 — VPOC, AT EXACT TRADE-PRICE GRANULARITY',
+      formulas: ['VPOC(day) = argmax_price  Σ size  at that exact price'],
+      notes: [
+        { text: 'Not binned, not approximated: every print is summed at its exact price, and the day\'s VPOC is the single price with the most traded volume. (The workspace explorer shows a 60-bin profile for readability; the research used exact prices.)' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'STEP 2 — TOUCH DETECTION ON THE NEXT DAY',
+      formulas: [
+        'touch   = |price(day N+1) − VPOC(day N)| ≤ 2 ticks',
+        'entry   = first qualifying print',
+        'limit   = outcomes walked over the next 50,000 prints (~5 minutes)',
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'STEP 3 — DIRECTION: REVERSAL OPPOSITE THE APPROACH',
+      formulas: ['direction = −sign(price 10 prints before touch − entry price)'],
+      notes: [
+        { text: 'Price approached the level from above → expect a bounce UP (sellers exhausted into prior value); approached from below → expect a bounce DOWN. The approach, not the level, sets the trade.' },
+      ],
+    },
+    {
       kind: 'text',
-      heading: 'FAIR VALUE',
+      heading: 'STEP 4 — THE 16-COMBINATION OUTCOME GRID',
       paras: [
-        { text: 'VPOC represents the price where most market participants agreed on value during a session.' },
-        { text: 'Markets remember these levels. When price returns, participants reassess (memory effect).' },
+        { text: 'Every touch was evaluated against targets {10, 20, 30, 50} ticks × stops {5, 10, 15, 20} ticks — 16 trades per touch, each walked print-by-print to whichever level hit first. Roughly 100 touches produced the full grid.' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'EV PER COMBINATION',
+      formulas: ['EV = wr × target × $5 − (1 − wr) × stop × $5 − $5 commission'],
+      notes: [
+        { text: '$5 = one NQ tick. The flat $5 commission is charged per round trip — the reason marginal configurations die even at positive gross expectancy.', tone: 'warn' },
       ],
     },
     {
       kind: 'bullets',
-      heading: 'EXPECTED BEHAVIORS',
+      heading: 'WHY THIS DESIGN',
       items: [
-        { text: 'Price approaches VPOC → consolidation, testing the level', mark: 'none' },
-        { text: 'If VPOC holds → reversal (bounce) in opposite direction', mark: 'check' },
-        { text: 'If VPOC breaks → accelerated move in breakout direction', mark: 'cross' },
+        { text: 'Prior-day VPOC is known before the session opens — no look-ahead in the level itself', mark: 'check' },
+        { text: 'First-touch-only avoids double-counting one visit as many signals', mark: 'check' },
+        { text: 'Path-walking to target/stop mirrors real fills better than fixed-horizon returns', mark: 'check' },
+        { text: 'The full 16-combo grid pre-empts "you just picked a lucky target" — the marginal results across the grid were the finding', mark: 'none' },
       ],
     },
   ],

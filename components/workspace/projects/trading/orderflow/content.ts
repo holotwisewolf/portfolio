@@ -115,24 +115,88 @@ export const findings: DocContent = {
 export const methodology: DocContent = {
   path: '// method/METHODOLOGY.md',
   title: 'METHODOLOGY',
-  intro: 'Two derived metrics, bucketed by quartile, cross-validated across a year.',
+  intro: 'The full pipeline from the thesis: tick prints → windowed metrics → a 24-cell grid → path-dependent PnL.',
   blocks: [
     {
-      kind: 'formula',
-      heading: 'ELASTICITY',
-      formulas: ['E = R / |Δ|   (Price Range / Absolute Delta)'],
-      notes: [
-        { text: 'Low Elasticity: Large delta with small price movement → strong absorption by liquidity providers', tone: 'good' },
-        { text: 'High Elasticity: Small delta with large price movement → thin order book, high impact', tone: 'bad' },
+      kind: 'stats',
+      items: [
+        { label: 'DATA', value: 'Databento MDP 3.0 trade prints' },
+        { label: 'FIELDS', value: 'timestamp (µs), price, size, aggressor side, sequence' },
+        { label: 'CONTRACT', value: 'NQ — 0.25pt tick = $5' },
+        { label: 'VOLUME', value: '1.5–2.5M contracts/day' },
+        { label: 'PRIMARY SAMPLE', value: 'Aug 2024 — 5,990 obs in optimal cell' },
+        { label: 'VALIDATION SPAN', value: '2020 crash / 21 bull / 22 bear / 23 recovery / 24 normal' },
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'WHY THESE YEARS',
+      paras: [
+        { text: 'Validation months were picked deliberately across regimes — March 2020 (COVID crash), 2021 (bull), 2022 (bear), 2023 (recovery), 2024 (normal) — so "the pattern works" cannot silently mean "the pattern works in downtrends." That is also exactly how Aug 2024 (18,697 avg range, downtrend) and Aug 2025 (22,752, downtrend, 1.2× the volatility) ended up as the cross-validation pair.' },
       ],
     },
     {
       kind: 'formula',
-      heading: 'DELTA ACCELERATION',
+      heading: 'WINDOWING — HOW RAW TICKS BECOME OBSERVATIONS',
+      formulas: [
+        'window = 5 seconds (sensitivity tested: 2 / 5 / 10 / 15 / 30s)',
+        'Δ = Σ side_i × size_i          — net aggressor volume',
+        'V = Σ size_i                   — total volume',
+        'R = max(P) − min(P)            — price range in the window',
+      ],
+      notes: [
+        { text: 'Two consecutive windows per observation: a PRIOR window (baseline) and a RECENT window (signal). Each completed recent window emits one classified observation. Runtime: ~2 minutes per month of ticks on a standard workstation.' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'ELASTICITY — HOW EFFICIENTLY FLOW MOVES PRICE',
+      formulas: [
+        'full form:   E = (|Δ| / V) × (R / σ_R)',
+        'used form:   E = R / |Δ|',
+      ],
+      notes: [
+        { text: 'Classified into LOW / MEDIUM / HIGH tertiles on the empirical distribution of the sample.', tone: 'key' },
+        { text: 'Low E: large delta, small movement — liquidity absorbing the flow (H1: absorption signals informed passive participation).', tone: 'good' },
+        { text: 'High E: small delta, large movement — thin book, every print moves price.', tone: 'bad' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'DELTA ACCELERATION — IS THE PUSHER GETTING TIRED',
       formulas: ['A = (Δ_recent − Δ_prior) / max(|Δ_prior|, ε)'],
       notes: [
-        { text: 'Fast Deceleration (Q1): Aggressive side losing momentum, potential exhaustion' },
-        { text: 'Fast Acceleration (Q4): Momentum building, continuation likely' },
+        { text: 'Quartiles: Q1 fast deceleration → Q4 fast acceleration.', tone: 'key' },
+        { text: 'Direction matters: prior Δ > 0 with negative A = buyers pulling back (short signal in the reversal logic); prior Δ < 0 with positive A = sellers pulling back (long signal).', tone: 'good' },
+        { text: 'H2: deceleration = exhaustion of directional conviction.' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'VOLUME INTENSITY',
+      formulas: ['I_V = V_recent / V_prior    (split at median: High / Low)'],
+      notes: [
+        { text: 'H3: high volume during absorption + deceleration = broad participation, not noise — the conviction check on the other two signals.' },
+      ],
+    },
+    {
+      kind: 'text',
+      heading: 'THE 24-CELL GRID',
+      paras: [
+        { text: 'Every observation lands in one of 3 (elasticity) × 4 (acceleration) × 2 (volume) = 24 cells — e.g. (Low, Q1, High) is "absorbed, decelerating, heavy." Performance is measured per cell, which is how (Low, Q1, High) emerged as the best cell in both validation periods.', tone: 'key' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'PATH-DEPENDENT MEASUREMENT — WHY NOT FIXED HORIZONS',
+      formulas: [
+        'entry      = close of the recent window, opposite the decelerating side',
+        'primary    = 30-tick target ($150) / 20-tick stop ($100)',
+        'aug 2025   = 15-tick target / 10-tick stop',
+        'costs      = fill slippage + commission per round trip (core/skepticism.py)',
+      ],
+      notes: [
+        { text: 'Fixed-horizon returns ("what happened 60s later") ignore that real trades have stops and targets — a cell can look good at a fixed horizon and still lose money because its losers hit the stop first. Path-dependent accounting walks each trade to ITS exit, which is why the EV numbers here are directly comparable to a PnL, not to a return forecast.' },
       ],
     },
     {
