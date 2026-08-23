@@ -1,5 +1,9 @@
 'use client'
 
+// Metrics band: values do the talking. No boxes — a caption title, oversized
+// numerals separated by hairline verticals, the first metric emphasized larger
+// in white, the rest in data-green. Charts render below, unframed.
+
 import { ReactNode } from 'react'
 
 interface Metric {
@@ -19,36 +23,39 @@ interface TradingMetricsCardProps {
 const COLOR_MAP = {
   up: '#00ff9d',
   down: '#ef4444',
-  neutral: '#999',
+  neutral: '#00ff9d',
 }
 
 export default function TradingMetricsCard({ title, metrics, children, className = '' }: TradingMetricsCardProps) {
   return (
-    <div className={`border border-[#1c2e1c] bg-black ${className}`}>
-      <div className="border-b border-[#1c2e1c] px-3 py-1 text-[9px] tracking-[0.3em] text-[#666]">
+    <div className={className}>
+      <div className="text-[9px] tracking-[0.25em] text-[#555] mb-4">
+        <span className="text-[#00ff9d] mr-2">—</span>
         {title}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-b border-[#1c2e1c]">
+      <div className="flex flex-wrap gap-y-5">
         {metrics.map((metric, i) => {
           const color = metric.color || COLOR_MAP[metric.trend || 'neutral']
+          const first = i === 0
           return (
             <div
               key={i}
-              className={`p-2 ${i < metrics.length - 1 ? 'border-r border-[#1c2e1c]' : ''} ${
-                i % 2 === 1 ? 'md:border-r' : ''
-              } ${i < metrics.length - 2 ? 'border-b md:border-b-0' : ''}`}
+              className={`${i > 0 ? 'pl-6 ml-0 border-l border-[#1a2a1a]' : ''} ${first ? 'mr-6' : 'mr-6'}`}
             >
-              <div className="text-[8px] tracking-[0.25em] text-[#444] mb-1">{metric.label}</div>
-              <div className="text-[12px] font-orbit" style={{ color }}>
+              <div
+                className={`font-orbit leading-none ${first ? 'text-[30px]' : 'text-[22px]'}`}
+                style={{ color: first ? '#ffffff' : color }}
+              >
                 {metric.value}
               </div>
+              <div className="text-[9px] tracking-[0.2em] text-[#555] mt-2">{metric.label}</div>
             </div>
           )
         })}
       </div>
 
-      <div className="p-3">{children}</div>
+      <div className="mt-7">{children}</div>
     </div>
   )
 }

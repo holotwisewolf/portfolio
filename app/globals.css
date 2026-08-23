@@ -314,8 +314,25 @@ body::before {
   to { transform: scaleY(1); }
 }
 
+/* Staggered block reveals on doc pages (delay set inline per block index) */
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.zc-rise {
+  animation: fade-rise 0.55s ease both;
+}
+
+/* Faint dotted baseline grid for the workspace content area */
+.dotted-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .zc-anim {
+  .zc-anim,
+  .zc-rise {
     animation: none !important;
   }
 }
