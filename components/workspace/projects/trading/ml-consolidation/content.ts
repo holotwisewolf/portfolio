@@ -128,8 +128,13 @@ export const modelAccuracyFile: DocContent = {
     {
       kind: 'text',
       paras: [
-        { text: 'All models significantly outperform hard-coded rules (65% baseline).', tone: 'warn' },
+        { text: 'Every model beats the 65% hard-coded-rules baseline.', tone: 'warn' },
       ],
+    },
+    {
+      kind: 'diagram',
+      id: 'label-gap',
+      caption: 'FIG 1 — THE GAP: a label describes the past; trading needs it to predict the forward window. Same label, opposite aftermaths.',
     },
     {
       kind: 'text',

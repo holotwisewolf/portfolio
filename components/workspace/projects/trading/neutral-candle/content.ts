@@ -45,6 +45,11 @@ export const filters: DocContent = {
       ],
     },
     {
+      kind: 'diagram',
+      id: 'filter-pipeline',
+      caption: 'FIG 1 — THE PIPELINE: ticks → neutral candle → chained breakout → all filters must pass → entry per touch.',
+    },
+    {
       kind: 'table',
       heading: 'THE 18 FILTERS — REAL RULES FROM neutral_candle.py',
       headers: ['ID', 'NAME', 'RULE'],
@@ -207,7 +212,7 @@ export const bestCombos: DocContent = {
       items: [
         { text: '99% of configurations lost money across the full grid', mark: 'cross' },
         { text: 'The earlier "best" config collapsed under the fuller evaluation — classic selection survivorship', mark: 'cross' },
-        { text: 'Win rates above 60% essentially do not exist at realistic sample sizes', mark: 'none' },
+        { text: 'Win rates above 60% do not exist at realistic sample sizes', mark: 'none' },
         { text: 'Simple 2-3 filter sets ({1,3,4}, {8,1}) beat the elaborate 4-filter sets once a sample floor is applied', mark: 'check' },
         { text: 'These insights informed Zone Classifier filter design', mark: 'none' },
       ],

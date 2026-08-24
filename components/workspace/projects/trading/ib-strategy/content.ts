@@ -45,6 +45,11 @@ export const rules: DocContent = {
   intro: 'The cloned box geometry and both playbooks.',
   blocks: [
     {
+      kind: 'diagram',
+      id: 'cloned-box',
+      caption: 'FIG 1 — THE CLONED BOX: the first hour\'s range, cloned 50% and 100% above and below.',
+    },
+    {
       kind: 'formula',
       heading: 'THE CLONED BOX',
       formulas: [
@@ -59,6 +64,10 @@ export const rules: DocContent = {
       notes: [
         { text: '100% extension is the primary level; 50% is the intermediate one.' },
       ],
+    },
+    {
+      kind: 'example',
+      id: 'ib-cloned-box',
     },
     {
       kind: 'text',

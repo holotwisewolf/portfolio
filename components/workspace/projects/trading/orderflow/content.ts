@@ -51,7 +51,7 @@ export const findings: DocContent = {
     {
       kind: 'text',
       paras: [
-        { text: 'The best-performing cell (Low E + FastDecel) is the same in both periods, which suggests the pattern captures real microstructure dynamics. The dramatic difference in profitability ($23.38 vs $1.61) indicates the optimal parameters are time-varying and the strategy as tested is not immediately tradeable without further refinement.', tone: 'key' },
+        { text: 'The best-performing cell (Low E + FastDecel) is the same in both periods. The pattern captures something real. The profitability is not: $23.38 per trade fell to $1.61. Optimal parameters drift with time. As tested, the strategy is not tradeable.', tone: 'key' },
       ],
     },
     {
@@ -136,6 +136,11 @@ export const methodology: DocContent = {
       ],
     },
     {
+      kind: 'diagram',
+      id: 'absorption',
+      caption: 'FIG 1 — THE ABSORPTION MECHANISM: heavy aggression into a passive wall moves price little (low elasticity); as the wall depletes, price continues.',
+    },
+    {
       kind: 'formula',
       heading: 'WINDOWING — HOW RAW TICKS BECOME OBSERVATIONS',
       formulas: [
@@ -180,6 +185,11 @@ export const methodology: DocContent = {
       ],
     },
     {
+      kind: 'diagram',
+      id: 'grid24',
+      caption: 'FIG 2 — THE CLASSIFICATION GRID (continuation rates from the elasticity × acceleration matrix; each cell further splits by volume).',
+    },
+    {
       kind: 'text',
       heading: 'THE 24-CELL GRID',
       paras: [
@@ -196,7 +206,7 @@ export const methodology: DocContent = {
         'costs      = fill slippage + commission per round trip (core/skepticism.py)',
       ],
       notes: [
-        { text: 'Fixed-horizon returns ("what happened 60s later") ignore that real trades have stops and targets — a cell can look good at a fixed horizon and still lose money because its losers hit the stop first. Path-dependent accounting walks each trade to ITS exit, which is why the EV numbers here are directly comparable to a PnL, not to a return forecast.' },
+        { text: 'Fixed-horizon returns ignore stops and targets. A cell can look good at a fixed horizon and still lose money — the losers hit the stop first. Path-dependent accounting walks each trade to ITS exit. The EV numbers here are comparable to a PnL, not to a return forecast.' },
       ],
     },
     {

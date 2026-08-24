@@ -74,7 +74,7 @@ export const methodology: DocContent = {
       kind: 'text',
       heading: 'THE OPERATOR VOCABULARY — WHAT EVOLUTION COULD BUILD WITH',
       paras: [
-        { text: 'The function set is exactly nine operators: add, sub, mul, div, sqrt, log, abs, max, min. No if-statements, no learned coefficients beyond what constants mutation injects. The nested max()/sqrt()/log() shape of the discovered equation is a direct consequence of this vocabulary — max() acts as the only "conditional" available, which is why it appears as guards throughout the tree.', tone: 'key' },
+        { text: 'The function set is exactly nine operators: add, sub, mul, div, sqrt, log, abs, max, min. No if-statements. No learned coefficients beyond what mutation injects. The nested max()/sqrt()/log() shape of the discovered equation follows from this vocabulary. max() is the only "conditional" available — that is why it guards the whole tree.', tone: 'key' },
         { text: 'Inputs: the 53 zone-feature columns (range/context/body/volume families). Target: the zone label (1/2/3).', tone: 'default' },
       ],
     },

@@ -7,7 +7,7 @@
 
 import { useMemo, useState } from 'react'
 import { useJson } from '../useJson'
-import { Candles, scales, type Bar } from '../candle-utils'
+import { Candles, scales, useZoom, type Bar } from '../candle-utils'
 
 interface Touch {
   t: string
@@ -59,8 +59,12 @@ function Explorer({ data }: { data: Payload }) {
   const [hover, setHover] = useState<number | null>(null)
   const day = days[dayIdx]
   const bars = useMemo(() => day.bars.map(asBar), [day])
+  const zoom = useZoom(bars.length)
 
-  const sc = useMemo(() => scales(bars, VB_W, VB_H, PAD), [bars])
+  const sc = useMemo(
+    () => scales(bars, VB_W, VB_H, PAD, undefined, undefined, { from: zoom.view[0], to: zoom.view[1] }),
+    [bars, zoom.view]
+  )
   const maxVol = Math.max(...day.profile.map(([, v]) => v), 1)
   // every touch gets a pin; only the 3 strongest reactions get labels
   const labeled = useMemo(
@@ -77,8 +81,8 @@ function Explorer({ data }: { data: Payload }) {
   const onMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const relX = ((e.clientX - rect.left) / rect.width) * VB_W
-    const i = Math.floor((relX - PAD.l) / sc.step)
-    setHover(Math.max(0, Math.min(bars.length - 1, i)))
+    const i = Math.floor((relX - PAD.l) / sc.step) + zoom.view[0]
+    setHover(Math.max(zoom.view[0], Math.min(zoom.view[1] - 1, i)))
   }
 
   const hb = hover !== null ? bars[hover] : null
@@ -104,7 +108,15 @@ function Explorer({ data }: { data: Payload }) {
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto block" onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+      <svg
+        ref={zoom.ref}
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        className="w-full h-auto block cursor-crosshair"
+        onMouseMove={onMove}
+        onMouseLeave={() => setHover(null)}
+        onMouseDown={zoom.onMouseDown}
+        onDoubleClick={zoom.reset}
+      >
         {/* grid + y labels */}
         {[0, 1, 2, 3, 4].map((i) => {
           const p = day.lo + ((day.hi - day.lo) * i) / 4
@@ -183,7 +195,7 @@ function Explorer({ data }: { data: Payload }) {
       <div className="border-t border-[#1c2e1c] px-3 py-2 flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
         <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> TOUCH (all pinned)</span>
         <span><span className="inline-block w-[7px] h-[7px] border border-white mr-1 align-middle" /> REACTION EXTREME</span>
-        <span className="ml-auto">{data.source} — 5-min candles</span>
+        <span className="ml-auto">{data.source} — 5-min candles · SCROLL TO ZOOM · DRAG TO PAN · DBL-CLICK RESET</span>
       </div>
     </div>
   )

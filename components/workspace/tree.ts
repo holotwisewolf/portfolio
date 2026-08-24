@@ -1,16 +1,7 @@
 ﻿import type { FolderNode } from './registry'
 import { makeDoc, makeDemo } from './DocFile'
-import {
-  ReadmeFile,
-  MethodologyFile,
-  FeaturesFile,
-  FindingsFile,
-  BuildLogFile,
-  ResultsEquityCurveFile,
-  ResultsZoneDistributionFile,
-  ZoneLabelGallery,
-  ZonePredictions,
-} from './projects/trading/zone-classifier'
+import { ZoneLabelGallery, ZonePredictions } from './projects/trading/zone-classifier'
+import * as zone from './projects/trading/zone-classifier/content'
 import * as orderflow from './projects/trading/orderflow/content'
 import * as hmm from './projects/trading/hmm/content'
 import * as vpoc from './projects/trading/vpoc/content'
@@ -34,8 +25,8 @@ const zoneClassifierChildren = [
     name: 'overview',
     description: 'What it is',
     children: [
-      { type: 'file' as const, name: 'README.md', description: 'Project overview', component: ReadmeFile },
-      { type: 'file' as const, name: 'FINDINGS.md', description: 'Key discoveries', component: FindingsFile },
+      { type: 'file' as const, name: 'README.md', description: 'Project overview', component: makeDoc(zone.readme) },
+      { type: 'file' as const, name: 'FINDINGS.md', description: 'Key discoveries', component: makeDoc(zone.findings) },
     ],
   },
   {
@@ -43,9 +34,10 @@ const zoneClassifierChildren = [
     name: 'method',
     description: 'How it works',
     children: [
-      { type: 'file' as const, name: 'METHODOLOGY.md', description: 'How the model works', component: MethodologyFile },
-      { type: 'file' as const, name: 'FEATURES.md', description: '68 engineered features', component: FeaturesFile },
-      { type: 'file' as const, name: 'BUILD_LOG.md', description: 'How I built this', component: BuildLogFile },
+      { type: 'file' as const, name: 'METHODOLOGY.md', description: 'How the model works', component: makeDoc(zone.methodology) },
+      { type: 'file' as const, name: 'FEATURES.md', description: '68 engineered features', component: makeDoc(zone.features) },
+      { type: 'file' as const, name: 'BUILD_LOG.md', description: 'How I built this', component: makeDoc(zone.buildLog) },
+      { type: 'file' as const, name: 'labels', description: 'The hand-labeled training set, on real candles', component: makeDemo(ZoneLabelGallery, { path: '// method/labels', title: 'THE LABELED ZONES', intro: 'The ground truth the model trains on: 88 of the 106 hand-labeled zones from my_zone_labels.csv, on real NQ candles. Expand any zone and judge the label against the chart.', realData: true }) },
     ],
   },
   {
@@ -53,10 +45,9 @@ const zoneClassifierChildren = [
     name: 'results',
     description: 'The proof',
     children: [
-      { type: 'file' as const, name: 'labels', description: 'The benchmark — hand-labeled zones on real candles', component: makeDemo(ZoneLabelGallery, { path: '// results/labels', title: 'THE LABELED ZONES', intro: 'The ground truth this project trains against: 88 hand-labeled zones on real NQ candles. Click any zone to expand it and judge for yourself whether the label fits.', realData: true }) },
       { type: 'file' as const, name: 'predictions', description: 'The model classifying an unseen month', component: makeDemo(ZonePredictions, { path: '// results/predictions', title: 'MODEL PREDICTIONS', intro: 'The trained forest classifying 24 sampled windows from June 2025 — a month it never saw. No ground truth exists; expand any window and judge the call yourself.', realData: true }) },
-      { type: 'file' as const, name: 'model-training', description: 'Real training metrics + importances', component: ResultsEquityCurveFile },
-      { type: 'file' as const, name: 'zone-distribution', description: 'Labeled vs measured distribution', component: ResultsZoneDistributionFile },
+      { type: 'file' as const, name: 'model-training', description: 'Real training metrics + importances', component: makeDoc(zone.modelTraining) },
+      { type: 'file' as const, name: 'zone-distribution', description: 'Labeled vs measured distribution', component: makeDoc(zone.zoneDistribution) },
     ],
   },
 ]

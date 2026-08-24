@@ -91,6 +91,26 @@ export const terms: DocContent = {
     },
     {
       kind: 'formula',
+      heading: 'KELLY CRITERION — POSITION SIZING',
+      formulas: ['Kelly % = (win_rate × avg_win − loss_rate × avg_loss) / avg_win'],
+      notes: [
+        { text: 'The mathematically optimal fraction of capital per trade — if your edge and odds are exactly right, which they never are. The research sizes at QUARTER Kelly (calculate_kelly_sizing, fraction=0.25) to cut variance; full Kelly bets sizes no real account survives.' },
+      ],
+    },
+    {
+      kind: 'formula',
+      heading: 'RISK-ADJUSTED METRICS — SHARPE, SORTINO, RECOVERY',
+      formulas: [
+        'Sharpe         = mean(return) / std(return)',
+        'Sortino        = mean(return) / std(downside returns only)',
+        'Recovery factor = total PnL / max drawdown',
+      ],
+      notes: [
+        { text: 'Sharpe punishes all volatility; Sortino punishes only the downside. Recovery factor below 1 means the strategy never dug out of its worst drawdown — 4,731 of 4,775 grid configurations never did.' },
+      ],
+    },
+    {
+      kind: 'formula',
       heading: 'EXPECTED VALUE PER TRADE (EV)',
       formulas: ['EV = (win_rate × avg_win) − (loss_rate × avg_loss) − costs'],
       notes: [

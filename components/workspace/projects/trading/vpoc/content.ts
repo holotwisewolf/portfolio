@@ -64,6 +64,11 @@ export const methodology: DocContent = {
       ],
     },
     {
+      kind: 'diagram',
+      id: 'vpoc-touch',
+      caption: 'FIG 1 — THE SETUP: price returns to the prior day\'s fair-value level; the trade is the bounce opposite the approach.',
+    },
+    {
       kind: 'formula',
       heading: 'STEP 2 — TOUCH DETECTION ON THE NEXT DAY',
       formulas: [

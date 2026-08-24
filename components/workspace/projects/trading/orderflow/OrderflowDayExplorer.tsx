@@ -6,7 +6,7 @@
 
 import { useMemo, useState } from 'react'
 import { useJson } from '../useJson'
-import { Candles, scales, type Bar } from '../candle-utils'
+import { Candles, scales, useZoom, type Bar } from '../candle-utils'
 
 interface Day {
   date: string
@@ -55,10 +55,12 @@ function Explorer({ data }: { data: Payload }) {
   const deltas = day.bars.map((b) => b[5])
   const n = bars.length
 
-  const priceSc = useMemo(() => {
-    const sc = scales(bars, VB_W, PRICE_H + PAD.t + PAD.b, PAD)
-    return sc
-  }, [bars])
+  const zoom = useZoom(n)
+
+  const priceSc = useMemo(
+    () => scales(bars, VB_W, PRICE_H + PAD.t + PAD.b, PAD, undefined, undefined, { from: zoom.view[0], to: zoom.view[1] }),
+    [bars, zoom.view]
+  )
 
   const { cum, dMax, cumMax } = useMemo(() => {
     let c = 0
@@ -82,8 +84,8 @@ function Explorer({ data }: { data: Payload }) {
   const onMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const relX = ((e.clientX - rect.left) / rect.width) * VB_W
-    const i = Math.floor((relX - PAD.l) / priceSc.step)
-    setHover(Math.max(0, Math.min(n - 1, i)))
+    const i = Math.floor((relX - PAD.l) / priceSc.step) + zoom.view[0]
+    setHover(Math.max(zoom.view[0], Math.min(zoom.view[1] - 1, i)))
   }
 
   const hb = hover !== null ? bars[hover] : null
@@ -109,7 +111,15 @@ function Explorer({ data }: { data: Payload }) {
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto block" onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+      <svg
+        ref={zoom.ref}
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        className="w-full h-auto block cursor-crosshair"
+        onMouseMove={onMove}
+        onMouseLeave={() => setHover(null)}
+        onMouseDown={zoom.onMouseDown}
+        onDoubleClick={zoom.reset}
+      >
         {/* price pane */}
         {[0, 1, 2, 3].map((i) => {
           const p = day.lo + ((day.hi - day.lo) * i) / 3
@@ -167,7 +177,7 @@ function Explorer({ data }: { data: Payload }) {
           <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> CUMULATIVE DELTA</span>
           <span><span className="inline-block w-[3px] h-[7px] bg-[#00cc77] mr-1 align-middle" /> BUY AGGRESSION</span>
           <span><span className="inline-block w-[3px] h-[7px] bg-[#ef4444] mr-1 align-middle" /> SELL AGGRESSION</span>
-          <span className="ml-auto">{data.source} — 5-min candles</span>
+          <span className="ml-auto">{data.source} — 5-min candles · SCROLL TO ZOOM · DRAG TO PAN · DBL-CLICK RESET</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-[#1c2e1c] border border-[#1c2e1c]">
           <div className="bg-[#0a0a0a] p-2">

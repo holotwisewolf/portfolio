@@ -9,6 +9,8 @@ import TradingMetricsCard from '@/components/charts/TradingMetricsCard'
 import TradingLineChart from '@/components/charts/TradingLineChart'
 import TradingBarChart from '@/components/charts/TradingBarChart'
 import AnimatedLineChart from '@/components/charts/AnimatedLineChart'
+import { DIAGRAMS } from './projects/trading/diagrams'
+import { EXAMPLES } from './projects/trading/examples'
 
 export type Tone = 'default' | 'good' | 'warn' | 'bad' | 'key'
 
@@ -32,6 +34,8 @@ export type Block =
   | { kind: 'text'; heading?: string; paras: Para[] }
   | { kind: 'bullets'; heading?: string; items: { text: string; mark?: 'check' | 'cross' | 'none' }[] }
   | { kind: 'stats'; items: { label: string; value: string }[] }
+  | { kind: 'diagram'; id: keyof typeof DIAGRAMS; caption?: string }
+  | { kind: 'example'; id: keyof typeof EXAMPLES }
   | { kind: 'table'; heading?: string; headers: string[]; rows: (string | { text: string; tone?: Tone })[][] }
   | { kind: 'formula'; heading?: string; formulas: string[]; notes?: Para[] }
   | {
@@ -149,6 +153,32 @@ function BlockView({ block, index }: { block: Block; index: number }) {
           ))}
         </div>
       )
+
+    case 'diagram': {
+      const Diagram = DIAGRAMS[block.id]
+      if (!Diagram) return null
+      return (
+        <figure className="zc-rise" style={{ animationDelay: `${index * 60}ms` }}>
+          <Diagram />
+          {block.caption && (
+            <figcaption className="text-[9px] tracking-[0.2em] text-[#555] mt-3">
+              <span className="text-[#00ff9d] mr-2">—</span>
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
+
+    case 'example': {
+      const Example = EXAMPLES[block.id]
+      if (!Example) return null
+      return (
+        <div className="zc-rise" style={{ animationDelay: `${index * 60}ms` }}>
+          <Example />
+        </div>
+      )
+    }
 
     case 'table':
       return (

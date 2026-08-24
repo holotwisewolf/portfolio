@@ -46,6 +46,11 @@ export const methodology: DocContent = {
   intro: 'The rolling-window process and what it tests.',
   blocks: [
     {
+      kind: 'diagram',
+      id: 'walkforward',
+      caption: 'FIG 1 — ROLLING WINDOWS: train on the past, test on the future, roll forward. Overlapping windows share data — one reason "independent confirmation" isn\'t.',
+    },
+    {
       kind: 'bullets',
       heading: 'WALK-FORWARD PROCESS',
       items: [

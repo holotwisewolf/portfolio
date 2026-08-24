@@ -2,38 +2,51 @@
 
 import { useWindowStore } from '@/components/window-manager/useWindows'
 import type { FolderNode } from './registry'
+import { BracketHover } from './brackets'
 
 interface Props {
   projectNode: FolderNode
   projectPath: string[]
 }
 
-// Category → folder to open (shows tile grid of its files)
+// Category → folder to open (shows the entry list for that section)
 const CATEGORY_TARGETS: Record<string, string[]> = {
   OVERVIEW: ['overview'],
   METHOD: ['method'],
   RESULTS: ['results'],
 }
 
+const SECTION_NUM: Record<string, string> = { OVERVIEW: '01', METHOD: '02', RESULTS: '03' }
+
 function HubButton({
   label,
   blurb,
   variant,
+  fileCount,
   onClick,
 }: {
   label: string
   blurb: string
   variant: 'top' | 'left' | 'right'
+  fileCount: number
   onClick: () => void
 }) {
   // ponytail: shared button class, fills its positioned wrapper. No overflow-hidden — edge pixels must protrude.
   const base =
-    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0f1a0f] transition-colors text-left'
+    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0d150d] transition-colors text-left overflow-visible'
   return (
     <button onClick={onClick} className={base}>
-      {/* index marker */}
-      <div className="absolute top-3 left-3 text-[9px] tracking-[0.3em] text-[#444] group-hover:text-[#00ff9d] transition-colors">
-        {variant === 'top' ? '01' : variant === 'left' ? '02' : '03'}
+      <BracketHover />
+      {/* giant faint section numeral */}
+      <div
+        className="absolute font-orbit leading-none text-[#161616] group-hover:text-[#123322] transition-colors select-none pointer-events-none"
+        style={{
+          fontSize: 'clamp(60px, 9vw, 130px)',
+          [variant === 'right' ? 'left' : 'right']: '14px',
+          [variant === 'top' ? 'top' : 'bottom']: '-6px',
+        }}
+      >
+        {SECTION_NUM[label]}
       </div>
       {/* edge-midpoint pixels — one standout pixel centered on each border edge */}
       <span className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[6px] h-[6px] bg-white" />
@@ -41,14 +54,17 @@ function HubButton({
       <span className="absolute top-1/2 -translate-y-1/2 -left-[3px] w-[6px] h-[6px] bg-white" />
       <span className="absolute top-1/2 -translate-y-1/2 -right-[3px] w-[6px] h-[6px] bg-white" />
       <div
-        className={`flex flex-col h-full ${variant === 'top' ? 'p-8' : 'p-6'} ${
+        className={`relative flex flex-col h-full ${variant === 'top' ? 'p-8' : 'p-6'} ${
           variant === 'right'
             ? 'justify-start items-end text-right'
             : 'justify-end items-start text-left'
         }`}
       >
+        <div className="text-[9px] tracking-[0.3em] text-[#555] group-hover:text-[#00ff9d] mb-2 transition-colors">
+          {fileCount} {fileCount === 1 ? 'FILE' : 'FILES'}
+        </div>
         <div
-          className={`text-white group-hover:text-[#00ff9d] transition-colors font-orbit tracking-[0.1em] ${
+          className={`text-white group-hover:text-[#00ff9d] transition-colors font-orbit tracking-[0.08em] ${
             variant === 'top' ? 'text-[28px] sm:text-[36px]' : 'text-[22px] sm:text-[28px]'
           }`}
         >
@@ -67,18 +83,24 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     navigate([...projectPath, ...CATEGORY_TARGETS[category]])
   }
 
+  const countOf = (folder: string) => {
+    const child = projectNode.children.find((c) => c.name === folder)
+    return child && 'children' in child ? child.children.length : 0
+  }
+
   return (
     // Absolute-positioned cascade matching the ASCII sketch. Each box steps
     // further right (23% → 36% → 57% left edges). METHOD anchors bottom-left
     // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
     // bottom-right indented most. METHOD+OVERVIEW form the right angle.
-    <div className="flex-1 relative bg-[#0a0a0a] font-orbit overflow-hidden">
-      {/* OVERVIEW — top, indented right (~23% left edge, 5% narrower from right) */}
+    <div className="h-full relative bg-[#0a0a0a] font-orbit overflow-hidden dotted-bg">
+      {/* OVERVIEW — top, indented right */}
       <div className="absolute" style={{ left: '23%', top: '7%', width: '67%', height: '34%' }}>
         <HubButton
           variant="top"
           label="OVERVIEW"
           blurb="What it is. The pitch, the takeaways, the one-screen version."
+          fileCount={countOf('overview')}
           onClick={() => go('OVERVIEW')}
         />
       </div>
@@ -88,7 +110,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         <HubButton
           variant="left"
           label="METHOD"
-          blurb="Methodology, features, build log."
+          blurb="Formulas, parameters, data pipeline."
+          fileCount={countOf('method')}
           onClick={() => go('METHOD')}
         />
       </div>
@@ -108,9 +131,15 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         <HubButton
           variant="right"
           label="RESULTS"
-          blurb="Backtests, equity curves, zone data."
+          blurb="Measured numbers, real-data demos, false-positive autopsies."
+          fileCount={countOf('results')}
           onClick={() => go('RESULTS')}
         />
+      </div>
+
+      {/* path provenance */}
+      <div className="absolute bottom-4 right-6 text-[8px] tracking-[0.25em] text-[#333]">
+        ~/projects/{projectPath.join('/')}
       </div>
     </div>
   )

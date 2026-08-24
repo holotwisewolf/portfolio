@@ -160,7 +160,7 @@ export const stateDistributionFile: DocContent = {
     {
       kind: 'text',
       paras: [
-        { text: 'Labeling follows the classification rules: the tightest range/body state is consolidation, the widest-range state with 3× relative volume is breakout, the lowest-volume state is neutral, and the remaining wide-range normal-volume state is trending.', tone: 'default' },
+        { text: 'Labeling follows the classification rules. The tightest range/body state is consolidation. The widest-range state at 3× relative volume is breakout. The lowest-volume state is neutral. The remaining wide-range, normal-volume state is trending.', tone: 'default' },
         { text: 'Source: re-run 2026-08-21 via scripts/run_real_models2.py — hmmlearn GaussianHMM on raw Databento NQH5 ticks.', tone: 'default' },
       ],
     },

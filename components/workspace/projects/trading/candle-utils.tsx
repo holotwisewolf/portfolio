@@ -4,6 +4,8 @@
 // and compose: call scales() for coordinate mapping, drop <Candles/> inside,
 // then draw pins/lines/shading with the same scale functions.
 
+import { useEffect, useRef, useState } from 'react'
+
 export interface Bar {
   t: string
   o: number
@@ -21,7 +23,8 @@ export function scales(
   h: number,
   pad: { l: number; r: number; t: number; b: number },
   explicitLo?: number,
-  explicitHi?: number
+  explicitHi?: number,
+  xRange?: { from: number; to: number }
 ) {
   const lo = explicitLo ?? Math.min(...bars.map((b) => b.l))
   const hi = explicitHi ?? Math.max(...bars.map((b) => b.h))
@@ -30,9 +33,11 @@ export function scales(
   const yHi = hi + p
   const plotW = w - pad.l - pad.r
   const plotH = h - pad.t - pad.b
-  const step = plotW / Math.max(1, bars.length)
+  const from = xRange?.from ?? 0
+  const count = xRange ? xRange.to - xRange.from : bars.length
+  const step = plotW / Math.max(1, count)
   return {
-    x: (i: number) => pad.l + step * (i + 0.5),
+    x: (i: number) => pad.l + step * (i - from + 0.5),
     step,
     y: (price: number) => pad.t + (1 - (price - yLo) / (yHi - yLo)) * plotH,
     lo,
@@ -40,6 +45,70 @@ export function scales(
     w,
     h,
     pad,
+  }
+}
+
+// TradingView-style pan/zoom over the x-axis: wheel zooms around the cursor,
+// drag pans, reset() restores the full view. Attach `ref` to the <svg>.
+export function useZoom(count: number) {
+  const ref = useRef<SVGSVGElement>(null)
+  const [view, setView] = useState<[number, number]>([0, count])
+  const viewRef = useRef(view)
+  viewRef.current = view
+
+  useEffect(() => {
+    setView([0, count])
+  }, [count])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      const frac = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
+      const [a, b] = viewRef.current
+      const span = b - a
+      const next = Math.max(10, Math.min(count, Math.round(span * (e.deltaY > 0 ? 1.3 : 0.7))))
+      let n0 = Math.round(a + frac * span - frac * next)
+      n0 = Math.max(0, Math.min(count - next, n0))
+      setView([n0, n0 + next])
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [count])
+
+  const drag = useRef<{ x: number; view: [number, number] } | null>(null)
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      if (!drag.current || !ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      const [a, b] = drag.current.view
+      const span = b - a
+      const shift = Math.round(((e.clientX - drag.current.x) / rect.width) * span)
+      let n0 = a + shift
+      n0 = Math.max(0, Math.min(count - span, n0))
+      setView([n0, n0 + span])
+    }
+    const up = () => {
+      drag.current = null
+    }
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+    return () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+    }
+  }, [count])
+
+  return {
+    ref,
+    view,
+    onMouseDown: (e: React.MouseEvent) => {
+      drag.current = { x: e.clientX, view }
+    },
+    reset: () => setView([0, count]),
   }
 }
 

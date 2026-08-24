@@ -30,6 +30,12 @@
 }
 
 /* Custom Brutalist Cursor */
+/* custom cursor replaces the native one everywhere — including the pointer
+   finger on links/buttons */
+* {
+  cursor: none !important;
+}
+
 .custom-cursor {
   position: fixed;
   width: 20px;
@@ -40,13 +46,27 @@
   transform: translate(-50%, -50%);
   transition: transform 0.05s ease, width 0.1s, height 0.1s;
   mix-blend-mode: difference;
+  /* circles, exempt from the global sharp-corners rule (class beats *) */
+  border-radius: 50% !important;
 }
 
+/* hover state: thin border, transparent gap, inverse core — the dot-mark
+   structure at cursor scale. The element's difference blend inverts whatever
+   it covers, so border and core both render as the inverse of the page under
+   them; the gap stays transparent and shows the page raw. */
 .custom-cursor.hover {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 2px solid white;
+}
+
+.custom-cursor.hover::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
   background: white;
-  border: none;
+  border-radius: 50% !important;
 }
 
 .custom-cursor.clicking {
@@ -324,6 +344,28 @@ body::before {
   animation: fade-rise 0.55s ease both;
 }
 
+/* System-status heartbeat: a lub-dub glow pulse on the red dot */
+@keyframes heartbeat {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); }
+  14% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+  28% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  42%, 100% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
+}
+
+.heartbeat-dot {
+  animation: heartbeat 1.8s ease-out infinite;
+}
+
+/* Hard blink for status indicators */
+@keyframes blink-dot {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.blink-dot {
+  animation: blink-dot 1.3s steps(1, end) infinite;
+}
+
 /* Faint dotted baseline grid for the workspace content area */
 .dotted-bg {
   background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
@@ -332,7 +374,9 @@ body::before {
 
 @media (prefers-reduced-motion: reduce) {
   .zc-anim,
-  .zc-rise {
+  .zc-rise,
+  .heartbeat-dot,
+  .blink-dot {
     animation: none !important;
   }
 }
