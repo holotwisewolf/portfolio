@@ -149,7 +149,7 @@ function Examples({ zones }: { zones: Zone[] }) {
         </div>
       )}
 
-      <div className="border-t border-[#1c2e1c] px-3 py-2 text-[9px] tracking-[0.15em] text-[#444]">
+      <div className="border-t border-[#1c1c1c] px-3 py-2 text-[9px] tracking-[0.15em] text-[#444]">
         SHADED = THE LABELED ZONE · DASHED OUTLINE = THE 10 BARS AFTER IT · 5-MIN CANDLES FROM REAL NQ TICKS
       </div>
     </div>

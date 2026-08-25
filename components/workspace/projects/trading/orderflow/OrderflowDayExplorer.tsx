@@ -172,14 +172,14 @@ function Explorer({ data }: { data: Payload }) {
         )}
       </svg>
 
-      <div className="border-t border-[#1c2e1c] px-3 py-2 space-y-2">
+      <div className="border-t border-[#1c1c1c] px-3 py-2 space-y-2">
         <div className="flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
           <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> CUMULATIVE DELTA</span>
           <span><span className="inline-block w-[3px] h-[7px] bg-[#00cc77] mr-1 align-middle" /> BUY AGGRESSION</span>
           <span><span className="inline-block w-[3px] h-[7px] bg-[#ef4444] mr-1 align-middle" /> SELL AGGRESSION</span>
           <span className="ml-auto">{data.source} — 5-min candles · SCROLL TO ZOOM · DRAG TO PAN · DBL-CLICK RESET</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-[#1c2e1c] border border-[#1c2e1c]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-[#1c1c1c] border border-[#1c1c1c]">
           <div className="bg-[#0a0a0a] p-2">
             <div className="text-[9px] tracking-[0.2em] text-[#00ff9d] mb-1">WHAT THIS IS</div>
             <div className="text-[9px] text-gray-500 leading-relaxed">

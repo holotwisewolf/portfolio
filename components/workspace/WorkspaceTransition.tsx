@@ -70,7 +70,7 @@ export default function WorkspaceTransition() {
     >
       <div className="text-white text-[14px] tracking-[0.4em] mb-6">CONNECTING . . .</div>
 
-      <div className="w-[240px] h-[3px] bg-[#1c2e1c] mb-8">
+      <div className="w-[240px] h-[3px] bg-[#1c1c1c] mb-8">
         <div
           className="h-full bg-[#00ff9d] transition-[width] duration-100 ease-linear"
           style={{ width: `${progress}%` }}

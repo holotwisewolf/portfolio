@@ -105,7 +105,7 @@ function Grid24() {
             return (
               <g key={c}>
                 <rect x={90 + c * 170} y={50 + r * 62} width={150} height={50} fill={best ? '#0a2216' : '#0e0e0e'} stroke={best ? GREEN : LGRAY} strokeWidth={best ? 1.5 : 1} />
-                <L x={90 + c * 170 + 75} y={50 + r * 62 + 30} anchor="middle" color={best ? GREEN : '#888'} size={13}>{v}%</L>
+                <L x={90 + c * 170 + 75} y={50 + r * 62 + 30} anchor="middle" color={best ? GREEN : '#888'} size={13}>{`${v}%`}</L>
               </g>
             )
           })}
@@ -128,7 +128,7 @@ function WalkForward() {
     <svg viewBox="0 0 800 210" className="w-full h-auto block">
       {rows.map((r, i) => (
         <g key={i} transform={`translate(0 ${i * 52})`}>
-          <L x={30} y={30} size={9}>WINDOW {i + 1}</L>
+          <L x={30} y={30} size={9}>{`WINDOW ${i + 1}`}</L>
           <rect x={90} y={12} width={r.train[1] - r.train[0]} height={26} fill="#12241a" stroke={GRAY} strokeWidth={1} />
           <L x={(r.train[0] + r.train[1]) / 2 + 90 - 40} y={30} size={9} color="#888">TRAIN (PAST)</L>
           <rect x={90 + r.test[0]} y={12} width={r.test[1] - r.test[0]} height={26} fill="#0a2216" stroke={GREEN} strokeWidth={1.5} />
@@ -233,7 +233,7 @@ function VpocTouch() {
         </marker>
       </defs>
       <L x={640} y={26} anchor="end" color={GREEN} size={9}>BOUNCE OPPOSITE THE APPROACH</L>
-      <L x={400} y={190} anchor="middle" size={9} color="#777">16 OUTCOME COMBOS PER TOUCH · TARGETS {10,20,30,50}t × STOPS {5,10,15,20}t · EV NET OF $5 COMMISSION</L>
+      <L x={400} y={190} anchor="middle" size={9} color="#777">{'16 OUTCOME COMBOS PER TOUCH · TARGETS {10,20,30,50}t × STOPS {5,10,15,20}t · EV NET OF $5 COMMISSION'}</L>
     </svg>
   )
 }

@@ -102,13 +102,13 @@ export default function ProjectSidebar({ path }: Props) {
       <>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="w-full border-b border-[#1c2e1c] bg-black px-3 py-2 text-left text-[10px] tracking-[0.3em] text-[#00ff9d]"
+          className="w-full border-b border-[#1c1c1c] bg-black px-3 py-2 text-left text-[10px] tracking-[0.3em] text-[#999] hover:text-white transition-colors"
         >
           {mobileOpen ? '[x] CLOSE EXPLORER' : '> OPEN EXPLORER'}
         </button>
         {mobileOpen && (
-          <div className="border-b border-[#1c2e1c] bg-black max-h-[300px] overflow-y-auto">
-            <div className="text-[9px] tracking-[0.3em] text-[#444] px-3 py-2 border-b border-[#1c2e1c]">
+          <div className="border-b border-[#1c1c1c] bg-black max-h-[300px] overflow-y-auto">
+            <div className="text-[9px] tracking-[0.3em] text-[#444] px-3 py-2 border-b border-[#1c1c1c]">
               EXPLORER
             </div>
             <div className="py-2">
@@ -130,8 +130,8 @@ export default function ProjectSidebar({ path }: Props) {
   }
 
   return (
-    <div className="w-[220px] flex-shrink-0 border-r border-[#1c2e1c] bg-black overflow-y-auto">
-      <div className="text-[9px] tracking-[0.3em] text-[#444] px-3 py-2 border-b border-[#1c2e1c]">
+    <div className="w-[220px] flex-shrink-0 border-r border-[#1c1c1c] bg-black overflow-y-auto">
+      <div className="text-[9px] tracking-[0.3em] text-[#444] px-3 py-2 border-b border-[#1c1c1c]">
         EXPLORER
       </div>
       <div className="py-2">

@@ -96,7 +96,7 @@ export default function ZonePredictions() {
             <button
               key={i}
               onClick={() => setExpanded(big ? null : i)}
-              className={`group relative text-left p-2 -mx-2 transition-colors ${big ? 'col-span-2 md:col-span-4 ring-1 ring-[#00ff9d]' : 'hover:bg-[#0e120e]'}`}
+              className={`group relative text-left p-2 -mx-2 transition-colors ${big ? 'col-span-2 md:col-span-4 ring-1 ring-[#00ff9d]' : 'hover:bg-[#101010]'}`}
             >
               <BracketHover />
               <div className="flex justify-between items-baseline mb-1">

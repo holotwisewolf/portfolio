@@ -21,7 +21,7 @@ export default function Projects() {
           </button>
           <button
             onClick={() => openWorkspace(DISCORD_SUMMARY.workspacePath)}
-            className="text-[10px] tracking-[0.2em] text-[#00ff9d] hover:text-white transition-colors"
+            className="text-[10px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-[2px] transition-colors"
           >
             GO TO WORKSPACE &gt;
           </button>
@@ -50,7 +50,7 @@ export default function Projects() {
           </p>
           <button
             onClick={() => openWorkspace(DISCORD_SUMMARY.workspacePath)}
-            className="mt-8 text-[11px] tracking-[0.2em] text-[#00ff9d] hover:text-white border-b border-[#00ff9d] pb-1 transition-colors"
+            className="mt-8 text-[11px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-1 transition-colors"
           >
             TRY THE LIVE CHAT DEMO IN THE WORKSPACE &gt;
           </button>
@@ -72,10 +72,10 @@ export default function Projects() {
           className="group w-full text-left px-4 py-4 hover:bg-[#0e120e] transition-colors"
         >
           <div className="flex items-baseline gap-3">
-            <span className="text-[16px] font-orbit text-white group-hover:text-[#00ff9d] transition-colors">
+            <span className="text-[16px] font-orbit text-white group-hover:text-white transition-colors">
               Trading Research
             </span>
-            <span className="text-[10px] text-[#444] group-hover:text-[#00ff9d] transition-colors">&gt;</span>
+            <span className="text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
           </div>
           <p className="text-[10px] text-[#666] leading-relaxed mt-1">
             Ten quantitative research projects — regime classification, orderflow microstructure, grid-search
@@ -88,10 +88,10 @@ export default function Projects() {
           className="group w-full text-left px-4 py-4 hover:bg-[#0e120e] transition-colors"
         >
           <div className="flex items-baseline gap-3">
-            <span className="text-[16px] font-orbit text-white group-hover:text-[#00ff9d] transition-colors">
+            <span className="text-[16px] font-orbit text-white group-hover:text-white transition-colors">
               Discord Research Bot
             </span>
-            <span className="text-[10px] text-[#444] group-hover:text-[#00ff9d] transition-colors">&gt;</span>
+            <span className="text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
           </div>
           <p className="text-[10px] text-[#666] leading-relaxed mt-1">
             Multi-AI research assistant routing questions across Claude, GPT, and Gemini — with a live chat demo.
@@ -102,7 +102,7 @@ export default function Projects() {
       <div className="px-4 py-3 flex justify-end">
         <button
           onClick={() => openWorkspace()}
-          className="text-[10px] tracking-[0.2em] text-[#00ff9d] hover:text-white border-b border-[#00ff9d] pb-[2px] transition-colors"
+          className="text-[10px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-[2px] transition-colors"
         >
           BROWSE WORKSPACE &gt;
         </button>

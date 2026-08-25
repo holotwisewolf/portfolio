@@ -28,7 +28,7 @@ export default function TradingProjects() {
           </button>
           <button
             onClick={() => openWorkspace(selected.workspacePath)}
-            className="text-[10px] tracking-[0.2em] text-[#00ff9d] hover:text-white transition-colors"
+            className="text-[10px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-[2px] transition-colors"
           >
             GO TO WORKSPACE &gt;
           </button>
@@ -61,7 +61,7 @@ export default function TradingProjects() {
 
           <button
             onClick={() => openWorkspace(selected.workspacePath)}
-            className="mt-8 text-[11px] tracking-[0.2em] text-[#00ff9d] hover:text-white border-b border-[#00ff9d] pb-1 transition-colors"
+            className="mt-8 text-[11px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-1 transition-colors"
           >
             OPEN THE FULL PROJECT IN THE WORKSPACE &gt;
           </button>
@@ -85,11 +85,11 @@ export default function TradingProjects() {
               onClick={() => setSelected(p)}
               className="group w-full text-left px-4 py-3 hover:bg-[#0e120e] transition-colors flex items-baseline gap-4"
             >
-              <span className="text-[14px] font-orbit text-white group-hover:text-[#00ff9d] transition-colors">
+              <span className="text-[14px] font-orbit text-white group-hover:text-white transition-colors">
                 {p.title}
               </span>
               <span className="text-[10px] text-[#666] leading-relaxed flex-1">{p.pitch}</span>
-              <span className="text-[10px] text-[#444] group-hover:text-[#00ff9d] transition-colors">&gt;</span>
+              <span className="text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
             </button>
           ))}
         </div>
@@ -99,7 +99,7 @@ export default function TradingProjects() {
         <span className="text-[9px] text-[#444] tracking-[0.2em]">10 PROJECTS · MEASURED RESULTS ONLY</span>
         <button
           onClick={handleBrowseWorkspace}
-          className="text-[10px] tracking-[0.2em] text-[#00ff9d] hover:text-white border-b border-[#00ff9d] pb-[2px] transition-colors"
+          className="text-[10px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-[2px] transition-colors"
         >
           BROWSE WORKSPACE &gt;
         </button>

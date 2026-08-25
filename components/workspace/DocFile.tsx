@@ -279,8 +279,8 @@ export function makeDoc(c: DocContent): ComponentType {
   return GeneratedDoc
 }
 
-// Factory: wraps an interactive demo component in the standard file header +
-// a data-provenance tag, for tree.ts results/demo nodes.
+// Factory: wraps an interactive demo component (explorers, galleries) in the
+// standard file header + a data-provenance tag, for tree.ts file nodes.
 export function makeDemo(
   Demo: ComponentType,
   meta: { path: string; title: string; intro: string; realData?: boolean }

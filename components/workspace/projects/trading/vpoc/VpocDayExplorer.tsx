@@ -192,7 +192,7 @@ function Explorer({ data }: { data: Payload }) {
         )}
       </svg>
 
-      <div className="border-t border-[#1c2e1c] px-3 py-2 flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
+      <div className="border-t border-[#1c1c1c] px-3 py-2 flex flex-wrap gap-4 text-[9px] tracking-[0.15em] text-[#444]">
         <span><span className="inline-block w-[7px] h-[7px] bg-[#00ff9d] mr-1 align-middle" /> TOUCH (all pinned)</span>
         <span><span className="inline-block w-[7px] h-[7px] border border-white mr-1 align-middle" /> REACTION EXTREME</span>
         <span className="ml-auto">{data.source} — 5-min candles · SCROLL TO ZOOM · DRAG TO PAN · DBL-CLICK RESET</span>

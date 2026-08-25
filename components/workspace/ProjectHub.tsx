@@ -33,13 +33,13 @@ function HubButton({
 }) {
   // ponytail: shared button class, fills its positioned wrapper. No overflow-hidden — edge pixels must protrude.
   const base =
-    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-[#00ff9d] hover:bg-[#0d150d] transition-colors text-left overflow-visible'
+    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-white hover:bg-[#101010] transition-colors text-left overflow-visible'
   return (
     <button onClick={onClick} className={base}>
       <BracketHover />
       {/* giant faint section numeral */}
       <div
-        className="absolute font-orbit leading-none text-[#161616] group-hover:text-[#123322] transition-colors select-none pointer-events-none"
+        className="absolute font-orbit leading-none text-[#161616] group-hover:text-[#242424] transition-colors select-none pointer-events-none"
         style={{
           fontSize: 'clamp(60px, 9vw, 130px)',
           [variant === 'right' ? 'left' : 'right']: '14px',
@@ -60,11 +60,11 @@ function HubButton({
             : 'justify-end items-start text-left'
         }`}
       >
-        <div className="text-[9px] tracking-[0.3em] text-[#555] group-hover:text-[#00ff9d] mb-2 transition-colors">
+        <div className="text-[9px] tracking-[0.3em] text-[#555] group-hover:text-white mb-2 transition-colors">
           {fileCount} {fileCount === 1 ? 'FILE' : 'FILES'}
         </div>
         <div
-          className={`text-white group-hover:text-[#00ff9d] transition-colors font-orbit tracking-[0.08em] ${
+          className={`text-white group-hover:text-white transition-colors font-orbit tracking-[0.08em] ${
             variant === 'top' ? 'text-[28px] sm:text-[36px]' : 'text-[22px] sm:text-[28px]'
           }`}
         >
@@ -118,7 +118,7 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
 
       {/* TITLE — beside METHOD, below OVERVIEW, wide short (left edge ~34%, shortened from right) */}
       <div
-        className="absolute border border-[#1c2e1c] bg-black px-8 flex items-center"
+        className="absolute border border-[#2a2a2a] bg-black px-8 flex items-center"
         style={{ left: '34%', top: '47%', width: '40%', height: '13%' }}
       >
         <div className="text-[#00ff9d] text-[14px] tracking-[0.45em]">

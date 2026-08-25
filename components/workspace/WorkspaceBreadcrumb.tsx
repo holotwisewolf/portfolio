@@ -43,7 +43,7 @@ export default function WorkspaceBreadcrumb({ path, onExit }: Props) {
 
       <button
         onClick={onExit}
-        className="text-[10px] tracking-[0.3em] text-[#555] hover:text-[#00ff9d] transition-colors flex-shrink-0 ml-5"
+        className="text-[10px] tracking-[0.3em] text-[#555] hover:text-white transition-colors flex-shrink-0 ml-5"
       >
         [ESC] EXIT
       </button>

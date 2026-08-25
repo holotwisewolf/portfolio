@@ -80,39 +80,26 @@ export default function FolderView({ path }: Props) {
             </div>
           ) : (
             <div className="divide-y divide-[#161616]">
-              {children.map((child, i) => {
-                const featured = i === 0
-                return (
-                  <button
-                    key={child.name}
-                    onClick={() => navigateWorkspace([...path, child.name])}
-                    className={`group relative w-full text-left hover:bg-[#0e120e] transition-colors flex items-baseline gap-5 ${
-                      featured ? 'py-6' : 'py-4'
-                    } px-2 -mx-2`}
-                  >
-                    <BracketHover />
-                    <span
-                      className={`text-[9px] tracking-[0.25em] flex-shrink-0 ${
-                        featured ? 'text-[#777]' : 'text-[#444]'
-                      }`}
-                    >
-                      {typeIndicator(child)}
+              {children.map((child) => (
+                <button
+                  key={child.name}
+                  onClick={() => navigateWorkspace([...path, child.name])}
+                  className="group relative w-full text-left hover:bg-[#101010] flex items-baseline gap-5 py-4 px-2 -mx-2 transition-all duration-200 ease-out"
+                >
+                  <BracketHover />
+                  <span className="text-[9px] tracking-[0.25em] text-[#444] flex-shrink-0 group-hover:text-[#777] transition-colors">
+                    {typeIndicator(child)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-orbit tracking-wide text-[#bbb] group-hover:text-white text-[15px] group-hover:text-[20px] group-hover:py-1 transition-all duration-200 ease-out">
+                      {nameDisplay(child)}
                     </span>
-                    <span className="min-w-0">
-                      <span
-                        className={`block font-orbit tracking-wide text-white group-hover:text-[#00ff9d] transition-colors ${
-                          featured ? 'text-[22px]' : 'text-[15px]'
-                        }`}
-                      >
-                        {nameDisplay(child)}
-                      </span>
-                      <span className={`block text-[#666] leading-relaxed ${featured ? 'text-[11px] mt-1' : 'text-[10px]'}`}>
-                        {child.description}
-                      </span>
+                    <span className="block text-[10px] text-[#666] leading-relaxed">
+                      {child.description}
                     </span>
-                  </button>
-                )
-              })}
+                  </span>
+                </button>
+              ))}
             </div>
           )}
         </div>

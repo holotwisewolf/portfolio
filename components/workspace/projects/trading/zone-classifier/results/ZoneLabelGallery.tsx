@@ -127,7 +127,7 @@ function Gallery({ zones }: { zones: Zone[] }) {
       {!showAll && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 p-5">
           {previews.map((z, i) => (
-            <button key={i} onClick={() => { setShowAll(true); setExpanded(zones.indexOf(z)) }} className="group relative text-left p-2 -mx-2 hover:bg-[#0e120e] transition-colors">
+            <button key={i} onClick={() => { setShowAll(true); setExpanded(zones.indexOf(z)) }} className="group relative text-left p-2 -mx-2 hover:bg-[#101010] transition-colors">
               <BracketHover />
               <div className="flex justify-between items-baseline mb-2">
                 <span className="text-[9px] tracking-[0.2em]" style={{ color: LABELS[z.label].color }}>
@@ -152,7 +152,7 @@ function Gallery({ zones }: { zones: Zone[] }) {
                 key={gi}
                 onClick={() => setExpanded(expanded === gi ? null : gi)}
                 className={`group relative text-left p-2 -mx-2 transition-colors ${
-                  expanded === gi ? 'ring-1 ring-[#00ff9d]' : 'hover:bg-[#0e120e]'
+                  expanded === gi ? 'ring-1 ring-[#00ff9d]' : 'hover:bg-[#101010]'
                 }`}
               >
                 <BracketHover />

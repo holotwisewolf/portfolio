@@ -37,7 +37,6 @@ function ResultsStatusBar() {
 
 export default function FileContentView({ path }: Props) {
   const node = getNodeAtPath(projectTree, path)
-  const isResultsDir = isFolder(node) && path[path.length - 1] === 'results'
 
   if (!node) {
     return (
@@ -46,6 +45,8 @@ export default function FileContentView({ path }: Props) {
       </div>
     )
   }
+
+  const isResultsDir = isFolder(node) && path[path.length - 1] === 'results'
 
   if (isFile(node) && node.component) {
     const Component = node.component
