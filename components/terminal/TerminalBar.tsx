@@ -339,9 +339,13 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
             {/* restore tab: thin handle on the top border, right-aligned */}
             <button
               onClick={toggleMinimize}
-              className="group absolute right-3 -top-[3px] h-[3px] w-14 bg-[#333] hover:bg-[#00ff9d] transition-colors"
+              className="group absolute right-3 -top-[5px] h-[5px] w-14 bg-[#555] hover:bg-[#00ff9d] transition-colors"
               title="Restore terminal"
-            />
+            >
+              <span className="absolute -bottom-[14px] left-1/2 -translate-x-1/2 text-[7px] text-[#444] group-hover:text-[#00ff9d] leading-none transition-colors opacity-0 group-hover:opacity-100">
+                ▲
+              </span>
+            </button>
           </div>
         )}
 

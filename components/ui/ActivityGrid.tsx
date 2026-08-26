@@ -8,7 +8,7 @@ interface ActivityGridProps {
   commits?: number[] // Real commit counts per day
 }
 
-export default function ActivityGrid({ dots = 35, pattern, commits }: ActivityGridProps) {
+export default function ActivityGrid({ dots = 30, pattern, commits }: ActivityGridProps) {
   const [isMounted, setIsMounted] = useState(false)
   const [activityPattern, setActivityPattern] = useState<('high' | 'mid' | 'low')[]>(
     pattern || Array(dots).fill('low') as ('high' | 'mid' | 'low')[]

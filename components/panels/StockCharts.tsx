@@ -181,7 +181,7 @@ export default function StockCharts() {
   }, [])
 
   return (
-    <div className="h-full bg-black border-l border-white font-orbit text-xs flex flex-col p-3 pb-12" suppressHydrationWarning>
+    <div className="h-full bg-black font-orbit text-xs flex flex-col p-3 pb-12" suppressHydrationWarning>
       {/* Panel Label */}
       <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Stats
@@ -193,8 +193,8 @@ export default function StockCharts() {
 
         {/* Activity Dots - right under header */}
         <div className="mb-3">
-          <div className="text-[9px] text-[#555] mb-1">Commit activity (35 days)</div>
-          <ActivityGrid dots={35} commits={commitActivity} />
+          <div className="text-[9px] text-[#555] mb-1">Commit activity (30 days)</div>
+          <ActivityGrid dots={30} commits={commitActivity} />
         </div>
 
         <a
@@ -204,8 +204,8 @@ export default function StockCharts() {
           className="flex justify-between py-1.5 border-b border-[#161616] group cursor-pointer"
         >
           <span className="text-[#555]">REPOSITORIES</span>
-          <span className="text-[10px] text-[#ddd] group-hover:text-[#00ff9d] transition-colors">
-            {githubStats.repos} <span className="text-[#555] group-hover:text-[#00ff9d]">↗</span>
+          <span className="text-[10px] text-[#ddd] group-hover:text-white transition-colors">
+            {githubStats.repos}
           </span>
         </a>
 
