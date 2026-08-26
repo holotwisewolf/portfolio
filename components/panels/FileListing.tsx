@@ -37,7 +37,7 @@ export default function FileListing({ currentPath }: FileListingProps) {
 
   return (
     <div className="h-full bg-[#0a0a0a] border-r border-[#222] p-3 flex flex-col">
-      <div className="text-[10px] tracking-[0.25em] text-white uppercase pb-2 mb-3 border-b border-[#222]">
+      <div className="text-[10px] tracking-[0.25em] text-[#ccc] uppercase pb-2 mb-3 border-b border-[#222]">
         Files
       </div>
 

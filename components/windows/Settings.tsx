@@ -120,7 +120,7 @@ export default function Settings() {
       {/* Header */}
       <div className="text-[9px] tracking-[0.3em] text-[#555] mb-2">// settings</div>
       <div className="flex items-baseline justify-between">
-        <div className="text-[20px] tracking-tight text-white font-orbit">Settings</div>
+        <div className="text-[20px] tracking-tight text-[#ccc] font-orbit">Settings</div>
       </div>
       <div className="mt-3 h-px bg-[#222] relative mb-4">
         <div className="absolute left-0 top-[-1px] h-[2px] w-10 bg-white" />
@@ -128,7 +128,7 @@ export default function Settings() {
 
       {/* Terminal Output */}
       <div className="bg-black border border-[#2a2a2a] p-3 flex-shrink-0 overflow-y-auto max-h-[180px]">
-        <div className="text-[9px] tracking-wider text-white uppercase mb-1">Settings reference</div>
+        <div className="text-[9px] tracking-wider text-[#ccc] uppercase mb-1">Settings reference</div>
 
         <div className="text-[#00ff9d] mb-0.5">$ explosion-mode</div>
         <div className="text-[#999] mb-0.5 text-[10px]">→ Space Finder: particles spread to fill space</div>
@@ -206,7 +206,7 @@ export default function Settings() {
           {/* About - expandable with animation */}
           <div
             onClick={() => setAboutExpanded(!aboutExpanded)}
-            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-[#ccc]"
           >
             <span className="text-[#333]">
               &gt;
@@ -259,7 +259,7 @@ export default function Settings() {
           {/* BG Particle - expandable with animation */}
           <div
             onClick={() => setExpanded(!expanded)}
-            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-[#ccc]"
           >
             <span className="text-[#333]">
               &gt;
@@ -302,7 +302,7 @@ export default function Settings() {
                   <select
                     value={graceMode}
                     onChange={(e) => setGraceMode(e.target.value as GraceMode)}
-                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-[#ccc] hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -341,7 +341,7 @@ export default function Settings() {
                   <select
                     value={crystalMode}
                     onChange={(e) => setCrystalMode(e.target.value as CrystalMode)}
-                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-[#ccc] hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -360,7 +360,7 @@ export default function Settings() {
                   <select
                     value={connectorState}
                     onChange={(e) => setConnectorState(e.target.value as ConnectorState)}
-                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-[#ccc] hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="auto">Auto</option>
                     <option value="zen-only">Zen Only</option>
@@ -400,7 +400,7 @@ export default function Settings() {
                   <select
                     value={connectorHighlight}
                     onChange={(e) => setConnectorHighlight(e.target.value as ConnectorHighlight)}
-                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-[#ccc] hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="red">Red</option>
@@ -450,7 +450,7 @@ export default function Settings() {
               {/* Advanced Settings */}
               <button
                 onClick={(e) => { e.stopPropagation(); openWindow('advanced-physics-settings'); }}
-                className="w-full px-4 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px]"
+                className="w-full px-4 py-1.5 border border-white text-[#ccc] hover:bg-white hover:text-black transition-colors text-[10px]"
               >
                 Advanced Settings
               </button>
@@ -464,7 +464,7 @@ export default function Settings() {
           {/* Visual Effects - expandable with animation */}
           <div
             onClick={() => setVisualExpanded(!visualExpanded)}
-            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-[#ccc]"
           >
             <span className="text-[#333]">
               &gt;
@@ -491,7 +491,7 @@ export default function Settings() {
                     onChange={(e) => { e.stopPropagation(); setDiscoMode(e.target.value as DiscoMode); }}
                     onFocus={() => setSelectFocused(true)}
                     onBlur={() => setSelectFocused(false)}
-                    className="appearance-none bg-black border border-[#333] text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                    className="appearance-none bg-black border border-[#333] text-[#ccc] px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="enabled">Enabled</option>
@@ -512,7 +512,7 @@ export default function Settings() {
                     onChange={(e) => { e.stopPropagation(); setWoozyMode(e.target.value as WoozyMode); }}
                     onFocus={() => setSelectFocused(true)}
                     onBlur={() => setSelectFocused(false)}
-                    className="appearance-none bg-black border border-[#333] text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                    className="appearance-none bg-black border border-[#333] text-[#ccc] px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="enabled">Enabled</option>
@@ -533,7 +533,7 @@ export default function Settings() {
                     onChange={(e) => { e.stopPropagation(); setParticleShape(e.target.value as ParticleShape); }}
                     onFocus={() => setSelectFocused(true)}
                     onBlur={() => setSelectFocused(false)}
-                    className="appearance-none bg-black border border-[#333] text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                    className="appearance-none bg-black border border-[#333] text-[#ccc] px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
                   >
                     <option value="square">Square</option>
                     <option value="circle">Circle</option>
@@ -549,7 +549,7 @@ export default function Settings() {
           {/* Cursor Interactions - expandable with animation */}
           <div
             onClick={() => setCursorExpanded(!cursorExpanded)}
-            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-[#ccc]"
           >
             <span className="text-[#333]">
               &gt;
@@ -578,7 +578,7 @@ export default function Settings() {
                   <select
                     value={cursorInteractionMode}
                     onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
-                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-[#ccc] hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="none">None</option>
                     <option value="attract">Attract</option>
@@ -652,7 +652,7 @@ export default function Settings() {
           {/* Desktop Icons Interaction - expandable with animation */}
           <div
             onClick={() => setWindowExpanded(!windowExpanded)}
-            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-[#ccc]"
           >
             <span className="text-[#333]">
               &gt;

@@ -85,7 +85,7 @@ export default function AdvancedSettings() {
     <div className="h-full bg-[#0a0a0a] font-orbit text-[11px] p-4 flex flex-col">
       {/* Header */}
       <div className="text-[9px] tracking-[0.3em] text-[#555] mb-2">// advanced physics</div>
-      <div className="text-[20px] tracking-tight text-white font-orbit">Advanced Settings</div>
+      <div className="text-[20px] tracking-tight text-[#ccc] font-orbit">Advanced Settings</div>
       <div className="mt-3 h-px bg-[#222] relative mb-4">
         <div className="absolute left-0 top-[-1px] h-[2px] w-10 bg-white" />
       </div>

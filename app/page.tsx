@@ -67,7 +67,7 @@ function AppContent() {
             >
               <div
                 className={`absolute left-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  leftZone ? 'shadow-[inset_36px_0_36px_-18px_rgba(255,255,255,0.25)]' : 'shadow-none'
+                  leftZone ? 'shadow-[inset_30px_0_36px_-20px_rgba(255,255,255,0.1)]' : 'shadow-none'
                 }`}
               />
               {leftCollapsed && (
@@ -105,7 +105,7 @@ function AppContent() {
             >
               <div
                 className={`absolute right-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  rightZone ? 'shadow-[inset_-36px_0_36px_-18px_rgba(255,255,255,0.25)]' : 'shadow-none'
+                  rightZone ? 'shadow-[inset_-30px_0_36px_-20px_rgba(255,255,255,0.1)]' : 'shadow-none'
                 }`}
               />
               {rightCollapsed && (

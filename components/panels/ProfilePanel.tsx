@@ -25,7 +25,7 @@ export default function ProfilePanel() {
   return (
     <div className="h-full bg-black font-orbit text-xs flex flex-col p-3">
       {/* Panel Label */}
-      <div className="text-[10px] tracking-[0.25em] text-white uppercase pb-2 mb-3 border-b border-[#222]">
+      <div className="text-[10px] tracking-[0.25em] text-[#ccc] uppercase pb-2 mb-3 border-b border-[#222]">
         Profile
       </div>
 
