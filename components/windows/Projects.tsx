@@ -62,20 +62,26 @@ export default function Projects() {
   return (
     <div className="h-full flex flex-col bg-[#0a0a0a]">
       <div className="px-4 pt-4 pb-3">
-        <div className="text-[9px] tracking-[0.3em] text-[#555] mb-1">// projects</div>
-        <h2 className="text-[20px] tracking-tight text-white font-orbit">PROJECTS</h2>
+        <div className="text-[9px] tracking-[0.3em] text-[#555] mb-2">// projects</div>
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-[20px] tracking-tight text-white font-orbit">Projects</h2>
+          <span className="text-[9px] tracking-[0.25em] text-[#555]">2 CATEGORIES</span>
+        </div>
+        <div className="mt-3 h-px bg-[#222] relative">
+          <div className="absolute left-0 top-[-1px] h-[2px] w-10 bg-white" />
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto divide-y divide-[#161616]">
         <button
           onClick={() => openWindow('project-trading' as any)}
-          className="group w-full text-left px-4 py-4 hover:bg-[#0e120e] transition-colors"
+          className="group w-full text-left px-4 py-4 hover:bg-[#101010] transition-colors"
         >
-          <div className="flex items-baseline gap-3">
-            <span className="text-[16px] font-orbit text-white group-hover:text-white transition-colors">
+          <div className="flex items-baseline">
+            <span className="text-[16px] font-orbit text-[#bbb] group-hover:text-white transition-colors">
               Trading Research
             </span>
-            <span className="text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
+            <span className="ml-auto text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
           </div>
           <p className="text-[10px] text-[#666] leading-relaxed mt-1">
             Ten quantitative research projects — regime classification, orderflow microstructure, grid-search
@@ -85,13 +91,13 @@ export default function Projects() {
 
         <button
           onClick={() => setShowDiscord(true)}
-          className="group w-full text-left px-4 py-4 hover:bg-[#0e120e] transition-colors"
+          className="group w-full text-left px-4 py-4 hover:bg-[#101010] transition-colors"
         >
-          <div className="flex items-baseline gap-3">
-            <span className="text-[16px] font-orbit text-white group-hover:text-white transition-colors">
+          <div className="flex items-baseline">
+            <span className="text-[16px] font-orbit text-[#bbb] group-hover:text-white transition-colors">
               Discord Research Bot
             </span>
-            <span className="text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
+            <span className="ml-auto text-[10px] text-[#444] group-hover:text-white transition-colors">&gt;</span>
           </div>
           <p className="text-[10px] text-[#666] leading-relaxed mt-1">
             Multi-AI research assistant routing questions across Claude, GPT, and Gemini — with a live chat demo.

@@ -20,6 +20,27 @@ interface ChartData {
   changePercent: number
 }
 
+// localStorage read-through cache so panels don't cold-start on every remount
+function readCache<T>(key: string, ttlMs: number): T | null {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const { t, data } = JSON.parse(raw)
+    if (Date.now() - t > ttlMs) return null
+    return data as T
+  } catch {
+    return null
+  }
+}
+
+function writeCache(key: string, data: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ t: Date.now(), data }))
+  } catch {
+    // storage full or unavailable — cache is best-effort
+  }
+}
+
 export default function StockCharts() {
   const [charts, setCharts] = useState<{ [key: string]: ChartData }>({
     SPY: { symbol: 'SPY', data: [], currentPrice: 0, change: 0, changePercent: 0 },
@@ -39,56 +60,65 @@ export default function StockCharts() {
     { name: 'Other', percentage: 8 }
   ])
 
+  const applyStockData = (data: any) => {
+    if (!data?.quotes) return
+    const newCharts: { [key: string]: ChartData } = {}
+    let vixQuote: any = null
+
+    for (const quote of data.quotes) {
+      const symbol = quote.symbol
+      const price = quote.price || 0
+      const change = quote.change || 0
+      const changePercent = quote.changePercent || 0
+
+      // Use real historical data from API, or fallback to empty array
+      const historicalData: StockData[] = quote.historical?.map((h: any) => ({
+        time: h.time,
+        price: h.price
+      })) || []
+
+      if (symbol === '^VIX' || symbol === 'VIX') {
+        // Store VIX separately, don't add to charts
+        vixQuote = {
+          symbol: 'VIX',
+          data: historicalData,
+          currentPrice: price,
+          change,
+          changePercent
+        }
+      } else {
+        newCharts[symbol] = {
+          symbol,
+          data: historicalData,
+          currentPrice: price,
+          change,
+          changePercent
+        }
+      }
+    }
+
+    setCharts(newCharts)
+    setLoading(false)
+
+    // Update VIX from real data
+    if (vixQuote?.currentPrice) {
+      setPreviousVix(vix)
+      setVix(vixQuote.currentPrice)
+    }
+  }
+
   const fetchStockData = async () => {
+    // cache: skip the refetch (and the loading flash) when data is fresh
+    const cached = readCache<any>('mkt:stocks', 10 * 60 * 1000)
+    if (cached) {
+      applyStockData(cached)
+      return
+    }
     try {
       const res = await fetch('/api/stocks?symbols=SPY,QQQ,^VIX')
       const data = await res.json()
-
-      if (data.quotes) {
-        const newCharts: { [key: string]: ChartData } = {}
-        let vixQuote: any = null
-
-        for (const quote of data.quotes) {
-          const symbol = quote.symbol
-          const price = quote.price || 0
-          const change = quote.change || 0
-          const changePercent = quote.changePercent || 0
-
-          // Use real historical data from API, or fallback to empty array
-          const historicalData: StockData[] = quote.historical?.map((h: any) => ({
-            time: h.time,
-            price: h.price
-          })) || []
-
-          if (symbol === '^VIX' || symbol === 'VIX') {
-            // Store VIX separately, don't add to charts
-            vixQuote = {
-              symbol: 'VIX',
-              data: historicalData,
-              currentPrice: price,
-              change,
-              changePercent
-            }
-          } else {
-            newCharts[symbol] = {
-              symbol,
-              data: historicalData,
-              currentPrice: price,
-              change,
-              changePercent
-            }
-          }
-        }
-
-        setCharts(newCharts)
-        setLoading(false)
-
-        // Update VIX from real data
-        if (vixQuote?.currentPrice) {
-          setPreviousVix(vix)
-          setVix(vixQuote.currentPrice)
-        }
-      }
+      writeCache('mkt:stocks', data)
+      applyStockData(data)
     } catch (error) {
       console.error('Failed to fetch stock data:', error)
       // Keep showing previous data on error, don't clear it
@@ -102,26 +132,34 @@ export default function StockCharts() {
     return () => clearInterval(interval)
   }, [])
 
-  // Fetch GitHub stats
+  // Fetch GitHub stats (cached for an hour)
   useEffect(() => {
+    const applyGitHub = (data: any) => {
+      if (!data || data.error) return
+      setGithubStats({
+        repos: data.publicRepos || 0,
+        followers: data.followers || 0
+      })
+      if (data.commitActivity && Array.isArray(data.commitActivity)) {
+        setCommitActivity(data.commitActivity)
+      }
+      if (data.languages && Array.isArray(data.languages)) {
+        setLanguages(data.languages.map((l: any) => ({ name: l.language, percentage: l.percentage })))
+      }
+    }
+
+    const cached = readCache<any>('mkt:github', 60 * 60 * 1000)
+    if (cached) {
+      applyGitHub(cached)
+      return
+    }
+
     const fetchGitHubStats = async () => {
       try {
         const res = await fetch('/api/github')
         const data = await res.json()
-        if (data && !data.error) {
-          setGithubStats({
-            repos: data.publicRepos || 0,
-            followers: data.followers || 0
-          })
-          // Set commit activity if available
-          if (data.commitActivity && Array.isArray(data.commitActivity)) {
-            setCommitActivity(data.commitActivity)
-          }
-          // Set languages if available
-          if (data.languages && Array.isArray(data.languages)) {
-            setLanguages(data.languages.map((l: any) => ({ name: l.language, percentage: l.percentage })))
-          }
-        }
+        writeCache('mkt:github', data)
+        applyGitHub(data)
       } catch (error) {
         console.error('Failed to fetch GitHub stats:', error)
       }
@@ -143,7 +181,7 @@ export default function StockCharts() {
   }, [])
 
   return (
-    <div className="h-full bg-black border-l border-white font-mono text-xs flex flex-col p-3 pb-12" suppressHydrationWarning>
+    <div className="h-full bg-black border-l border-white font-orbit text-xs flex flex-col p-3 pb-12" suppressHydrationWarning>
       {/* Panel Label */}
       <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Stats
@@ -151,30 +189,40 @@ export default function StockCharts() {
 
       {/* Dev Activity Block */}
       <div className="flex-1">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Dev activity</div>
+        <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-2">Dev activity</div>
 
         {/* Activity Dots - right under header */}
         <div className="mb-3">
-          <div className="text-[9px] text-gray-700 mb-1">Commit activity (35 days)</div>
+          <div className="text-[9px] text-[#555] mb-1">Commit activity (35 days)</div>
           <ActivityGrid dots={35} commits={commitActivity} />
         </div>
 
-        <StatRow label="REPOSITORIES" value={githubStats.repos.toString()} valueClass="text-white" />
+        <a
+          href="https://github.com/holotwisewolf?tab=repositories"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex justify-between py-1.5 border-b border-[#161616] group cursor-pointer"
+        >
+          <span className="text-[#555]">REPOSITORIES</span>
+          <span className="text-[10px] text-[#ddd] group-hover:text-[#00ff9d] transition-colors">
+            {githubStats.repos} <span className="text-[#555] group-hover:text-[#00ff9d]">↗</span>
+          </span>
+        </a>
 
         {/* Language Bars */}
         <div className="mb-4 mt-6">
-          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Top languages in repos</div>
+          <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-2">Top languages in repos</div>
           <LanguageBars languages={languages} />
         </div>
 
         {/* Stack Tags */}
         <div className="mb-3">
-          <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Stack</div>
+          <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-2">Stack</div>
           <div className="flex flex-wrap gap-1">
             {['React', 'Next.js', 'Node', 'Supabase', 'Figma'].map((tag) => (
               <span
                 key={tag}
-                className="border border-gray-700 text-gray-300 text-[9px] px-2 py-0.5"
+                className="border border-[#333] text-[#999] text-[9px] px-2 py-0.5"
               >
                 {tag}
               </span>
@@ -185,10 +233,10 @@ export default function StockCharts() {
 
       {/* Market Watch Block */}
       <div className="mt-auto">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-1">Market watch</div>
+        <div className="text-[9px] text-[#ccc] tracking-[0.25em] uppercase mb-1">Market watch</div>
 
         {loading ? (
-          <div className="text-gray-500 text-center py-8">Loading...</div>
+          <div className="text-[#777] text-center py-8">Loading...</div>
         ) : (
           <>
             {Object.values(charts).map((chart) => {
@@ -201,8 +249,8 @@ export default function StockCharts() {
                 return (
                   <div key={chart.symbol} className="mb-3">
                     <div className="flex justify-between items-baseline mb-1">
-                      <span className="text-gray-300">{chart.symbol}</span>
-                      <span className="text-gray-500 text-sm">Loading...</span>
+                      <span className="text-[#555]">{chart.symbol}</span>
+                      <span className="text-[#777] text-sm">Loading...</span>
                     </div>
                   </div>
                 )
@@ -211,11 +259,11 @@ export default function StockCharts() {
               return (
               <div key={chart.symbol} className="mb-3">
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-gray-300">{chart.symbol}</span>
+                  <span className="text-[#555]">{chart.symbol}</span>
                   <span className="text-white text-sm">
                     ${chart.currentPrice.toFixed(2)}{' '}
                     {chart.changePercent != null && !isNaN(chart.changePercent) && (
-                      <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <span className={`text-[10px] ${chart.changePercent >= 0 ? 'text-[#00cc77]' : 'text-[#ef4444]'}`}>
                         {chart.changePercent >= 0 ? '+' : ''}{chart.changePercent.toFixed(2)}%
                       </span>
                     )}
@@ -256,10 +304,10 @@ export default function StockCharts() {
 
             {/* VIX with separate arrow and word colors */}
             <div className="flex justify-between items-center mb-1">
-              <span className="text-gray-400 text-[10px]">VIX</span>
+              <span className="text-[#666] text-[10px]">VIX</span>
               <span className="text-sm">
-                <span className={vix > 20 ? 'text-red-400' : 'text-green-400'}>{vix.toFixed(1)}</span>
-                <span className={vix > previousVix ? 'text-green-400' : vix < previousVix ? 'text-red-400' : 'text-gray-500'}>
+                <span className={vix > 20 ? 'text-[#ef4444]' : 'text-[#00cc77]'}>{vix.toFixed(1)}</span>
+                <span className={vix > previousVix ? 'text-[#00cc77]' : vix < previousVix ? 'text-[#ef4444]' : 'text-[#777]'}>
                   {' '}{vix > previousVix ? '▲' : vix < previousVix ? '▼' : '→'}
                 </span>
               </span>
@@ -267,7 +315,7 @@ export default function StockCharts() {
             <StatRow
               label="MARKET"
               value={marketOpen ? 'OPEN' : 'CLOSED'}
-              valueClass={marketOpen ? 'text-green-400' : 'text-gray-600'}
+              valueClass={marketOpen ? 'text-[#00cc77]' : 'text-[#555]'}
             />
           </>
         )}

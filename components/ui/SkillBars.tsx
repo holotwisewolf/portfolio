@@ -14,11 +14,11 @@ export default function SkillBars({ skills }: SkillBarsProps) {
     <>
       {skills.map((skill) => (
         <div key={skill.name} className="mb-2">
-          <div className="flex justify-between text-[9px] text-gray-500 mb-1">
+          <div className="flex justify-between text-[9px] text-[#777] mb-1">
             <span>{skill.name}</span>
             <span>{skill.level}%</span>
           </div>
-          <div className="bg-gray-900 h-[2px]">
+          <div className="bg-[#141414] h-[2px]">
             <div
               className="bg-white h-[2px] transition-all"
               style={{ width: `${skill.level}%` }}

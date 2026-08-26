@@ -290,7 +290,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     // Cursor interaction constants
     const CURSOR_RANGE = 150          // Distance for cursor interaction
     const CURSOR_FORCE = 0.15         // Attraction strength (stronger)
-    const COLLISION_RADIUS = 18       // Cursor physical collision (smaller, less invisible wall)
+    const COLLISION_RADIUS = 10       // Circular cursor: match its ~10px visual radius
     const RIPPLE_SPEED = 2             // Pixels per frame (expansion speed)
     const RIPPLE_MAX_RADIUS = 80       // Maximum expansion distance
     const RIPPLE_WIDTH = 25             // Wave thickness
@@ -944,9 +944,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 const momentumBoost = Math.min(cursorSpeed * 0.8, 8) // Cap momentum transfer
                 const pushForce = (COLLISION_RADIUS - dist) / COLLISION_RADIUS
 
-                // Push away from cursor + add cursor momentum (weaker base force)
-                p.vx += (dx / dist) * pushForce * 0.8 + mouseVelocity.current.x * 0.5 + (dx > 0 ? momentumBoost : -momentumBoost)
-                p.vy += (dy / dist) * pushForce * 0.8 + mouseVelocity.current.y * 0.5 + (dy > 0 ? momentumBoost : -momentumBoost)
+                // Push away from cursor + add cursor momentum (radial, matches the circular cursor)
+                p.vx += (dx / dist) * (pushForce * 0.8 + momentumBoost) + mouseVelocity.current.x * 0.5
+                p.vy += (dy / dist) * (pushForce * 0.8 + momentumBoost) + mouseVelocity.current.y * 0.5
               }
             }
           }

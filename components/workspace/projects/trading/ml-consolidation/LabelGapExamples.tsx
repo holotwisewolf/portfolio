@@ -142,7 +142,7 @@ function Examples({ zones }: { zones: Zone[] }) {
                   <div><div className="text-[#444]">NEXT 10 BARS</div><div className={ex.fwdRange > ex.zoneRange ? 'text-[#ef4444]' : 'text-[#00cc77]'}>{ex.fwdRange.toFixed(2)}%</div></div>
                   <div><div className="text-[#444]">EXPANSION</div><div className="text-white">{ex.ratio.toFixed(1)}×</div></div>
                 </div>
-                <p className="text-[10px] text-gray-400 leading-relaxed mt-2">{ex.verdict}</p>
+                <p className="text-[10px] text-[#666] leading-relaxed mt-2">{ex.verdict}</p>
               </div>
             )
           })}

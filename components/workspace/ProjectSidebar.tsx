@@ -41,7 +41,7 @@ function Row({ node, basePath, activePath, depth, onSelect }: RowProps) {
           onSelect?.()
         }}
         className={`w-full text-left py-[3px] px-2 text-[11px] tracking-[0.05em] transition-colors flex items-center gap-1 ${
-          isActive ? 'text-[#00ff9d] bg-[#0a1a0a]' : 'text-gray-400 hover:text-white hover:bg-white/5'
+          isActive ? 'text-[#00ff9d] bg-[#0a1a0a]' : 'text-[#666] hover:text-white hover:bg-white/5'
         }`}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
@@ -61,7 +61,7 @@ function Row({ node, basePath, activePath, depth, onSelect }: RowProps) {
           onSelect?.()
         }}
         className={`w-full text-left py-[3px] px-2 text-[11px] tracking-[0.05em] transition-colors flex items-center gap-1 ${
-          isActive ? 'text-[#00ff9d] bg-[#0a1a0a]' : 'text-gray-400 hover:text-white hover:bg-white/5'
+          isActive ? 'text-[#00ff9d] bg-[#0a1a0a]' : 'text-[#666] hover:text-white hover:bg-white/5'
         }`}
         style={{ paddingLeft: `${depth * 12 + 4}px` }}
       >

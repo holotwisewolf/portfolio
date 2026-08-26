@@ -40,7 +40,7 @@ export default function FileContentView({ path }: Props) {
 
   if (!node) {
     return (
-      <div className="flex-1 p-6 text-gray-500 text-[12px]">
+      <div className="flex-1 p-6 text-[#777] text-[12px]">
         404 — path not found: {path.join('/')}
       </div>
     )
@@ -59,7 +59,7 @@ export default function FileContentView({ path }: Props) {
 
   if (isFile(node) && !node.component) {
     return (
-      <div className="flex-1 p-6 text-gray-500 text-[12px]">
+      <div className="flex-1 p-6 text-[#777] text-[12px]">
         File has no content (component not registered): {node.name}
       </div>
     )

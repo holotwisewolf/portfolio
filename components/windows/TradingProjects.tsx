@@ -73,8 +73,14 @@ export default function TradingProjects() {
   return (
     <div className="h-full flex flex-col bg-[#0a0a0a]">
       <div className="px-4 pt-4 pb-3">
-        <div className="text-[9px] tracking-[0.3em] text-[#555] mb-1">// trading research</div>
-        <h2 className="text-[20px] tracking-tight text-white font-orbit">PROJECTS [10]</h2>
+        <div className="text-[9px] tracking-[0.3em] text-[#555] mb-2">// trading research</div>
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-[20px] tracking-tight text-white font-orbit">Projects</h2>
+          <span className="text-[9px] tracking-[0.25em] text-[#555]">10 TOTAL</span>
+        </div>
+        <div className="mt-3 h-px bg-[#222] relative">
+          <div className="absolute left-0 top-[-1px] h-[2px] w-10 bg-white" />
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -83,9 +89,9 @@ export default function TradingProjects() {
             <button
               key={p.id}
               onClick={() => setSelected(p)}
-              className="group w-full text-left px-4 py-3 hover:bg-[#0e120e] transition-colors flex items-baseline gap-4"
+              className="group w-full text-left px-4 py-3 hover:bg-[#101010] transition-colors flex items-baseline gap-4"
             >
-              <span className="text-[14px] font-orbit text-white group-hover:text-white transition-colors">
+              <span className="text-[14px] font-orbit text-[#bbb] group-hover:text-white transition-colors">
                 {p.title}
               </span>
               <span className="text-[10px] text-[#666] leading-relaxed flex-1">{p.pitch}</span>
@@ -96,7 +102,7 @@ export default function TradingProjects() {
       </div>
 
       <div className="px-4 py-3 flex items-center justify-between">
-        <span className="text-[9px] text-[#444] tracking-[0.2em]">10 PROJECTS · MEASURED RESULTS ONLY</span>
+        <span className="text-[9px] text-[#444] tracking-[0.2em]">MEASURED RESULTS ONLY</span>
         <button
           onClick={handleBrowseWorkspace}
           className="text-[10px] tracking-[0.2em] text-[#999] hover:text-white border-b border-[#333] hover:border-white pb-[2px] transition-colors"

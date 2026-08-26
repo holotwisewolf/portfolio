@@ -312,14 +312,14 @@ export default function Window({ windowId }: WindowProps) {
       <div
         onClick={handleClick}
         className={`fixed flex flex-col border ${
-          isActive ? 'border-white z-[9999]' : 'border-gray-600'
-        } ${isBooting ? 'window-booting' : ''} bg-black`}
+          isActive ? 'border-white z-[9999]' : 'border-[#333]'
+        } ${isBooting ? 'window-booting' : ''} bg-[#0a0a0a]`}
         style={{
           zIndex: windowState.zIndex,
           top: '24px', // Below StatusBar
           left: 0,
           right: 0,
-          bottom: '48px'
+          bottom: `${windowState.maximizedBottom ?? 48}px` // stops above the terminal
         }}
       >
         <div
@@ -331,13 +331,13 @@ export default function Window({ windowId }: WindowProps) {
             <span className="font-semibold">{windowState.title}</span>
           </div>
           <div className="flex gap-2">
-            <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
+            <button onClick={handleMinimize} className="hover:bg-[#333] px-2 py-0.5">
               –
             </button>
-            <button onClick={handleMaximize} className="hover:bg-gray-300 px-2 py-0.5">
+            <button onClick={handleMaximize} className="hover:bg-[#333] px-2 py-0.5">
               □
             </button>
-            <button onClick={handleClose} className="hover:bg-red-600 hover:text-white px-2 py-0.5">
+            <button onClick={handleClose} className="hover:bg-[#ef4444] hover:text-white px-2 py-0.5">
               ×
             </button>
           </div>
@@ -367,35 +367,35 @@ export default function Window({ windowId }: WindowProps) {
         {/* Resize handles */}
         <div
           onMouseDown={(e) => handleResizeStart(e, 'n')}
-          className="absolute top-0 left-0 right-0 h-2 cursor-n-resize z-10 hover:bg-gray-800/50"
+          className="absolute top-0 left-0 right-0 h-2 cursor-n-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 's')}
-          className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-10 hover:bg-gray-800/50"
+          className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'e')}
-          className="absolute top-0 right-0 bottom-0 w-2 cursor-e-resize z-10 hover:bg-gray-800/50"
+          className="absolute top-0 right-0 bottom-0 w-2 cursor-e-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'w')}
-          className="absolute top-0 left-0 bottom-0 w-2 cursor-w-resize z-10 hover:bg-gray-800/50"
+          className="absolute top-0 left-0 bottom-0 w-2 cursor-w-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'ne')}
-          className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10 hover:bg-gray-800/50"
+          className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'nw')}
-          className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10 hover:bg-gray-800/50"
+          className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'se')}
-          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 hover:bg-gray-800/50"
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 hover:bg-[#333]/50"
         />
         <div
           onMouseDown={(e) => handleResizeStart(e, 'sw')}
-          className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10 hover:bg-gray-800/50"
+          className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10 hover:bg-[#333]/50"
         />
       </div>
     )
@@ -405,8 +405,8 @@ export default function Window({ windowId }: WindowProps) {
     <div
       onClick={handleClick}
       className={`absolute flex flex-col border ${
-        isActive ? 'border-white z-[9999]' : 'border-gray-600'
-      } ${isBooting ? 'window-booting' : ''} bg-black`}
+        isActive ? 'border-white z-[9999]' : 'border-[#333]'
+      } ${isBooting ? 'window-booting' : ''} bg-[#0a0a0a]`}
       style={{
         width: isNaN(localSize.width) ? 800 : localSize.width,
         height: isNaN(localSize.height) ? 600 : localSize.height,
@@ -424,13 +424,13 @@ export default function Window({ windowId }: WindowProps) {
           <span className="font-semibold">{windowState.title}</span>
         </div>
         <div className="flex gap-2">
-          <button onClick={handleMinimize} className="hover:bg-gray-300 px-2 py-0.5">
+          <button onClick={handleMinimize} className="hover:bg-[#333] px-2 py-0.5">
             –
           </button>
-          <button onClick={handleMaximize} className="hover:bg-gray-300 px-2 py-0.5">
+          <button onClick={handleMaximize} className="hover:bg-[#333] px-2 py-0.5">
             □
           </button>
-          <button onClick={handleClose} className="hover:bg-red-600 hover:text-white px-2 py-0.5">
+          <button onClick={handleClose} className="hover:bg-[#ef4444] hover:text-white px-2 py-0.5">
             ×
           </button>
         </div>
@@ -460,36 +460,49 @@ export default function Window({ windowId }: WindowProps) {
       {/* Resize handles */}
       <div
         onMouseDown={(e) => handleResizeStart(e, 'n')}
-        className="absolute top-0 left-0 right-0 h-2 cursor-n-resize z-10 hover:bg-gray-800/50"
+        className="absolute top-0 left-0 right-0 h-2 cursor-n-resize z-10 hover:bg-[#333]/50"
       />
       <div
         onMouseDown={(e) => handleResizeStart(e, 's')}
-        className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-10 hover:bg-gray-800/50"
+        className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize z-10 hover:bg-[#333]/50"
       />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'e')}
-        className="absolute top-0 right-0 bottom-0 w-2 cursor-e-resize z-10 hover:bg-gray-800/50"
+        className="absolute top-0 right-0 bottom-0 w-2 cursor-e-resize z-10 hover:bg-[#333]/50"
       />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'w')}
-        className="absolute top-0 left-0 bottom-0 w-2 cursor-w-resize z-10 hover:bg-gray-800/50"
+        className="absolute top-0 left-0 bottom-0 w-2 cursor-w-resize z-10 hover:bg-[#333]/50"
       />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'ne')}
-        className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10 hover:bg-gray-800/50"
-      />
+        className="group absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10"
+      >
+        <span className="absolute top-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+        <span className="absolute top-2 bottom-0 right-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+      </div>
       <div
         onMouseDown={(e) => handleResizeStart(e, 'nw')}
-        className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10 hover:bg-gray-800/50"
-      />
+        className="group absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
+      >
+        <span className="absolute top-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+        <span className="absolute top-2 bottom-0 left-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+      </div>
+      {/* Corner handles light BOTH adjacent edges, like the old version */}
       <div
         onMouseDown={(e) => handleResizeStart(e, 'se')}
-        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 hover:bg-gray-800/50"
-      />
+        className="group absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10"
+      >
+        <span className="absolute bottom-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+        <span className="absolute top-0 h-2 right-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+      </div>
       <div
         onMouseDown={(e) => handleResizeStart(e, 'sw')}
-        className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10 hover:bg-gray-800/50"
-      />
+        className="group absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10"
+      >
+        <span className="absolute bottom-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+        <span className="absolute top-0 h-2 left-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
+      </div>
     </div>
   )
 }

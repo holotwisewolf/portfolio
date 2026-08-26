@@ -30,8 +30,8 @@ export default function ActivityGrid({ dots = 35, pattern, commits }: ActivityGr
       {activityPattern.map((active, i) => (
         <div
           key={i}
-          className={`w-[5px] h-[5px] rounded-sm ${
-            active === 'high' ? 'bg-white' : active === 'mid' ? 'bg-gray-600' : 'bg-gray-900'
+          className={`w-[5px] h-[5px] ${
+            active === 'high' ? 'bg-[#00ff9d]' : active === 'mid' ? 'bg-[#0a7a4a]' : 'bg-[#06331f]'
           }`}
         />
       ))}

@@ -96,7 +96,7 @@ export default function ContextMenu({ x, y, iconId, onClose, onAction }: Context
     >
       {menuItems.map((item, index) => {
         if ('divider' in item) {
-          return <div key={index} className="border-t border-gray-800 my-1" />
+          return <div key={index} className="border-t border-[#1c1c1c] my-1" />
         }
 
         return (

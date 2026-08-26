@@ -21,25 +21,25 @@ export default function TerminalNav() {
   return (
     <div className="h-full bg-black font-mono text-xs p-4 flex flex-col">
       {/* Header */}
-      <div className="text-[10px] tracking-wider text-white uppercase border-b border-gray-800 pb-2 mb-4">
+      <div className="text-[10px] tracking-wider text-white uppercase border-b border-[#1c1c1c] pb-2 mb-4">
         Terminal Navigator
       </div>
 
       {/* Terminal Output */}
-      <div className="flex-1 bg-gray-950 border border-gray-800 p-3 overflow-auto mb-4">
+      <div className="flex-1 bg-[#050505] border border-[#1c1c1c] p-3 overflow-auto mb-4">
         <div className="text-[10px] tracking-wider text-white uppercase mb-2">System output</div>
 
-        <div className="text-gray-700 mb-1">$ whoami</div>
-        <div className="text-gray-400 mb-3">→ developer, designer, builder</div>
+        <div className="text-[#555] mb-1">$ whoami</div>
+        <div className="text-[#666] mb-3">→ developer, designer, builder</div>
 
-        <div className="text-gray-700 mb-1">$ ls projects/</div>
-        <div className="text-gray-400 mb-3">project_01/ project_02/ project_03/</div>
+        <div className="text-[#555] mb-1">$ ls projects/</div>
+        <div className="text-[#666] mb-3">project_01/ project_02/ project_03/</div>
 
-        <div className="text-gray-700 mb-1">$ cat status.txt</div>
-        <div className="text-gray-300 mb-3">Currently building cool stuff.</div>
+        <div className="text-[#555] mb-1">$ cat status.txt</div>
+        <div className="text-[#999] mb-3">Currently building cool stuff.</div>
 
         {/* Prompt with cursor */}
-        <div className="mt-4 text-gray-700">
+        <div className="mt-4 text-[#555]">
           ~/portfolio{' '}
           <span className="inline-block w-2 h-3 bg-white align-middle animate-pulse" />
         </div>
@@ -47,16 +47,16 @@ export default function TerminalNav() {
 
       {/* Navigation */}
       <div>
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Navigation</div>
+        <div className="text-[9px] text-[#555] tracking-widest uppercase mb-2">Navigation</div>
         {navItems.map((item) => (
           <div
             key={item}
             onMouseDown={(e) => handleNavClick(e, item)}
-            className={`py-1.5 border-b border-gray-900 cursor-pointer tracking-wider ${
-              activeNav === item ? 'text-white' : 'text-gray-500'
+            className={`py-1.5 border-b border-[#161616] cursor-pointer tracking-wider ${
+              activeNav === item ? 'text-white' : 'text-[#777]'
             }`}
           >
-            <span className={activeNav === item ? 'text-white' : 'text-gray-800'}>
+            <span className={activeNav === item ? 'text-white' : 'text-[#333]'}>
               &gt;
             </span>{' '}
             {item.toLowerCase()}

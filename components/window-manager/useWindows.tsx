@@ -42,6 +42,7 @@ interface WindowState {
   isOpen: boolean
   isMinimized: boolean
   isMaximized: boolean
+  maximizedBottom?: number // px from viewport bottom the maximized window stops at (terminal height)
   position: { x: number; y: number }
   size: { width: number; height: number }
   zIndex: number
@@ -181,12 +182,16 @@ export const useWindowStore = create<WindowStore>()(
       },
 
       maximizeWindow: (id) => {
+        // measure the real terminal height so the maximized window stops above it
+        const term = typeof document !== 'undefined' ? document.getElementById('terminal-bar') : null
+        const maximizedBottom = term ? term.offsetHeight : undefined
         set((state) => ({
           windows: {
             ...state.windows,
             [id]: {
               ...state.windows[id],
               isMaximized: !state.windows[id]?.isMaximized,
+              maximizedBottom,
             },
           },
         }))

@@ -62,7 +62,7 @@ export default function Admin() {
           />
           <button
             type="submit"
-            className="w-full p-2 bg-white text-black hover:bg-gray-300"
+            className="w-full p-2 bg-white text-black hover:bg-[#222]"
           >
             Login
           </button>
@@ -125,14 +125,14 @@ export default function Admin() {
         </div>
 
         {message && (
-          <div className={`text-sm ${message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+          <div className={`text-sm ${message.includes('success') ? 'text-[#00cc77]' : 'text-[#ef4444]'}`}>
             {message}
           </div>
         )}
 
         <button
           type="submit"
-          className="w-full p-3 bg-white text-black hover:bg-gray-300 font-semibold"
+          className="w-full p-3 bg-white text-black hover:bg-[#222] font-semibold"
         >
           Publish Post
         </button>

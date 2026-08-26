@@ -116,95 +116,99 @@ export default function Settings() {
   }
 
   return (
-    <div className="h-full bg-black font-mono text-xs p-4 flex flex-col">
+    <div className="h-full bg-[#0a0a0a] font-orbit text-[11px] p-4 flex flex-col">
       {/* Header */}
-      <div className="text-[10px] tracking-wider text-white uppercase border-b border-gray-800 pb-2 mb-4">
-        Settings Overview
+      <div className="text-[9px] tracking-[0.3em] text-[#555] mb-2">// settings</div>
+      <div className="flex items-baseline justify-between">
+        <div className="text-[20px] tracking-tight text-white font-orbit">Settings</div>
+      </div>
+      <div className="mt-3 h-px bg-[#222] relative mb-4">
+        <div className="absolute left-0 top-[-1px] h-[2px] w-10 bg-white" />
       </div>
 
       {/* Terminal Output */}
-      <div className="bg-gray-950 border border-gray-800 p-2 flex-shrink-0 overflow-y-auto max-h-[180px]">
+      <div className="bg-black border border-[#2a2a2a] p-3 flex-shrink-0 overflow-y-auto max-h-[180px]">
         <div className="text-[9px] tracking-wider text-white uppercase mb-1">Settings reference</div>
 
-        <div className="text-gray-700 mb-0.5">$ explosion-mode</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Space Finder: particles spread to fill space</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Radial Blast: particles burst outward from center</div>
+        <div className="text-[#00ff9d] mb-0.5">$ explosion-mode</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Space Finder: particles spread to fill space</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Radial Blast: particles burst outward from center</div>
 
-        <div className="text-gray-700 mb-0.5">$ grace-period</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: slow-mo on explosion, then normal</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disabled: no slow-mo, immediate normal speed</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Constant: always in slow-mo</div>
+        <div className="text-[#00ff9d] mb-0.5">$ grace-period</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Enabled: slow-mo on explosion, then normal</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Disabled: no slow-mo, immediate normal speed</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Constant: always in slow-mo</div>
 
-        <div className="text-gray-700 mb-0.5">$ frame-freeze</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Pauses physics when you interact with windows</div>
+        <div className="text-[#00ff9d] mb-0.5">$ frame-freeze</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Pauses physics when you interact with windows</div>
 
-        <div className="text-gray-700 mb-0.5">$ crystallization</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: connectors form geometric grid patterns</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disabled: connectors stay in flowing state</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Constant: always crystallized, no flowing</div>
+        <div className="text-[#00ff9d] mb-0.5">$ crystallization</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Enabled: connectors form geometric grid patterns</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Disabled: connectors stay in flowing state</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Constant: always crystallized, no flowing</div>
 
-        <div className="text-gray-700 mb-0.5">$ connector-state</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Auto: shows in zen, crystallizes in crystal mode</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Zen Only: only during zen (non-crystal) state</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Crystal Only: only during crystallization</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ None: connectors completely hidden</div>
+        <div className="text-[#00ff9d] mb-0.5">$ connector-state</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Auto: shows in zen, crystallizes in crystal mode</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Zen Only: only during zen (non-crystal) state</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Crystal Only: only during crystallization</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ None: connectors completely hidden</div>
 
-        <div className="text-gray-700 mb-0.5">$ calmness</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Gradually slows particles over time for zen effect</div>
+        <div className="text-[#00ff9d] mb-0.5">$ calmness</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Gradually slows particles over time for zen effect</div>
 
-        <div className="text-gray-700 mb-0.5">$ connector-highlight</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Color overlay (red/yellow/cyan) for visibility</div>
+        <div className="text-[#00ff9d] mb-0.5">$ connector-highlight</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Color overlay (red/yellow/cyan) for visibility</div>
 
-        <div className="text-gray-700 mb-0.5">$ cursor-interactions</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ None: cursor doesn't affect particles</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Push: momentum-based collision (faster = stronger)</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles drawn to cursor</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Ripple: visual trail on movement</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Connect: lines from cursor to particles</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Click Explode: click triggers explosion</div>
+        <div className="text-[#00ff9d] mb-0.5">$ cursor-interactions</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ None: cursor doesn't affect particles</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Push: momentum-based collision (faster = stronger)</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Attract: particles drawn to cursor</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Ripple: visual trail on movement</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Connect: lines from cursor to particles</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Click Explode: click triggers explosion</div>
 
-        <div className="text-gray-700 mb-0.5">$ icon-interactions</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Attract: particles orbit icons in circular paths</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Collide: icons act as walls + block connections</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Connect: lines from icon edges to particles</div>
+        <div className="text-[#00ff9d] mb-0.5">$ icon-interactions</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Attract: particles orbit icons in circular paths</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Collide: icons act as walls + block connections</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Connect: lines from icon edges to particles</div>
 
-        <div className="text-gray-700 mb-0.5">$ visual-effects</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Disco Mode: rainbow particle colors</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: particles change color, similar hues connect</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Extreme: every connection line gets random colors</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Particle Shape: square, circle, triangle, pentagon, hexagon</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Woozy Mode: particles pulse in size</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Enabled: smooth pulsing (0.8-1.4x)</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Extreme: 40%/frame for random explosions (2-16x)</div>
+        <div className="text-[#00ff9d] mb-0.5">$ visual-effects</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Disco Mode: rainbow particle colors</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Enabled: particles change color, similar hues connect</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Extreme: every connection line gets random colors</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Particle Shape: square, circle, triangle, pentagon, hexagon</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Woozy Mode: particles pulse in size</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Enabled: smooth pulsing (0.8-1.4x)</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Extreme: 40%/frame for random explosions (2-16x)</div>
 
-        <div className="text-gray-700 mb-0.5">$ advanced-settings</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Fine-tune 21 physics variables: particle count,</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ max speed, attraction force, mesh network,</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ edge repulsion with momentum reaction</div>
+        <div className="text-[#00ff9d] mb-0.5">$ advanced-settings</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Fine-tune 21 physics variables: particle count,</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ max speed, attraction force, mesh network,</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ edge repulsion with momentum reaction</div>
 
-        <div className="text-gray-700 mb-0.5">$ presets</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Conservative: 100 particles, slower flow</div>
-        <div className="text-gray-400 mb-0.5 text-[10px]">→ Balanced: 150 particles, medium flow</div>
-        <div className="text-gray-400 mb-1 text-[10px]">→ Chaotic: 200 particles, fast chaotic flow</div>
+        <div className="text-[#00ff9d] mb-0.5">$ presets</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Conservative: 100 particles, slower flow</div>
+        <div className="text-[#999] mb-0.5 text-[10px]">→ Balanced: 150 particles, medium flow</div>
+        <div className="text-[#999] mb-1 text-[10px]">→ Chaotic: 200 particles, fast chaotic flow</div>
 
-        <div className="text-gray-700">
+        <div className="text-[#00ff9d]">
           ~/settings{' '}
           <span className="inline-block w-2 h-2 bg-white align-middle animate-pulse" />
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 flex flex-col mt-4">
-        <div className="text-[9px] text-gray-600 tracking-widest uppercase mb-2">Navigation</div>
+      <div className="flex-1 flex flex-col mt-4 min-h-0">
+        <div className="text-[9px] text-[#555] tracking-[0.25em] uppercase mb-2">Navigation</div>
 
         {/* All navigation items in a single scrollable container */}
-        <div className={`flex-1 ${selectFocused ? 'overflow-visible' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 min-h-0 ${selectFocused ? 'overflow-visible' : 'overflow-y-auto'}`}>
           {/* About - expandable with animation */}
           <div
             onClick={() => setAboutExpanded(!aboutExpanded)}
-            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
           >
-            <span className="text-gray-800">
+            <span className="text-[#333]">
               &gt;
             </span>{' '}
             about
@@ -218,34 +222,34 @@ export default function Settings() {
           >
             <div className="pl-4 py-2 space-y-2">
               {/* Version */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Version</div>
-                <div className="text-gray-300 text-[10px]">
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Version</div>
+                <div className="text-[#999] text-[10px]">
                   v0.1.0
                 </div>
               </div>
 
               {/* Build Info */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Build</div>
-                <div className="text-gray-400 text-[9px]">
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Build</div>
+                <div className="text-[#666] text-[9px]">
                   Next.js 15.1.0 / React 18.3.1 / TypeScript 5.6.0
                 </div>
               </div>
 
               {/* Credits */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Credits</div>
-                <div className="text-gray-400 text-[9px]">
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Credits</div>
+                <div className="text-[#666] text-[9px]">
                   Built with brutalist love<br/>
                   Wanna-be quant aesthetic
                 </div>
               </div>
 
               {/* GitHub */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Source</div>
-                <div className="text-gray-400 text-[9px]">
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Source</div>
+                <div className="text-[#666] text-[9px]">
                   github.com/yjchoong/portfolio
                 </div>
               </div>
@@ -255,9 +259,9 @@ export default function Settings() {
           {/* BG Particle - expandable with animation */}
           <div
             onClick={() => setExpanded(!expanded)}
-            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
           >
-            <span className="text-gray-800">
+            <span className="text-[#333]">
               &gt;
             </span>{' '}
             bg particles
@@ -271,17 +275,17 @@ export default function Settings() {
           >
             <div className="pl-4 py-2 space-y-2">
               {/* Explosion Mode */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Explosion Mode</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Explosion Mode</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     {explosionMode === 'space'
                       ? 'Space-finders, particles push 60-70% stronger toward empty spaces'
                       : 'Radial blast, particles are 20-25% stronger than space-finding'}
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleExplosionMode(); }}
-                    className="px-2 py-1 text-[10px] w-20 bg-black border border-gray-700 text-gray-400 hover:border-white transition-colors"
+                    className="px-2 py-1 text-[10px] w-20 bg-black border border-[#333] text-[#666] hover:border-white transition-colors"
                   >
                     Toggle
                   </button>
@@ -289,16 +293,16 @@ export default function Settings() {
               </div>
 
               {/* Grace Period */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Grace Period</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Grace Period</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Stability period after instability
                   </div>
                   <select
                     value={graceMode}
                     onChange={(e) => setGraceMode(e.target.value as GraceMode)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -308,18 +312,18 @@ export default function Settings() {
               </div>
 
               {/* Frame Freeze */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Frame Freeze</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Frame Freeze</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Pauses particles when toggled
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setFrameFreezeEnabled(!frameFreezeEnabled); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       frameFreezeEnabled
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {frameFreezeEnabled ? 'Enabled' : 'Disabled'}
@@ -328,16 +332,16 @@ export default function Settings() {
               </div>
 
               {/* Crystallization */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Crystallization</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Crystallization</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Connector attraction increases, more likely to form stable connections
                   </div>
                   <select
                     value={crystalMode}
                     onChange={(e) => setCrystalMode(e.target.value as CrystalMode)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="enabled">Enabled</option>
                     <option value="disabled">Disabled</option>
@@ -347,16 +351,16 @@ export default function Settings() {
               </div>
 
               {/* Connector State */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Connector State</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Connector State</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Controls which connector modes activate
                   </div>
                   <select
                     value={connectorState}
                     onChange={(e) => setConnectorState(e.target.value as ConnectorState)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="auto">Auto</option>
                     <option value="zen-only">Zen Only</option>
@@ -367,18 +371,18 @@ export default function Settings() {
               </div>
 
               {/* Calmness */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Calmness</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Calmness</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Reduces connector velocity over time
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCalmnessEnabled(!calmnessEnabled); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       calmnessEnabled
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {calmnessEnabled ? 'Enabled' : 'Disabled'}
@@ -387,16 +391,16 @@ export default function Settings() {
               </div>
 
               {/* Connector Highlight */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Connector Highlight</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Connector Highlight</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Connector color overlay
                   </div>
                   <select
                     value={connectorHighlight}
                     onChange={(e) => setConnectorHighlight(e.target.value as ConnectorHighlight)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="red">Red</option>
@@ -408,14 +412,14 @@ export default function Settings() {
 
               {/* Presets */}
               <div>
-                <div className="text-gray-500 text-[10px] mb-2">PRESETS</div>
+                <div className="text-[#777] text-[10px] mb-2">PRESETS</div>
                 <div className="flex gap-2">
                   <button
                     onClick={(e) => { e.stopPropagation(); applyPreset('conservative'); }}
                     className={`flex-1 px-4 py-1.5 border text-[10px] transition-colors ${
                       currentPreset === 'conservative'
-                        ? 'border-green-400 text-green-400'
-                        : 'border-gray-600 text-gray-400 hover:bg-white hover:text-black'
+                        ? 'border-[#00ff9d] text-[#00ff9d]'
+                        : 'border-[#333] text-[#666] hover:bg-white hover:text-black'
                     }`}
                   >
                     Conservative
@@ -424,8 +428,8 @@ export default function Settings() {
                     onClick={(e) => { e.stopPropagation(); applyPreset('balanced'); }}
                     className={`flex-1 px-4 py-1.5 border text-[10px] transition-colors ${
                       currentPreset === 'balanced'
-                        ? 'border-green-400 text-green-400'
-                        : 'border-gray-600 text-gray-400 hover:bg-white hover:text-black'
+                        ? 'border-[#00ff9d] text-[#00ff9d]'
+                        : 'border-[#333] text-[#666] hover:bg-white hover:text-black'
                     }`}
                   >
                     Balanced
@@ -434,8 +438,8 @@ export default function Settings() {
                     onClick={(e) => { e.stopPropagation(); applyPreset('chaotic'); }}
                     className={`flex-1 px-4 py-1.5 border text-[10px] transition-colors ${
                       currentPreset === 'chaotic'
-                        ? 'border-green-400 text-green-400'
-                        : 'border-gray-600 text-gray-400 hover:bg-white hover:text-black'
+                        ? 'border-[#00ff9d] text-[#00ff9d]'
+                        : 'border-[#333] text-[#666] hover:bg-white hover:text-black'
                     }`}
                   >
                     Chaotic
@@ -451,7 +455,7 @@ export default function Settings() {
                 Advanced Settings
               </button>
 
-              <div className="text-gray-600 text-[10px]">
+              <div className="text-[#555] text-[10px]">
                 Changes take effect on toggle
               </div>
             </div>
@@ -460,9 +464,9 @@ export default function Settings() {
           {/* Visual Effects - expandable with animation */}
           <div
             onClick={() => setVisualExpanded(!visualExpanded)}
-            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
           >
-            <span className="text-gray-800">
+            <span className="text-[#333]">
               &gt;
             </span>{' '}
             visual effects
@@ -476,10 +480,10 @@ export default function Settings() {
           >
             <div className="pl-4 py-2 space-y-2">
               {/* Disco Mode */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Disco Mode</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Disco Mode</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Rainbow particles, flashing colors
                   </div>
                   <select
@@ -487,7 +491,7 @@ export default function Settings() {
                     onChange={(e) => { e.stopPropagation(); setDiscoMode(e.target.value as DiscoMode); }}
                     onFocus={() => setSelectFocused(true)}
                     onBlur={() => setSelectFocused(false)}
-                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                    className="appearance-none bg-black border border-[#333] text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="enabled">Enabled</option>
@@ -497,10 +501,10 @@ export default function Settings() {
               </div>
 
               {/* Woozy Mode */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Woozy Mode</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Woozy Mode</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Particles pulse and change size
                   </div>
                   <select
@@ -508,7 +512,7 @@ export default function Settings() {
                     onChange={(e) => { e.stopPropagation(); setWoozyMode(e.target.value as WoozyMode); }}
                     onFocus={() => setSelectFocused(true)}
                     onBlur={() => setSelectFocused(false)}
-                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                    className="appearance-none bg-black border border-[#333] text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
                   >
                     <option value="disabled">Disabled</option>
                     <option value="enabled">Enabled</option>
@@ -518,10 +522,10 @@ export default function Settings() {
               </div>
 
               {/* Particle Shape */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Particle Shape</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Particle Shape</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Shape of particles
                   </div>
                   <select
@@ -529,7 +533,7 @@ export default function Settings() {
                     onChange={(e) => { e.stopPropagation(); setParticleShape(e.target.value as ParticleShape); }}
                     onFocus={() => setSelectFocused(true)}
                     onBlur={() => setSelectFocused(false)}
-                    className="appearance-none bg-black border border-gray-700 text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
+                    className="appearance-none bg-black border border-[#333] text-white px-2 py-1 text-[10px] w-20 text-center focus:border-white focus:outline-none cursor-pointer"
                   >
                     <option value="square">Square</option>
                     <option value="circle">Circle</option>
@@ -545,9 +549,9 @@ export default function Settings() {
           {/* Cursor Interactions - expandable with animation */}
           <div
             onClick={() => setCursorExpanded(!cursorExpanded)}
-            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
           >
-            <span className="text-gray-800">
+            <span className="text-[#333]">
               &gt;
             </span>{' '}
             cursor interactions
@@ -561,10 +565,10 @@ export default function Settings() {
           >
             <div className="pl-4 py-2 space-y-2">
               {/* Cursor Mode */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Mode</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Cursor Mode</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     {cursorInteractionMode === 'none'
                       ? 'No cursor interaction'
                       : cursorInteractionMode === 'attract'
@@ -574,7 +578,7 @@ export default function Settings() {
                   <select
                     value={cursorInteractionMode}
                     onChange={(e) => setCursorInteractionMode(e.target.value as CursorInteractionMode)}
-                    className="px-2 py-1 bg-black border border-gray-700 text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
+                    className="px-2 py-1 bg-black border border-[#333] text-white hover:border-white focus:outline-none text-[10px] w-20 appearance-none text-center"
                   >
                     <option value="none">None</option>
                     <option value="attract">Attract</option>
@@ -584,18 +588,18 @@ export default function Settings() {
               </div>
 
               {/* Cursor Ripple */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Ripple</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Cursor Ripple</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Click to create burst wave
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCursorRippleEnabled(!cursorRippleEnabled); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       cursorRippleEnabled
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {cursorRippleEnabled ? 'Enabled' : 'Disabled'}
@@ -604,18 +608,18 @@ export default function Settings() {
               </div>
 
               {/* Cursor Connections */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Cursor Connections</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Cursor Connections</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Draw lines to nearby particles
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCursorConnectParticles(!cursorConnectParticles); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       cursorConnectParticles
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {cursorConnectParticles ? 'Enabled' : 'Disabled'}
@@ -624,18 +628,18 @@ export default function Settings() {
               </div>
 
               {/* Click Explodes Cluster */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Click Explodes</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Click Explodes</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Click to explode nearby particles
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setCursorClickExplodeCluster(!cursorClickExplodeCluster); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       cursorClickExplodeCluster
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {cursorClickExplodeCluster ? 'Enabled' : 'Disabled'}
@@ -648,9 +652,9 @@ export default function Settings() {
           {/* Desktop Icons Interaction - expandable with animation */}
           <div
             onClick={() => setWindowExpanded(!windowExpanded)}
-            className="py-1.5 border-b border-gray-900 cursor-pointer tracking-wider text-gray-500 hover:text-white"
+            className="py-1.5 border-b border-[#161616] cursor-pointer tracking-wider text-[#777] hover:text-white"
           >
-            <span className="text-gray-800">
+            <span className="text-[#333]">
               &gt;
             </span>{' '}
             icon interactions
@@ -664,18 +668,18 @@ export default function Settings() {
           >
             <div className="pl-4 py-2 space-y-2">
               {/* Icon Attract */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Attract Particles</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Attract Particles</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Particles gather around icons
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setIconAttractParticles(!iconAttractParticles); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       iconAttractParticles
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {iconAttractParticles ? 'Enabled' : 'Disabled'}
@@ -684,18 +688,18 @@ export default function Settings() {
               </div>
 
               {/* Icon Collide */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Collide Particles</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Collide Particles</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Icons push particles away
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setIconCollideParticles(!iconCollideParticles); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       iconCollideParticles
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {iconCollideParticles ? 'Enabled' : 'Disabled'}
@@ -704,18 +708,18 @@ export default function Settings() {
               </div>
 
               {/* Icon Connect */}
-              <div className="border border-gray-800 p-2">
-                <div className="text-gray-400 text-[9px] tracking-widest uppercase mb-1">Connect Particles</div>
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Connect Particles</div>
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-300 text-[10px]">
+                  <div className="text-[#999] text-[10px]">
                     Draw lines to nearby particles
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setIconConnectParticles(!iconConnectParticles); }}
                     className={`px-2 py-1 text-[10px] w-20 transition-colors ${
                       iconConnectParticles
-                        ? 'bg-green-900 text-green-400 border border-green-700'
-                        : 'bg-gray-900 text-gray-400 border border-gray-700 hover:border-white'
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
                     }`}
                   >
                     {iconConnectParticles ? 'Enabled' : 'Disabled'}

@@ -10,7 +10,7 @@ export default function Welcome() {
     <div className="h-full flex flex-col justify-center items-center gap-8">
       <h1 className="crt-text text-4xl font-bold">PORTFOLIO</h1>
       <div className="text-lg font-mono space-y-2">
-        <p className="text-green-400">
+        <p className="text-[#00ff9d]">
           {greeting.displayText}<span className="animate-pulse">_</span>
         </p>
         {greeting.isComplete && (

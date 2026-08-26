@@ -61,26 +61,26 @@ export default function StatusBar() {
     <div className="bg-black text-white text-xs font-mono border-b-2 border-white z-[10001] flex items-center justify-between px-2 py-1">
       <div className="flex items-center gap-4">
         <span className="text-white font-bold">&gt; PORTFOLIO</span>
-        <span className="text-gray-500">|</span>
+        <span className="text-[#555]">|</span>
         {workspaceTransitioning ? (
           <span className="text-[#00ff9d]">CONNECTING...</span>
         ) : activeWorkspace ? (
           <span className="text-[#00ff9d]">IN PROJECTS</span>
         ) : (
-          <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
+          <span className={isConnected ? 'text-[#00cc77]' : 'text-[#ef4444]'}>
             {isConnected ? 'SERVER_ONLINE' : 'SERVER_OFFLINE'}
           </span>
         )}
         {!activeWorkspace && !workspaceTransitioning && (
           <>
-            <span className="text-gray-500">LATENCY: {latency}ms</span>
-            <span className="text-gray-400">|</span>
-            <span className="text-gray-300">CONNECTIONS: {connections}</span>
+            <span className="text-[#555]">LATENCY: {latency}ms</span>
+            <span className="text-[#666]">|</span>
+            <span className="text-[#999]">CONNECTIONS: {connections}</span>
           </>
         )}
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-gray-500">{time || '--:--:--'}</span>
+        <span className="text-[#555]">{time || '--:--:--'}</span>
       </div>
     </div>
   )

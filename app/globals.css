@@ -31,9 +31,29 @@
 
 /* Custom Brutalist Cursor */
 /* custom cursor replaces the native one everywhere — including the pointer
-   finger on links/buttons */
+   finger on links/buttons. Resize affordances keep their native cursors:
+   they're load-bearing signals. */
 * {
   cursor: none !important;
+}
+
+[class*="cursor-s-resize"]:not(.custom-cursor) {
+  cursor: s-resize !important;
+}
+[class*="cursor-ns-resize"]:not(.custom-cursor) {
+  cursor: ns-resize !important;
+}
+[class*="cursor-e-resize"]:not(.custom-cursor) {
+  cursor: e-resize !important;
+}
+[class*="cursor-w-resize"]:not(.custom-cursor) {
+  cursor: w-resize !important;
+}
+[class*="cursor-se-resize"]:not(.custom-cursor) {
+  cursor: se-resize !important;
+}
+[class*="cursor-sw-resize"]:not(.custom-cursor) {
+  cursor: sw-resize !important;
 }
 
 .custom-cursor {
@@ -78,21 +98,21 @@
   border-radius: 0 !important;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — transparent track so it fits every surface */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #fff;
+  background: #444;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ccc;
+  background: #666;
 }
 
 /* Triple-border hover effect - white -> black gap -> white */
@@ -254,11 +274,11 @@ body::before {
 /* Window boot animation - no flash */
 @keyframes window-boot {
   0% {
-    background: black;
+    background: #0a0a0a;
     opacity: 0;
   }
   100% {
-    background: black;
+    background: #0a0a0a;
     opacity: 1;
   }
 }

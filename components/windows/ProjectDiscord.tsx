@@ -61,7 +61,7 @@ const AI_COLORS = {
 const STATUS_COLORS = {
   online: 'bg-[#23A559]',
   idle: 'bg-[#F0B232]',
-  offline: 'bg-gray-500'
+  offline: 'bg-[#555]'
 }
 
 export default function ProjectDiscord() {
@@ -396,7 +396,7 @@ export default function ProjectDiscord() {
               <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
                 {member.avatar}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#2B2D31] bg-gray-500" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#2B2D31] bg-[#555]" />
             </div>
             <span className="text-gray-400 text-sm">{member.name}</span>
           </div>

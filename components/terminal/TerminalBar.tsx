@@ -199,7 +199,8 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     const handleMouseMove = (e: MouseEvent) => {
       if (isResizing) {
         const newHeight = window.innerHeight - e.clientY
-        setTerminalHeight(Math.max(48, Math.min(600, newHeight)))
+        // min 84 keeps the input + OPEN rows visible; max 600 caps at the old ceiling
+        setTerminalHeight(Math.max(84, Math.min(600, newHeight)))
       }
     }
 
@@ -233,36 +234,38 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     <>
       {/* Terminal Bar */}
       <div
-        className={`bg-black text-white font-mono text-sm border-t-4 border-white ${
-          isMinimized ? 'h-10' : ''
-        }`}
-        style={{ zIndex: 10000 }}
+        id="terminal-bar"
+        className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white flex flex-col overflow-hidden"
+        style={{
+          zIndex: 10000,
+          height: isMinimized ? 28 : `${terminalHeight}px`,
+          transition: isResizing ? 'none' : 'height 300ms ease-in-out',
+        }}
       >
-        {/* Resize handle - visible at top when not minimized */}
+        {/* Resize handle - both directions supported */}
         {!isMinimized && (
           <div
             onMouseDown={handleResizeStart}
-            className="absolute top-0 left-0 right-0 h-1 cursor-ns-resize z-10 hover:bg-gray-800"
+            className="relative top-0 left-0 right-0 h-1 cursor-ns-resize z-10 hover:bg-white/40"
             title="Drag to resize terminal"
           />
         )}
 
         {/* Output area - full when expanded, single line when collapsed */}
         {!isMinimized && (
-          <div className="px-2 py-1">
+          <div className="flex-1 min-h-0 overflow-hidden px-2 py-1">
             {isExpanded ? (
-              // Show all history when expanded - use dynamic height
-              <div className="overflow-y-auto" style={{ maxHeight: `${terminalHeight}px` }}>
+              <div className="h-full overflow-y-auto">
                 {commandHistory.map((entry, i) => (
                   <div key={i}>
                     {entry.input && (
-                      <div className="text-green-400">
+                      <div className="text-[#00ff9d]">
                         <span className="text-white">$</span>
-                        <span className="text-blue-400 mx-1">{currentPath || '~'}</span>
+                        <span className="text-[#777] mx-1">{currentPath || '~'}</span>
                         <span className="text-white">&gt;</span> {entry.input}
                       </div>
                     )}
-                    <div className="text-gray-300 whitespace-pre-wrap">{entry.output}</div>
+                    <div className="text-[#999] text-[12px] whitespace-pre-wrap">{entry.output}</div>
                   </div>
                 ))}
                 <div ref={outputRef} />
@@ -270,7 +273,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
             ) : (
               // Show only last line when collapsed - SAME structure as expanded
               <div>
-                <div className="text-gray-300 whitespace-pre-wrap">
+                <div className="text-[#999] text-[12px] whitespace-pre-wrap">
                   {commandHistory[commandHistory.length - 1]?.output.split('\n').slice(-1)[0] || 'TERMINAL READY'}
                 </div>
                 <div ref={outputRef} />
@@ -281,9 +284,9 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
         {/* Active line with block cursor - always visible unless minimized */}
         {!isMinimized && (
-          <div className="flex items-center px-2 py-1 text-white border-t border-gray-800">
-            <span className="text-green-400 mr-2">$</span>
-            <span className="text-blue-400 mr-2">{currentPath || '~'}</span>
+          <div className="flex items-center px-2 py-1 text-white border-t border-[#2e2e2e]">
+            <span className="text-[#00ff9d] mr-2">$</span>
+            <span className="text-[#777] mr-2">{currentPath || '~'}</span>
             <span className="text-white mr-2">&gt;</span>
             <span className="flex-1 relative">
               <input
@@ -295,56 +298,62 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 className="absolute inset-0 w-full h-full bg-transparent outline-none text-white opacity-0 cursor-text"
                 autoFocus
               />
-              <span className="text-white">
+              <span className="text-[#5b9bd5]">
                 {currentInput}<span className="block-cursor"></span>
               </span>
             </span>
             <button
-              onClick={toggleExpand}
-              className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
-              title={isExpanded ? 'Collapse' : 'Expand'}
+              onClick={() => { setCurrentInput(''); inputRef.current?.focus() }}
+              className="ml-2 px-2 py-[3px] leading-none text-[10px] border border-[#333] hover:border-[#ef4444] hover:text-[#ef4444] text-[#999] transition-colors"
+              title="Clear input"
             >
-              {isExpanded ? '▼' : '▲'}
+              x
             </button>
             <button
               onClick={toggleMinimize}
-              className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
+              className="ml-1 px-2 py-[3px] leading-none text-[10px] border border-[#333] hover:border-white hover:text-white text-[#999] transition-colors"
               title={isMinimized ? 'Restore' : 'Minimize'}
             >
-              {isMinimized ? '□' : '▬'}
+              {isMinimized ? '□' : '–'}
             </button>
           </div>
         )}
 
-        {/* Minimized bar - just buttons */}
+        {/* Minimized bar - tabs + bookmark restore tab */}
         {isMinimized && (
-          <div className="flex items-center justify-end px-2 py-1 text-white h-10">
-            <button
-              onClick={toggleExpand}
-              className="ml-2 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
-              title={isExpanded ? 'Collapse' : 'Expand'}
-            >
-              {isExpanded ? '▼' : '▲'}
-            </button>
+          <div className="relative flex items-center gap-2 px-2 text-white h-7 overflow-visible">
+            <span className="text-[#555] text-[10px] tracking-[0.15em] leading-none">TABS:</span>
+            {openWindows.length === 0 ? (
+              <span className="text-[#444] text-[10px] leading-none">NONE</span>
+            ) : (
+              openWindows.map((w) => (
+                <span
+                  key={w.id}
+                  className="text-[#00ff9d] px-1 text-[10px] leading-none cursor-pointer hover:text-white transition-colors"
+                  onClick={() => handleFocusWindow(w.id)}
+                >
+                  {w.title}
+                </span>
+              ))
+            )}
+            {/* restore tab: thin handle on the top border, right-aligned */}
             <button
               onClick={toggleMinimize}
-              className="ml-1 px-2 py-0.5 text-xs border border-white hover:bg-white hover:text-black transition-colors"
-              title={isMinimized ? 'Restore' : 'Minimize'}
-            >
-              {isMinimized ? '□' : '▬'}
-            </button>
+              className="group absolute right-3 -top-[3px] h-[3px] w-14 bg-[#333] hover:bg-[#00ff9d] transition-colors"
+              title="Restore terminal"
+            />
           </div>
         )}
 
         {/* Window indicators - hidden when minimized */}
         {!isMinimized && (
-          <div className="flex items-center gap-2 px-2 py-1 border-t border-gray-800 text-xs">
-            <span className="text-gray-500">OPEN:</span>
+          <div className="flex items-center gap-2 px-2 h-7 border-t border-[#1c1c1c]">
+            <span className="text-[#555] text-[10px] tracking-[0.15em] leading-none">TABS:</span>
             {openWindows.length === 0 ? (
-              <span className="text-gray-600">NONE</span>
+              <span className="text-[#444] text-[10px] leading-none">NONE</span>
             ) : (
               openWindows.map((w) => (
-                <span key={w.id} className="icon-triple-hover text-green-400 px-1 cursor-pointer">{w.title}</span>
+                <span key={w.id} className="text-[#00ff9d] px-1 text-[10px] leading-none cursor-pointer hover:text-white transition-colors">{w.title}</span>
               )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null
             )}
           </div>
@@ -352,13 +361,13 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
         {/* Minimized windows - always visible */}
         {minimizedWindows.length > 0 && (
-          <div className={`flex items-center gap-2 px-2 py-1 border-t border-gray-800 text-xs ${isMinimized ? 'border-t-0' : ''}`}>
-            <span className="text-gray-500">MINIMIZED:</span>
+          <div className={`flex items-center gap-2 px-2 py-1 border-t border-[#1c1c1c] text-xs ${isMinimized ? 'border-t-0' : ''}`}>
+            <span className="text-[#555]">MINIMIZED:</span>
             {minimizedWindows.map((w) => (
               <button
                 key={w.id}
                 onClick={() => handleRestoreWindow(w.id)}
-                className="icon-triple-hover text-gray-400 px-1 hover:text-white transition-colors text-xs"
+                className="icon-triple-hover text-[#666] px-1 hover:text-white transition-colors text-xs"
               >
                 {w.title}
               </button>

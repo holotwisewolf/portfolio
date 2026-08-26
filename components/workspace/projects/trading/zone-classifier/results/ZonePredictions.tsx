@@ -44,7 +44,7 @@ function ProbaBars({ proba }: { proba: Record<string, number> }) {
           <div className="flex-1 h-[6px] bg-[#111] border border-[#1c2e1c]">
             <div className="h-full" style={{ width: `${p * 100}%`, background: LABELS[name].color, opacity: 0.8 }} />
           </div>
-          <span className="text-[8px] text-gray-500 w-[32px] text-right">{(p * 100).toFixed(0)}%</span>
+          <span className="text-[8px] text-[#777] w-[32px] text-right">{(p * 100).toFixed(0)}%</span>
         </div>
       ))}
     </div>

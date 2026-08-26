@@ -13,7 +13,20 @@ export default function CustomCursor() {
       setPosition({ x: e.clientX, y: e.clientY })
     }
 
-    const handleMouseDown = () => {
+    const handleMouseDown = (e: MouseEvent) => {
+      // Pressing a native scrollbar: the page gets no mousemove during the drag,
+      // so hide the custom cursor for the duration — no frozen square, no
+      // native hand. It returns on release.
+      const target = e.target as HTMLElement
+      const scroller = target.closest('.overflow-y-auto, .overflow-auto, .overflow-x-auto') as HTMLElement | null
+      if (scroller && e.clientX > scroller.getBoundingClientRect().right - 16) {
+        if (cursorRef.current) cursorRef.current.style.display = 'none'
+        const restore = () => {
+          if (cursorRef.current) cursorRef.current.style.display = ''
+          window.removeEventListener('mouseup', restore)
+        }
+        window.addEventListener('mouseup', restore)
+      }
       setIsClicking(true)
     }
 
@@ -23,6 +36,14 @@ export default function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement
+      // native resize handles show their own cursor — hide the custom one there
+      if (target.className.toString().includes('resize')) {
+        if (cursorRef.current) cursorRef.current.style.display = 'none'
+        return
+      }
+      if (cursorRef.current && cursorRef.current.style.display === 'none') {
+        cursorRef.current.style.display = ''
+      }
       if (
         target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||

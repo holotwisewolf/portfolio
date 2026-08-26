@@ -36,21 +36,21 @@ export default function FileListing({ currentPath }: FileListingProps) {
   }, [currentPath])
 
   return (
-    <div className="h-full bg-black border-r-2 border-white p-2 flex flex-col">
-      <h2 className="text-white text-sm font-bold mb-2 border-b border-white pb-1">
-        FILES
-      </h2>
+    <div className="h-full bg-[#0a0a0a] border-r border-[#222] p-3 flex flex-col">
+      <div className="text-[10px] tracking-[0.25em] text-white uppercase pb-2 mb-3 border-b border-[#222]">
+        Files
+      </div>
 
-      <div className="text-xs text-blue-400 mb-2 font-mono">
+      <div className="text-[10px] text-[#555] mb-2 font-orbit tracking-wide">
         {currentPath || '~/'}
       </div>
 
       {loading ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
+        <div className="flex-1 flex items-center justify-center text-[#777] text-xs">
           LOADING...
         </div>
       ) : items.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
+        <div className="flex-1 flex items-center justify-center text-[#777] text-xs">
           (empty)
         </div>
       ) : (
@@ -59,12 +59,12 @@ export default function FileListing({ currentPath }: FileListingProps) {
             <div
               key={index}
               className={`flex items-center justify-between py-1 px-1 hover:bg-white hover:text-black transition-colors cursor-pointer ${
-                item.isDirectory ? 'text-blue-300' : 'text-gray-300'
+                item.isDirectory ? 'text-[#999]' : 'text-[#999]'
               }`}
             >
               <span>{item.name}{item.isDirectory ? '/' : ''}</span>
               {!item.isDirectory && (
-                <span className="text-gray-500">
+                <span className="text-[#777]">
                   {item.size ? `${item.size}B` : ''}
                 </span>
               )}
