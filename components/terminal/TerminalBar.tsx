@@ -235,7 +235,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
       {/* Terminal Bar */}
       <div
         id="terminal-bar"
-        className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white flex flex-col overflow-hidden"
+        className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white flex flex-col"
         style={{
           zIndex: 10000,
           height: isMinimized ? 28 : `${terminalHeight}px`,

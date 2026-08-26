@@ -67,7 +67,7 @@ function AppContent() {
             >
               <div
                 className={`absolute left-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  leftZone ? 'shadow-[inset_36px_0_36px_-18px_rgba(255,255,255,0.25)]' : 'shadow-none'
+                  leftZone ? 'shadow-[inset_56px_0_56px_-24px_rgba(255,255,255,0.08)]' : 'shadow-none'
                 }`}
               />
               {leftCollapsed && (
@@ -77,10 +77,16 @@ function AppContent() {
               )}
             </div>
 
-            {/* Center Panel - Desktop */}
+            {/* Center Panel - Desktop (particles full-width, icons constrained to visible center) */}
             <div className="flex-1 relative z-0">
               <PixelBackground explosionMode={explosionMode} />
-              <div className="absolute inset-0">
+              <div
+                className="absolute inset-y-0 transition-[left,right] duration-300 ease-in-out"
+                style={{
+                  left: leftCollapsed ? 0 : 280,
+                  right: rightCollapsed ? 0 : 320,
+                }}
+              >
                 <Desktop />
               </div>
             </div>
@@ -105,7 +111,7 @@ function AppContent() {
             >
               <div
                 className={`absolute right-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  rightZone ? 'shadow-[inset_-36px_0_36px_-18px_rgba(255,255,255,0.25)]' : 'shadow-none'
+                  rightZone ? 'shadow-[inset_-56px_0_56px_-24px_rgba(255,255,255,0.08)]' : 'shadow-none'
                 }`}
               />
               {rightCollapsed && (
