@@ -58,8 +58,8 @@
 
 .custom-cursor {
   position: fixed;
-  width: 20px;
-  height: 20px;
+  width: var(--cursor-size, 20px);
+  height: var(--cursor-size, 20px);
   border: 2px solid white;
   pointer-events: none;
   z-index: 10000;
@@ -75,8 +75,8 @@
    it covers, so border and core both render as the inverse of the page under
    them; the gap stays transparent and shows the page raw. */
 .custom-cursor.hover {
-  width: 28px;
-  height: 28px;
+  width: calc(var(--cursor-size, 20px) * 1.4);
+  height: calc(var(--cursor-size, 20px) * 1.4);
   background: transparent;
   border: 2px solid white;
 }

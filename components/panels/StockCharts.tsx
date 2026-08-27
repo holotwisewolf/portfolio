@@ -204,7 +204,7 @@ export default function StockCharts() {
           className="flex justify-between py-1.5 border-b border-[#161616] group cursor-pointer"
         >
           <span className="text-[#555]">REPOSITORIES</span>
-          <span className="text-[10px] text-[#ddd] group-hover:text-white transition-colors">
+          <span className="text-[10px] text-[#999] group-hover:text-white transition-colors">
             {githubStats.repos}
           </span>
         </a>
@@ -216,7 +216,7 @@ export default function StockCharts() {
         </div>
 
         {/* Stack Tags */}
-        <div className="mb-3">
+        <div className="mb-8">
           <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-2">Stack</div>
           <div className="flex flex-wrap gap-1">
             {['React', 'Next.js', 'Node', 'Supabase', 'Figma'].map((tag) => (

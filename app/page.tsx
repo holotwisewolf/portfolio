@@ -61,14 +61,15 @@ function AppContent() {
               onMouseEnter={() => setLeftZone(true)}
               onMouseLeave={() => setLeftZone(false)}
               onClick={() => setLeftCollapsed(v => { localStorage.setItem('panel:left', v ? '0' : '1'); return !v })}
-              className={`absolute left-0 top-0 bottom-0 w-8 z-10 cursor-pointer transition-opacity duration-300 ${
+              className={`absolute left-0 top-0 bottom-0 w-14 z-30 cursor-pointer transition-opacity duration-300 ${
                 leftZone || leftCollapsed ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div
-                className={`absolute left-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  leftZone ? 'shadow-[inset_72px_0_96px_-16px_rgba(255,255,255,0.1)]' : 'shadow-none'
-                }`}
+                className={`absolute left-0 top-0 bottom-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
+                style={{
+                  background: 'linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 100%)',
+                }}
               />
               {leftCollapsed && (
                 <div className="absolute top-1/2 -translate-y-1/2 left-2 text-[#555] text-[14px] font-orbit select-none">
@@ -77,15 +78,12 @@ function AppContent() {
               )}
             </div>
 
-            {/* Center Panel - Desktop (particles full-width, icons constrained to visible center) */}
+            {/* Center Panel - Desktop (particles full-width, icons in fixed center — never moves) */}
             <div className="flex-1 relative z-0">
               <PixelBackground explosionMode={explosionMode} />
               <div
-                className="absolute inset-y-0 transition-[left,right] duration-300 ease-in-out"
-                style={{
-                  left: leftCollapsed ? 0 : 280,
-                  right: rightCollapsed ? 0 : 320,
-                }}
+                className="absolute inset-y-0"
+                style={{ left: 280, right: 320 }}
               >
                 <Desktop />
               </div>
@@ -105,14 +103,15 @@ function AppContent() {
               onMouseEnter={() => setRightZone(true)}
               onMouseLeave={() => setRightZone(false)}
               onClick={() => setRightCollapsed(v => { localStorage.setItem('panel:right', v ? '0' : '1'); return !v })}
-              className={`absolute right-0 top-0 bottom-0 w-8 z-10 cursor-pointer transition-opacity duration-300 ${
+              className={`absolute right-0 top-0 bottom-0 w-14 z-30 cursor-pointer transition-opacity duration-300 ${
                 rightZone || rightCollapsed ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div
-                className={`absolute right-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  rightZone ? 'shadow-[inset_-72px_0_96px_-16px_rgba(255,255,255,0.1)]' : 'shadow-none'
-                }`}
+                className={`absolute right-0 top-0 bottom-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
+                style={{
+                  background: 'linear-gradient(to left, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 100%)',
+                }}
               />
               {rightCollapsed && (
                 <div className="absolute top-1/2 -translate-y-1/2 right-2 text-[#555] text-[14px] font-orbit select-none">
@@ -145,7 +144,7 @@ function AppContent() {
 
         {/* Terminal Bar - overlays the bottom so panels never shift on resize/minimize */}
         {!workspaceTransitioning && (
-          <div className="absolute bottom-0 left-0 right-0 z-20">
+          <div className="absolute bottom-0 left-0 right-0 z-40">
             <TerminalBar />
           </div>
         )}

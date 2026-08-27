@@ -587,6 +587,27 @@ export default function Settings() {
                 </div>
               </div>
 
+              {/* Cursor Size */}
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Cursor Size</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[#999] text-[10px]">
+                    Visual size of the custom cursor
+                  </div>
+                  <input
+                    type="range"
+                    min="12"
+                    max="36"
+                    step="2"
+                    defaultValue={20}
+                    onChange={(e) => {
+                      document.documentElement.style.setProperty('--cursor-size', `${e.target.value}px`)
+                    }}
+                    className="w-20 accent-[#00ff9d]"
+                  />
+                </div>
+              </div>
+
               {/* Cursor Ripple */}
               <div className="border border-[#2a2a2a] bg-[#101010] p-3">
                 <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Cursor Ripple</div>

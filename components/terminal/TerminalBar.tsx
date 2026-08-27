@@ -337,13 +337,19 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 </span>
               ))
             )}
-            {/* restore tab: thin handle on the top border, right-aligned */}
+            {/* trapezium restore tab: rises from the bar's right end */}
             <button
               onClick={toggleMinimize}
-              className="group absolute right-3 -top-[5px] h-[5px] w-14 bg-[#555] hover:bg-[#00ff9d] transition-colors"
+              className="group absolute right-0 -top-[14px] w-10 h-[14px] transition-all duration-300 hover:bg-[#111]"
+              style={{
+                clipPath: 'polygon(0 100%, 30% 0, 100% 0, 100% 100%)',
+                background: '#0a0a0a',
+                borderTop: '1px solid #555',
+                borderRight: '1px solid #555',
+              }}
               title="Restore terminal"
             >
-              <span className="absolute -bottom-[14px] left-1/2 -translate-x-1/2 text-[7px] text-[#444] group-hover:text-[#00ff9d] leading-none transition-colors opacity-0 group-hover:opacity-100">
+              <span className="absolute top-[3px] left-1/2 -translate-x-1/2 text-[8px] text-[#555] group-hover:text-[#00ff9d] transition-colors leading-none">
                 ▲
               </span>
             </button>
@@ -361,22 +367,6 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 <span key={w.id} className="text-[#00ff9d] px-1 text-[10px] leading-none cursor-pointer hover:text-white transition-colors">{w.title}</span>
               )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null
             )}
-          </div>
-        )}
-
-        {/* Minimized windows - always visible */}
-        {minimizedWindows.length > 0 && (
-          <div className={`flex items-center gap-2 px-2 py-1 border-t border-[#1c1c1c] text-xs ${isMinimized ? 'border-t-0' : ''}`}>
-            <span className="text-[#555]">MINIMIZED:</span>
-            {minimizedWindows.map((w) => (
-              <button
-                key={w.id}
-                onClick={() => handleRestoreWindow(w.id)}
-                className="icon-triple-hover text-[#666] px-1 hover:text-white transition-colors text-xs"
-              >
-                {w.title}
-              </button>
-            )).reduce((acc, curr) => acc ? <>{acc} | {curr}</> : curr, null as any) || null}
           </div>
         )}
       </div>
