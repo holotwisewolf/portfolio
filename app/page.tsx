@@ -68,11 +68,18 @@ function AppContent() {
               <div
                 className={`absolute left-0 top-0 bottom-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 100%)',
+                  background: 'linear-gradient(to right, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
                 }}
               />
               {leftCollapsed && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-2 text-[#555] text-[14px] font-orbit select-none">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 text-[#555] text-[14px] font-orbit select-none transition-all duration-300 ease-out"
+                  style={{
+                    left: leftZone ? 8 : 16,
+                    opacity: leftZone ? 1 : 0.4,
+                    letterSpacing: leftZone ? '0.15em' : '0',
+                  }}
+                >
                   {leftZone ? '››' : '›'}
                 </div>
               )}
@@ -110,11 +117,18 @@ function AppContent() {
               <div
                 className={`absolute right-0 top-0 bottom-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to left, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 100%)',
+                  background: 'linear-gradient(to left, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
                 }}
               />
               {rightCollapsed && (
-                <div className="absolute top-1/2 -translate-y-1/2 right-2 text-[#555] text-[14px] font-orbit select-none">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 text-[#555] text-[14px] font-orbit select-none transition-all duration-300 ease-out"
+                  style={{
+                    right: rightZone ? 8 : 16,
+                    opacity: rightZone ? 1 : 0.4,
+                    letterSpacing: rightZone ? '0.15em' : '0',
+                  }}
+                >
                   {rightZone ? '‹‹' : '‹'}
                 </div>
               )}

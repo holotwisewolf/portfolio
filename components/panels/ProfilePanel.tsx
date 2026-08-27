@@ -31,7 +31,7 @@ export default function ProfilePanel() {
 
       {/* Identity Block */}
       <div className="mb-4">
-        <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-1 pb-1 border-b border-[#161616]">Identity</div>
+        <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-1">Identity</div>
         <StatRow label="NAME" value={profile.identity.name} />
         <StatRow label="ROLE" value={profile.identity.role} />
         <StatRow label="LOCATION" value={profile.identity.location} />

@@ -232,21 +232,44 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
 
   return (
     <>
-      {/* Terminal Bar */}
+      {/* Terminal Bar — outer clips for smooth height animation, trapezium pokes above */}
       <div
         id="terminal-bar"
-        className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white flex flex-col"
-        style={{
-          zIndex: 10000,
-          height: isMinimized ? 28 : `${terminalHeight}px`,
-          transition: isResizing ? 'none' : 'height 300ms ease-in-out',
-        }}
+        className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white relative"
+        style={{ zIndex: 10000 }}
       >
+        {/* trapezium restore tab: lives outside the clipping wrapper */}
+        {isMinimized && (
+          <button
+            onClick={toggleMinimize}
+            className="group absolute right-0 -top-[28px] w-[120px] h-[28px] transition-all duration-300"
+            style={{
+              clipPath: 'polygon(0 100%, 15% 0, 100% 0, 100% 100%)',
+              background: '#0a0a0a',
+              borderTop: '1px solid #555',
+              borderRight: '1px solid #555',
+            }}
+            title="Restore terminal"
+          >
+            <span className="absolute top-[7px] left-1/2 -translate-x-1/2 text-[12px] text-[#555] group-hover:text-[#00ff9d] transition-colors leading-none">
+              ▲
+            </span>
+          </button>
+        )}
+
+        {/* inner wrapper: overflow-hidden + animated height for smooth expand/collapse */}
+        <div
+          className="flex flex-col overflow-hidden"
+          style={{
+            height: isMinimized ? 28 : `${terminalHeight}px`,
+            transition: isResizing ? 'none' : 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
         {/* Resize handle - both directions supported */}
         {!isMinimized && (
           <div
             onMouseDown={handleResizeStart}
-            className="relative top-0 left-0 right-0 h-1 cursor-ns-resize z-10 hover:bg-white/40"
+            className="relative top-0 left-0 right-0 h-1 cursor-ns-resize z-10 hover:bg-white/40 shrink-0"
             title="Drag to resize terminal"
           />
         )}
@@ -337,22 +360,6 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 </span>
               ))
             )}
-            {/* trapezium restore tab: rises from the bar's right end */}
-            <button
-              onClick={toggleMinimize}
-              className="group absolute right-0 -top-[14px] w-10 h-[14px] transition-all duration-300 hover:bg-[#111]"
-              style={{
-                clipPath: 'polygon(0 100%, 30% 0, 100% 0, 100% 100%)',
-                background: '#0a0a0a',
-                borderTop: '1px solid #555',
-                borderRight: '1px solid #555',
-              }}
-              title="Restore terminal"
-            >
-              <span className="absolute top-[3px] left-1/2 -translate-x-1/2 text-[8px] text-[#555] group-hover:text-[#00ff9d] transition-colors leading-none">
-                ▲
-              </span>
-            </button>
           </div>
         )}
 
@@ -369,6 +376,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
             )}
           </div>
         )}
+        </div>
       </div>
     </>
   )
