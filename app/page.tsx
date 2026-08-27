@@ -61,14 +61,12 @@ function AppContent() {
               onMouseEnter={() => setLeftZone(true)}
               onMouseLeave={() => setLeftZone(false)}
               onClick={() => setLeftCollapsed(v => { localStorage.setItem('panel:left', v ? '0' : '1'); return !v })}
-              className={`absolute left-0 top-0 bottom-0 w-14 z-30 cursor-pointer transition-opacity duration-300 ${
-                leftZone || leftCollapsed ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="absolute left-0 top-0 bottom-0 w-14 z-30 cursor-pointer"
             >
               <div
                 className={`absolute left-0 top-0 bottom-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to right, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+                  background: 'linear-gradient(to right, rgba(0,255,157,0.35) 0%, rgba(0,255,157,0.12) 50%, transparent 100%)',
                 }}
               />
               {leftCollapsed && (
@@ -105,19 +103,17 @@ function AppContent() {
             >
               <StockCharts />
             </div>
-            {/* Right collapse zone - white glow + arrow, click to toggle */}
+            {/* Right collapse zone - green glow + arrow, click to toggle */}
             <div
               onMouseEnter={() => setRightZone(true)}
               onMouseLeave={() => setRightZone(false)}
               onClick={() => setRightCollapsed(v => { localStorage.setItem('panel:right', v ? '0' : '1'); return !v })}
-              className={`absolute right-0 top-0 bottom-0 w-14 z-30 cursor-pointer transition-opacity duration-300 ${
-                rightZone || rightCollapsed ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="absolute right-0 top-0 bottom-0 w-14 z-30 cursor-pointer"
             >
               <div
                 className={`absolute right-0 top-0 bottom-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to left, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+                  background: 'linear-gradient(to left, rgba(0,255,157,0.35) 0%, rgba(0,255,157,0.12) 50%, transparent 100%)',
                 }}
               />
               {rightCollapsed && (
