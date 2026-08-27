@@ -238,19 +238,21 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
         className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white relative"
         style={{ zIndex: 10000 }}
       >
-        {/* trapezium restore tab: lives outside the clipping wrapper */}
+        {/* trapezium restore tab: SVG so the diagonal edge gets a border too */}
         {isMinimized && (
           <button
             onClick={toggleMinimize}
-            className="group absolute right-0 -top-[28px] w-[120px] h-[28px] transition-all duration-300"
-            style={{
-              clipPath: 'polygon(0 100%, 15% 0, 100% 0, 100% 100%)',
-              background: '#0a0a0a',
-              borderTop: '1px solid #555',
-              borderRight: '1px solid #555',
-            }}
+            className="group absolute right-0 -top-[28px] w-[120px] h-[28px]"
             title="Restore terminal"
           >
+            <svg viewBox="0 0 120 28" className="absolute inset-0 w-full h-full">
+              {/* fill */}
+              <polygon points="0,28 18,0 120,0 120,28" fill="#0a0a0a" />
+              {/* top edge — matches terminal bar's border-t (white) */}
+              <line x1="18" y1="0.5" x2="120" y2="0.5" stroke="white" strokeWidth="1" />
+              {/* diagonal slope */}
+              <line x1="0.5" y1="28" x2="18.35" y2="0.5" stroke="white" strokeWidth="1" />
+            </svg>
             <span className="absolute top-[7px] left-1/2 -translate-x-1/2 text-[12px] text-[#555] group-hover:text-[#00ff9d] transition-colors leading-none">
               ▲
             </span>

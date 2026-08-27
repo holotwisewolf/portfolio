@@ -68,7 +68,7 @@ function AppContent() {
               <div
                 className={`absolute left-0 top-0 bottom-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to right, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+                  background: 'linear-gradient(to right, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
                 }}
               />
               {leftCollapsed && (
@@ -117,7 +117,7 @@ function AppContent() {
               <div
                 className={`absolute right-0 top-0 bottom-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to left, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+                  background: 'linear-gradient(to left, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
                 }}
               />
               {rightCollapsed && (
