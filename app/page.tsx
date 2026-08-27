@@ -46,7 +46,7 @@ function AppContent() {
       <div className="h-screen w-screen overflow-hidden relative flex flex-col">
         <StatusBar />
         {workspaceTransitioning || activeWorkspace ? null : (
-          <div className="flex-1 flex min-h-0">
+          <div className="flex-1 flex min-h-0 relative">
             {/* Left Panel - Profile (absolute overlay, doesn't affect layout) */}
             <div
               className={`absolute left-0 top-0 bottom-0 bg-black z-20 border-r border-[#333] transition-transform duration-300 ease-in-out ${
