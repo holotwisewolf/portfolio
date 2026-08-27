@@ -181,7 +181,7 @@ export default function StockCharts() {
   }, [])
 
   return (
-    <div className="h-full bg-black font-orbit text-xs flex flex-col p-3 pb-12" suppressHydrationWarning>
+    <div className="h-full bg-black font-orbit text-xs flex flex-col p-3 pb-[140px]" suppressHydrationWarning>
       {/* Panel Label */}
       <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
         Stats

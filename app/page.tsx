@@ -61,13 +61,13 @@ function AppContent() {
               onMouseEnter={() => setLeftZone(true)}
               onMouseLeave={() => setLeftZone(false)}
               onClick={() => setLeftCollapsed(v => { localStorage.setItem('panel:left', v ? '0' : '1'); return !v })}
-              className={`absolute left-0 top-0 bottom-0 w-6 z-30 cursor-pointer transition-opacity duration-300 ${
+              className={`absolute left-0 top-0 bottom-0 w-8 z-10 cursor-pointer transition-opacity duration-300 ${
                 leftZone || leftCollapsed ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div
                 className={`absolute left-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  leftZone ? 'shadow-[inset_56px_0_56px_-24px_rgba(255,255,255,0.08)]' : 'shadow-none'
+                  leftZone ? 'shadow-[inset_72px_0_96px_-16px_rgba(255,255,255,0.1)]' : 'shadow-none'
                 }`}
               />
               {leftCollapsed && (
@@ -105,13 +105,13 @@ function AppContent() {
               onMouseEnter={() => setRightZone(true)}
               onMouseLeave={() => setRightZone(false)}
               onClick={() => setRightCollapsed(v => { localStorage.setItem('panel:right', v ? '0' : '1'); return !v })}
-              className={`absolute right-0 top-0 bottom-0 w-6 z-30 cursor-pointer transition-opacity duration-300 ${
+              className={`absolute right-0 top-0 bottom-0 w-8 z-10 cursor-pointer transition-opacity duration-300 ${
                 rightZone || rightCollapsed ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div
                 className={`absolute right-0 top-0 bottom-0 w-full transition-shadow duration-300 ${
-                  rightZone ? 'shadow-[inset_-56px_0_56px_-24px_rgba(255,255,255,0.08)]' : 'shadow-none'
+                  rightZone ? 'shadow-[inset_-72px_0_96px_-16px_rgba(255,255,255,0.1)]' : 'shadow-none'
                 }`}
               />
               {rightCollapsed && (

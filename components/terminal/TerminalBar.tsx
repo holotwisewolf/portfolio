@@ -259,10 +259,11 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
                 {commandHistory.map((entry, i) => (
                   <div key={i}>
                     {entry.input && (
-                      <div className="text-[#00ff9d]">
-                        <span className="text-white">$</span>
+                      <div>
+                        <span className="text-[#00ff9d]">$</span>
                         <span className="text-[#777] mx-1">{currentPath || '~'}</span>
-                        <span className="text-white">&gt;</span> {entry.input}
+                        <span className="text-[#00ff9d]">&gt;</span>{' '}
+                        <span className="text-[#5b9bd5]">{entry.input}</span>
                       </div>
                     )}
                     <div className="text-[#999] text-[12px] whitespace-pre-wrap">{entry.output}</div>
