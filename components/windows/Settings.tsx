@@ -573,7 +573,9 @@ export default function Settings() {
                       ? 'No cursor interaction'
                       : cursorInteractionMode === 'attract'
                       ? 'Particles swarm toward cursor'
-                      : 'Cursor pushes particles on contact'}
+                      : cursorInteractionMode === 'collide'
+                      ? 'Cursor pushes particles on contact'
+                      : 'Particles form a rippling ring around cursor'}
                   </div>
                   <select
                     value={cursorInteractionMode}
@@ -583,6 +585,7 @@ export default function Settings() {
                     <option value="none">None</option>
                     <option value="attract">Attract</option>
                     <option value="collide">Collide</option>
+                    <option value="ring">Ring</option>
                   </select>
                 </div>
               </div>

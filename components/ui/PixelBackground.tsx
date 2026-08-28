@@ -327,6 +327,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         size: Math.random() < 0.7 ? 2 : 3,
         base: Math.random() * 0.3 + 0.1,
         _neighbors: 0,
+        _seed: Math.random() * Math.PI * 2,
         _clusterTimer: 0,
         _isConnector: i >= particleCount - connectorCount, // Last N particles are connectors
         _connectorTarget: null,
@@ -925,7 +926,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
           p.vy += (Math.random() - 0.5) * 0.005
         }
 
-        // Cursor interactions (attract/collide modes)
+        // Cursor interactions (attract/collide/ring modes)
         if (cursorInteractionMode !== 'none' && p._clusterTimer === 0) {
           const dx = p.x - mousePos.current.x
           const dy = p.y - mousePos.current.y
@@ -948,6 +949,26 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
                 p.vx += (dx / dist) * (pushForce * 0.8 + momentumBoost) + mouseVelocity.current.x * 0.5
                 p.vy += (dy / dist) * (pushForce * 0.8 + momentumBoost) + mouseVelocity.current.y * 0.5
               }
+            } else if (cursorInteractionMode === 'ring') {
+              // Antigravity-style: particles form a ring around the cursor.
+              // Each particle gets pulled to its angle on a ring of RING_RADIUS,
+              // with a wave that ripples around the circumference.
+              const RING_RADIUS = 60
+              const angle = Math.atan2(dy, dx)
+              const time = performance.now() * 0.001
+              const wave = Math.sin(time * 2 + angle * 3 + (p._seed || 0)) * 8
+
+              const targetX = mousePos.current.x + (RING_RADIUS + wave) * Math.cos(angle)
+              const targetY = mousePos.current.y + (RING_RADIUS + wave) * Math.sin(angle)
+
+              // Strong lerp toward ring position when within range
+              const ringPull = 0.08 * (1 - dist / CURSOR_RANGE)
+              p.vx += (targetX - p.x) * ringPull
+              p.vy += (targetY - p.y) * ringPull
+
+              // Damping so the ring holds shape instead of oscillating
+              p.vx *= 0.92
+              p.vy *= 0.92
             }
           }
         }

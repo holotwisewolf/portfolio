@@ -1,15 +1,16 @@
 'use client'
 
-// Corner brackets revealed on hover — elements "select" like print crop marks.
-// Shared by FolderView and the gallery grids.
+// Corner brackets revealed on hover — positioned OUTSIDE the border so they
+// read as camera focus marks, not part of the element's edge. Like a
+// viewfinder framing the content.
 
 export function BracketHover() {
   return (
     <>
-      <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white opacity-0 group-hover:opacity-100 transition-opacity" />
+      <span className="absolute -top-[4px] -left-[4px] w-3 h-3 border-t-2 border-l-2 border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
+      <span className="absolute -top-[4px] -right-[4px] w-3 h-3 border-t-2 border-r-2 border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
+      <span className="absolute -bottom-[4px] -left-[4px] w-3 h-3 border-b-2 border-l-2 border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
+      <span className="absolute -bottom-[4px] -right-[4px] w-3 h-3 border-b-2 border-r-2 border-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity" />
     </>
   )
 }
