@@ -49,6 +49,7 @@ function AppContent() {
           <div className="flex-1 flex min-h-0 relative">
             {/* Left Panel - Profile (absolute overlay, doesn't affect layout) */}
             <div
+              onContextMenu={(e) => e.preventDefault()}
               className={`absolute left-0 top-0 bottom-0 bg-black z-20 border-r border-[#333] transition-transform duration-300 ease-in-out ${
                 leftCollapsed ? '-translate-x-full' : 'translate-x-0'
               }`}
@@ -70,6 +71,7 @@ function AppContent() {
 
             {/* Right Panel - Market+Dev (absolute overlay) */}
             <div
+              onContextMenu={(e) => e.preventDefault()}
               className={`absolute right-0 top-0 bottom-0 bg-black z-20 border-l border-[#333] transition-transform duration-300 ease-in-out ${
                 rightCollapsed ? 'translate-x-full' : 'translate-x-0'
               }`}

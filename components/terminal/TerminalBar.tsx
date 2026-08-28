@@ -238,24 +238,14 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
         className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white relative"
         style={{ zIndex: 10000 }}
       >
-        {/* trapezium restore tab: SVG so the diagonal edge gets a border too */}
+        {/* restore button — simple bordered tab */}
         {isMinimized && (
           <button
             onClick={toggleMinimize}
-            className="group absolute right-0 -top-[28px] w-[120px] h-[28px]"
+            className="group absolute right-2 -top-[19px] px-3 py-[3px] text-[9px] font-orbit bg-[#0a0a0a] border border-[#333] border-b-0 text-[#999] group-hover:text-white group-hover:border-white transition-colors"
             title="Restore terminal"
           >
-            <svg viewBox="0 0 120 28" className="absolute inset-0 w-full h-full">
-              {/* fill */}
-              <polygon points="0,28 18,0 120,0 120,28" fill="#0a0a0a" />
-              {/* top edge — matches terminal bar's border-t (white) */}
-              <line x1="18" y1="0.5" x2="120" y2="0.5" stroke="white" strokeWidth="1" />
-              {/* diagonal slope */}
-              <line x1="0.5" y1="28" x2="18.35" y2="0.5" stroke="white" strokeWidth="1" />
-            </svg>
-            <span className="absolute top-[7px] left-1/2 -translate-x-1/2 text-[12px] text-[#555] group-hover:text-[#00ff9d] transition-colors leading-none">
-              ▲
-            </span>
+            TERMINAL
           </button>
         )}
 
