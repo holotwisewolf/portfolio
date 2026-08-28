@@ -89,12 +89,12 @@ function AppContent() {
               onMouseEnter={() => setLeftZone(true)}
               onMouseLeave={() => setLeftZone(false)}
               onClick={() => setLeftCollapsed(v => { localStorage.setItem('panel:left', v ? '0' : '1'); return !v })}
-              className="fixed left-0 top-[24px] bottom-0 w-14 z-[9998] cursor-pointer"
+              className="fixed left-0 top-[24px] bottom-0 w-14 z-30 cursor-pointer"
             >
               <div
                 className={`absolute inset-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to right, rgba(0,255,157,0.4) 0%, rgba(0,255,157,0.15) 50%, transparent 100%)',
+                  background: 'linear-gradient(to right, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
                 }}
               />
               {leftCollapsed && (
@@ -116,12 +116,12 @@ function AppContent() {
               onMouseEnter={() => setRightZone(true)}
               onMouseLeave={() => setRightZone(false)}
               onClick={() => setRightCollapsed(v => { localStorage.setItem('panel:right', v ? '0' : '1'); return !v })}
-              className="fixed right-0 top-[24px] bottom-0 w-14 z-[9998] cursor-pointer"
+              className="fixed right-0 top-[24px] bottom-0 w-14 z-30 cursor-pointer"
             >
               <div
                 className={`absolute inset-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to left, rgba(0,255,157,0.4) 0%, rgba(0,255,157,0.15) 50%, transparent 100%)',
+                  background: 'linear-gradient(to left, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
                 }}
               />
               {rightCollapsed && (
