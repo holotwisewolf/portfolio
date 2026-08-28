@@ -182,14 +182,14 @@ export default function StockCharts() {
 
   return (
     <div className="h-full bg-black font-orbit text-xs flex flex-col p-3 pb-[140px]" suppressHydrationWarning>
-      {/* Panel Label */}
-      <div className="text-[9px] tracking-widest text-white uppercase pb-1 mb-2">
+      {/* Panel Label — matches ProfilePanel exactly */}
+      <div className="text-[10px] tracking-[0.25em] text-white uppercase pb-2 mb-3">
         Stats
       </div>
 
       {/* Dev Activity Block */}
       <div className="flex-1">
-        <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-2">Dev activity</div>
+        <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-1">Dev activity</div>
 
         {/* Activity Dots - right under header */}
         <div className="mb-3">
@@ -201,10 +201,10 @@ export default function StockCharts() {
           href="https://github.com/holotwisewolf?tab=repositories"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex justify-between py-1.5 border-b border-[#161616] hover:bg-[#111] px-1 -mx-1 transition-colors"
+          className="flex justify-between py-1.5 border-b border-[#161616]"
         >
-          <span className="text-[#555]">REPOSITORIES</span>
-          <span className="text-[10px] text-[#999] text-white hover:text-white transition-colors">
+          <span className="text-[#555] hover:text-white transition-colors">REPOSITORIES ↗</span>
+          <span className="text-[10px] text-[#999]">
             {githubStats.repos}
           </span>
         </a>

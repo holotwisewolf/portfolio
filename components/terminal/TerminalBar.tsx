@@ -31,6 +31,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   const openWindow = useWindowStore((s) => s.openWindow)
   const closeWindow = useWindowStore((s) => s.closeWindow)
   const restoreWindow = useWindowStore((s) => s.restoreWindow)
+  const setActiveWindow = useWindowStore((s) => s.setActiveWindow)
 
   const availableWindows = ['welcome', 'projects', 'blog', 'about', 'admin']
 
@@ -226,8 +227,12 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
   }
 
   const handleFocusWindow = (id: string) => {
-    // Window will be focused by click in the Window component itself
-    // This is just a visual indicator
+    const win = windows[id]
+    if (win?.isMinimized) {
+      restoreWindow(id as any)
+    } else {
+      setActiveWindow(id as any)
+    }
   }
 
   return (
