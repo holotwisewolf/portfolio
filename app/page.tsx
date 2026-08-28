@@ -56,32 +56,6 @@ function AppContent() {
             >
               <ProfilePanel />
             </div>
-            {/* Left collapse zone - white glow + arrow, click to toggle */}
-            <div
-              onMouseEnter={() => setLeftZone(true)}
-              onMouseLeave={() => setLeftZone(false)}
-              onClick={() => setLeftCollapsed(v => { localStorage.setItem('panel:left', v ? '0' : '1'); return !v })}
-              className="absolute left-0 top-0 bottom-0 w-14 z-30 cursor-pointer"
-            >
-              <div
-                className={`absolute left-0 top-0 bottom-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
-                style={{
-                  background: 'linear-gradient(to right, rgba(0,255,157,0.35) 0%, rgba(0,255,157,0.12) 50%, transparent 100%)',
-                }}
-              />
-              {leftCollapsed && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 text-[#555] text-[14px] font-orbit select-none transition-all duration-300 ease-out"
-                  style={{
-                    left: leftZone ? 8 : 16,
-                    opacity: leftZone ? 1 : 0.4,
-                    letterSpacing: leftZone ? '0.15em' : '0',
-                  }}
-                >
-                  {leftZone ? '››' : '›'}
-                </div>
-              )}
-            </div>
 
             {/* Center Panel - Desktop (particles full-width, icons in fixed center — never moves) */}
             <div className="flex-1 relative z-0">
@@ -103,17 +77,51 @@ function AppContent() {
             >
               <StockCharts />
             </div>
-            {/* Right collapse zone - green glow + arrow, click to toggle */}
+          </div>
+        )}
+
+        {/* Collapse zones — TOP LEVEL, above everything except statusbar/terminal.
+            Nothing can block their mouse events here. */}
+        {!activeWorkspace && !workspaceTransitioning && (
+          <>
+            {/* Left edge glow */}
+            <div
+              onMouseEnter={() => setLeftZone(true)}
+              onMouseLeave={() => setLeftZone(false)}
+              onClick={() => setLeftCollapsed(v => { localStorage.setItem('panel:left', v ? '0' : '1'); return !v })}
+              className="fixed left-0 top-[24px] bottom-0 w-14 z-[9998] cursor-pointer"
+            >
+              <div
+                className={`absolute inset-0 transition-opacity duration-300 ${leftZone ? 'opacity-100' : 'opacity-0'}`}
+                style={{
+                  background: 'linear-gradient(to right, rgba(0,255,157,0.4) 0%, rgba(0,255,157,0.15) 50%, transparent 100%)',
+                }}
+              />
+              {leftCollapsed && (
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 text-[#555] text-[14px] font-orbit select-none transition-all duration-300 ease-out"
+                  style={{
+                    left: leftZone ? 8 : 16,
+                    opacity: leftZone ? 1 : 0.5,
+                    letterSpacing: leftZone ? '0.15em' : '0',
+                  }}
+                >
+                  {leftZone ? '››' : '›'}
+                </div>
+              )}
+            </div>
+
+            {/* Right edge glow */}
             <div
               onMouseEnter={() => setRightZone(true)}
               onMouseLeave={() => setRightZone(false)}
               onClick={() => setRightCollapsed(v => { localStorage.setItem('panel:right', v ? '0' : '1'); return !v })}
-              className="absolute right-0 top-0 bottom-0 w-14 z-30 cursor-pointer"
+              className="fixed right-0 top-[24px] bottom-0 w-14 z-[9998] cursor-pointer"
             >
               <div
-                className={`absolute right-0 top-0 bottom-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute inset-0 transition-opacity duration-300 ${rightZone ? 'opacity-100' : 'opacity-0'}`}
                 style={{
-                  background: 'linear-gradient(to left, rgba(0,255,157,0.35) 0%, rgba(0,255,157,0.12) 50%, transparent 100%)',
+                  background: 'linear-gradient(to left, rgba(0,255,157,0.4) 0%, rgba(0,255,157,0.15) 50%, transparent 100%)',
                 }}
               />
               {rightCollapsed && (
@@ -121,7 +129,7 @@ function AppContent() {
                   className="absolute top-1/2 -translate-y-1/2 text-[#555] text-[14px] font-orbit select-none transition-all duration-300 ease-out"
                   style={{
                     right: rightZone ? 8 : 16,
-                    opacity: rightZone ? 1 : 0.4,
+                    opacity: rightZone ? 1 : 0.5,
                     letterSpacing: rightZone ? '0.15em' : '0',
                   }}
                 >
@@ -129,7 +137,7 @@ function AppContent() {
                 </div>
               )}
             </div>
-          </div>
+          </>
         )}
 
         {activeWorkspace && !workspaceTransitioning && (
