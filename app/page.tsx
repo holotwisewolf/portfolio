@@ -43,7 +43,7 @@ function AppContent() {
 
   return (
     <>
-      <div className="h-screen w-screen overflow-hidden relative flex flex-col">
+      <div className="h-screen w-screen overflow-hidden relative flex flex-col" onContextMenu={(e) => e.preventDefault()}>
         <StatusBar />
         {workspaceTransitioning || activeWorkspace ? null : (
           <div className="flex-1 flex min-h-0 relative">
@@ -62,8 +62,11 @@ function AppContent() {
             <div className="flex-1 relative z-0">
               <PixelBackground explosionMode={explosionMode} />
               <div
-                className="absolute inset-y-0"
-                style={{ left: 280, right: 320 }}
+                className="absolute inset-y-0 transition-[left,right] duration-300 ease-in-out"
+                style={{
+                  left: leftCollapsed ? 0 : 280,
+                  right: rightCollapsed ? 0 : 320,
+                }}
               >
                 <Desktop />
               </div>

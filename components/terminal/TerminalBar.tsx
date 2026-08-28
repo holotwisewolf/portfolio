@@ -218,7 +218,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
     }
   }, [isResizing])
 
-  const openWindows = Object.values(windows).filter(w => w.isOpen && !w.isMinimized)
+  const openWindows = Object.values(windows).filter(w => w.isOpen)
   const minimizedWindows = Object.values(windows).filter(w => w.isOpen && w.isMinimized)
 
   const handleRestoreWindow = (id: string) => {
@@ -235,6 +235,7 @@ export default function TerminalBar({ onPathChange }: TerminalBarProps) {
       {/* Terminal Bar — outer clips for smooth height animation, trapezium pokes above */}
       <div
         id="terminal-bar"
+        onClick={handleTerminalClick}
         className="bg-[#0a0a0a] text-[#999] font-orbit text-[11px] border-t border-white relative"
         style={{ zIndex: 10000 }}
       >

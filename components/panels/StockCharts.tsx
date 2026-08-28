@@ -201,10 +201,10 @@ export default function StockCharts() {
           href="https://github.com/holotwisewolf?tab=repositories"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex justify-between py-1.5 border-b border-[#161616] group cursor-pointer"
+          className="flex justify-between py-1.5 border-b border-[#161616] hover:bg-[#111] px-1 -mx-1 transition-colors"
         >
           <span className="text-[#555]">REPOSITORIES</span>
-          <span className="text-[10px] text-[#999] group-hover:text-white transition-colors">
+          <span className="text-[10px] text-[#999] text-white hover:text-white transition-colors">
             {githubStats.repos}
           </span>
         </a>

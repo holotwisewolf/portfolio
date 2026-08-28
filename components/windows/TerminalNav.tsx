@@ -19,15 +19,17 @@ export default function TerminalNav() {
   }
 
   return (
-    <div className="h-full bg-black font-mono text-xs p-4 flex flex-col">
+    <div className="h-full bg-[#0a0a0a] font-orbit text-[11px] p-4 flex flex-col">
       {/* Header */}
-      <div className="text-[10px] tracking-wider text-white uppercase border-b border-[#1c1c1c] pb-2 mb-4">
-        Terminal Navigator
+      <div className="text-[9px] tracking-[0.3em] text-[#555] mb-2">// navigator</div>
+      <div className="text-[20px] tracking-tight text-white font-orbit">Navigator</div>
+      <div className="mt-3 h-px bg-[#222] relative mb-4">
+        <div className="absolute left-0 top-[-1px] h-[2px] w-10 bg-white" />
       </div>
 
       {/* Terminal Output */}
-      <div className="flex-1 bg-[#050505] border border-[#1c1c1c] p-3 overflow-auto mb-4">
-        <div className="text-[10px] tracking-wider text-white uppercase mb-2">System output</div>
+      <div className="flex-1 bg-black border border-[#2a2a2a] p-3 overflow-auto mb-4">
+        <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">System output</div>
 
         <div className="text-[#555] mb-1">$ whoami</div>
         <div className="text-[#666] mb-3">→ developer, designer, builder</div>

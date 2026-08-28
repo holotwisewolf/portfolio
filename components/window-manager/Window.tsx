@@ -476,33 +476,20 @@ export default function Window({ windowId }: WindowProps) {
       />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'ne')}
-        className="group absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10"
-      >
-        <span className="absolute top-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-        <span className="absolute top-2 bottom-0 right-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-      </div>
+        className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10 hover:bg-[#333]/50"
+      />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'nw')}
-        className="group absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
-      >
-        <span className="absolute top-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-        <span className="absolute top-2 bottom-0 left-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-      </div>
-      {/* Corner handles light BOTH adjacent edges, like the old version */}
+        className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10 hover:bg-[#333]/50"
+      />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'se')}
-        className="group absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10"
-      >
-        <span className="absolute bottom-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-        <span className="absolute top-0 h-2 right-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-      </div>
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10 hover:bg-[#333]/50"
+      />
       <div
         onMouseDown={(e) => handleResizeStart(e, 'sw')}
-        className="group absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10"
-      >
-        <span className="absolute bottom-0 left-0 right-0 h-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-        <span className="absolute top-0 h-2 left-0 w-2 bg-[#333] opacity-0 group-hover:opacity-100" />
-      </div>
+        className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10 hover:bg-[#333]/50"
+      />
     </div>
   )
 }
