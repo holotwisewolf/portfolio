@@ -71,6 +71,14 @@ export default function Settings() {
   const [aboutExpanded, setAboutExpanded] = useState(false) // About section
   const [currentPreset, setCurrentPreset] = useState<Preset>('balanced')
   const [selectFocused, setSelectFocused] = useState(false) // Track if any select is focused
+  const [cursorSize, setCursorSize] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = parseInt(localStorage.getItem('cursorSize') || '20')
+      document.documentElement.style.setProperty('--cursor-size', `${saved}px`)
+      return saved
+    }
+    return 20
+  })
 
   // Detect current preset from settings values
   useEffect(() => {
@@ -597,17 +605,35 @@ export default function Settings() {
                   <div className="text-[#999] text-[10px]">
                     Visual size of the custom cursor
                   </div>
-                  <input
-                    type="range"
-                    min="12"
-                    max="36"
-                    step="2"
-                    defaultValue={20}
-                    onChange={(e) => {
-                      document.documentElement.style.setProperty('--cursor-size', `${e.target.value}px`)
-                    }}
-                    className="w-20 accent-[#00ff9d]"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#555] text-[9px]">{cursorSize}px</span>
+                    <div className="relative w-20 h-[12px] flex items-center">
+                      {/* track line */}
+                      <div className="absolute left-0 right-0 h-px bg-[#333]" />
+                      {/* fill from left to handle */}
+                      <div className="absolute left-0 h-px bg-[#666]" style={{ width: `${((cursorSize - 12) / 24) * 100}%` }} />
+                      {/* square handle */}
+                      <div
+                        className="absolute w-[8px] h-[12px] bg-[#999] cursor-pointer hover:bg-white transition-colors"
+                        style={{ left: `calc(${((cursorSize - 12) / 24) * 100}% - 4px)` }}
+                      />
+                      {/* invisible input overlay for drag */}
+                      <input
+                        type="range"
+                        min="12"
+                        max="36"
+                        step="2"
+                        value={cursorSize}
+                        onChange={(e) => {
+                          const v = parseInt(e.target.value)
+                          setCursorSize(v)
+                          document.documentElement.style.setProperty('--cursor-size', `${v}px`)
+                          localStorage.setItem('cursorSize', String(v))
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

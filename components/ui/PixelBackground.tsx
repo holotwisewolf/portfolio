@@ -108,7 +108,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
     `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
     `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-    `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionOpacity}`
+    `${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionOpacity}`
   )
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       `${particleCount}-${connectorRatio}-${maxSpeed}-${damping}-${clusterRadius}-${attract}-${connectionDistance}-${connectorSpacing}-${edgeMargin}-` +
       `${connectorAttract}-${connectorAttractBase}-${connectorAttractRangeNormal}-${connectorAttractRangeCrystal}-` +
       `${connectorRepelStrength}-${connectorRepelRange}-${targetSeekForce}-${edgeRepelForceNormal}-${edgeRepelForceUrgent}-${edgeUrgent}-${edgeMomentumReaction}-${spaceFinderRatio}-` +
-      `${cursorInteractionMode}-${cursorRippleEnabled}-${cursorConnectParticles}-${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionOpacity}`
+      `${iconAttractParticles}-${iconCollideParticles}-${iconConnectParticles}-${connectionOpacity}`
     if (currentSettings !== prevSettingsRef.current && particlesRef.current) {
       // Save current positions synchronously to ref
       savedPositionsRef.current = particlesRef.current.map(p => ({ x: p.x, y: p.y, vx: p.vx, vy: p.vy }))
@@ -133,7 +133,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         iconStatesRef.current.clear()
       }
     }
-  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, cursorInteractionMode, cursorRippleEnabled, cursorConnectParticles, iconAttractParticles, iconCollideParticles, iconConnectParticles])
+  }, [graceMode, explosionMode, frameFreezeEnabled, crystalMode, connectorState, calmnessEnabled, connectorHighlight, particleCount, connectorRatio, maxSpeed, damping, clusterRadius, attract, connectionDistance, connectorSpacing, edgeMargin, connectorAttract, connectorAttractBase, connectorAttractRangeNormal, connectorAttractRangeCrystal, connectorRepelStrength, connectorRepelRange, targetSeekForce, edgeRepelForceNormal, edgeRepelForceUrgent, edgeUrgent, edgeMomentumReaction, spaceFinderRatio, iconAttractParticles, iconCollideParticles, iconConnectParticles])
 
   // Sync visual mode refs for instant updates without recreating animation loop
   useEffect(() => {
