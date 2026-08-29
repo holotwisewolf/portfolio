@@ -6,7 +6,7 @@ type GraceMode = 'enabled' | 'disabled' | 'constant'
 type CrystalMode = 'enabled' | 'disabled' | 'constant'
 type ConnectorState = 'auto' | 'zen-only' | 'crystal-only' | 'none'
 type ConnectorHighlight = 'disabled' | 'red' | 'yellow' | 'cyan'
-type CursorInteractionMode = 'none' | 'attract' | 'collide' | 'ring'
+type CursorInteractionMode = 'none' | 'attract' | 'collide' | 'ring' | 'gather'
 type WoozyMode = 'disabled' | 'enabled' | 'extreme'
 type DiscoMode = 'disabled' | 'enabled' | 'extreme'
 type ParticleShape = 'square' | 'circle' | 'triangle' | 'pentagon' | 'hexagon'
@@ -409,6 +409,14 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
     return 'square'
   })
 
+  // Panel collision — particles bounce off side panel borders
+  const [panelCollision, setPanelCollision] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('panelCollision') === 'true'
+    }
+    return false
+  })
+
   // Window interaction settings
   const [iconAttractParticles, setIconAttractParticles] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -722,6 +730,11 @@ export function ExplosionModeProvider({ children }: { children: ReactNode }) {
       setWoozyMode: handleSetWoozyMode,
       particleShape,
       setParticleShape: handleSetParticleShape,
+      panelCollision,
+      setPanelCollision: (v: boolean) => {
+        setPanelCollision(v)
+        localStorage.setItem('panelCollision', String(v))
+      },
       iconAttractParticles,
       setIconAttractParticles: handleSetIconAttractParticles,
       iconCollideParticles,

@@ -193,7 +193,7 @@ export default function StockCharts() {
 
         {/* Activity Dots - right under header */}
         <div className="mb-3">
-          <div className="text-[9px] text-[#555] mb-1">COMMIT ACTIVITY</div>
+          <div className="text-[#555] mb-1">COMMIT ACTIVITY</div>
           <ActivityGrid dots={30} commits={commitActivity} />
         </div>
 
@@ -233,7 +233,7 @@ export default function StockCharts() {
 
       {/* Market Watch Block */}
       <div className="mt-auto">
-        <div className="text-[9px] text-[#ccc] tracking-[0.25em] uppercase mb-1">Market watch</div>
+        <div className="text-[9px] text-[#999] tracking-[0.25em] uppercase mb-1">Market watch</div>
 
         {loading ? (
           <div className="text-[#777] text-center py-8">Loading...</div>

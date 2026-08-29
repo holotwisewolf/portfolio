@@ -59,7 +59,9 @@ export default function Settings() {
     woozyMode,
     setWoozyMode,
     particleShape,
-    setParticleShape
+    setParticleShape,
+    panelCollision,
+    setPanelCollision
   } = useContext(ExplosionModeContext)!
 
   const openWindow = useWindowStore((state) => state.openWindow)
@@ -455,6 +457,26 @@ export default function Settings() {
                 </div>
               </div>
 
+              {/* Panel Collision */}
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Panel Collision</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[#999] text-[10px]">
+                    Particles bounce off side panel borders
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setPanelCollision(!panelCollision); }}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      panelCollision
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
+                    }`}
+                  >
+                    {panelCollision ? 'Enabled' : 'Disabled'}
+                  </button>
+                </div>
+              </div>
+
               {/* Advanced Settings */}
               <button
                 onClick={(e) => { e.stopPropagation(); openWindow('advanced-physics-settings'); }}
@@ -583,7 +605,9 @@ export default function Settings() {
                       ? 'Particles swarm toward cursor'
                       : cursorInteractionMode === 'collide'
                       ? 'Cursor pushes particles on contact'
-                      : 'Particles form a rippling ring around cursor'}
+                      : cursorInteractionMode === 'ring'
+                      ? 'Particles form a rippling ring around cursor'
+                      : 'Hold left click to gather particles into a cluster'}
                   </div>
                   <select
                     value={cursorInteractionMode}
@@ -594,6 +618,7 @@ export default function Settings() {
                     <option value="attract">Attract</option>
                     <option value="collide">Collide</option>
                     <option value="ring">Ring</option>
+                    <option value="gather">Gather</option>
                   </select>
                 </div>
               </div>
@@ -606,15 +631,14 @@ export default function Settings() {
                     Visual size of the custom cursor
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[#555] text-[9px]">{cursorSize}px</span>
                     <div className="relative w-20 h-[12px] flex items-center">
                       {/* track line */}
                       <div className="absolute left-0 right-0 h-px bg-[#333]" />
                       {/* fill from left to handle */}
-                      <div className="absolute left-0 h-px bg-[#666]" style={{ width: `${((cursorSize - 12) / 24) * 100}%` }} />
+                      <div className="absolute left-0 h-px bg-[#555]" style={{ width: `${((cursorSize - 12) / 24) * 100}%` }} />
                       {/* square handle */}
                       <div
-                        className="absolute w-[8px] h-[12px] bg-[#999] cursor-pointer hover:bg-white transition-colors"
+                        className="absolute w-[8px] h-[12px] bg-[#666] cursor-pointer hover:bg-[#999] transition-colors"
                         style={{ left: `calc(${((cursorSize - 12) / 24) * 100}% - 4px)` }}
                       />
                       {/* invisible input overlay for drag */}

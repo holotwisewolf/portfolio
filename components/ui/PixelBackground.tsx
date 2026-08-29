@@ -73,6 +73,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     edgeUrgent,
     edgeMomentumReaction,
     spaceFinderRatio,
+    panelCollision,
     cursorInteractionMode,
     cursorRippleEnabled,
     cursorConnectParticles,
@@ -261,6 +262,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const EDGE_REPEL_FORCE_NORMAL = edgeRepelForceNormal
     const EDGE_REPEL_FORCE_URGENT = edgeRepelForceUrgent
     const EDGE_MOMENTUM_REACTION = edgeMomentumReaction
+    // Panel collision walls — particles bounce off the visible panel edges
+    const PANEL_LEFT = panelCollision ? 280 : 0
+    const PANEL_RIGHT = panelCollision ? canvas.width - 320 : canvas.width
+    const PANEL_BOUNCE = 0.8
 
     // Local crowd control system
     const HARD_CAP = 7              // 7+ neighbors = instant explosion (was 6)
@@ -951,8 +956,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               }
             } else if (cursorInteractionMode === 'ring') {
               // Antigravity-style: particles form a ring around the cursor.
-              // Each particle gets pulled to its angle on a ring of RING_RADIUS,
-              // with a wave that ripples around the circumference.
               const RING_RADIUS = 60
               const angle = Math.atan2(dy, dx)
               const time = performance.now() * 0.001
@@ -961,14 +964,26 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               const targetX = mousePos.current.x + (RING_RADIUS + wave) * Math.cos(angle)
               const targetY = mousePos.current.y + (RING_RADIUS + wave) * Math.sin(angle)
 
-              // Strong lerp toward ring position when within range
               const ringPull = 0.08 * (1 - dist / CURSOR_RANGE)
               p.vx += (targetX - p.x) * ringPull
               p.vy += (targetY - p.y) * ringPull
-
-              // Damping so the ring holds shape instead of oscillating
               p.vx *= 0.92
               p.vy *= 0.92
+            } else if (cursorInteractionMode === 'gather') {
+              // Hold-to-gather: while mouse is held, particles within a circular
+              // zone get pulled toward the center with radial falloff (strong at
+              // center, weak at edges). Release to let them scatter.
+              if (mouseDownRef.current) {
+                const GATHER_RADIUS = 100
+                if (dist < GATHER_RADIUS) {
+                  const falloff = 1 - dist / GATHER_RADIUS
+                  const pull = 0.15 * falloff * falloff
+                  p.vx -= (dx / dist) * pull
+                  p.vy -= (dy / dist) * pull
+                  p.vx *= 0.9
+                  p.vy *= 0.9
+                }
+              }
             }
           }
         }
@@ -1494,6 +1509,16 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         if (p.x > canvas.width - 6) { p.x = canvas.width - 6; p.vx *= -0.98; bounced = true }
         if (p.y < 6) { p.y = 6; p.vy *= -0.98; bounced = true }
         if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.98; bounced = true }
+
+        // Panel collision walls — bounce off visible panel edges
+        if (panelCollision) {
+          if (p.x < PANEL_LEFT && p.x > PANEL_LEFT - 12) {
+            p.x = PANEL_LEFT; p.vx = Math.abs(p.vx) * PANEL_BOUNCE
+          }
+          if (p.x > PANEL_RIGHT && p.x < PANEL_RIGHT + 12) {
+            p.x = PANEL_RIGHT; p.vx = -Math.abs(p.vx) * PANEL_BOUNCE
+          }
+        }
 
         // Track consecutive bounces for corner escape
         if (bounced) {

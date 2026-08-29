@@ -61,7 +61,10 @@ function AppContent() {
             {/* Center Panel - Desktop (particles full-width, icons in fixed center — never moves) */}
             <div className="flex-1 relative z-0">
               <PixelBackground explosionMode={explosionMode} />
-              <div className="absolute inset-0">
+              <div
+                className="absolute inset-y-0"
+                style={{ left: 280, right: 320 }}
+              >
                 <Desktop />
               </div>
             </div>
