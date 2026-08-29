@@ -103,6 +103,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   const discoModeRef = useRef(discoMode)
   const woozyModeRef = useRef(woozyMode)
   const particleShapeRef = useRef(particleShape)
+  const panelCollisionRef = useRef(panelCollision)
 
   const prevSettingsRef = useRef(
     `${graceMode}-${explosionMode}-${frameFreezeEnabled}-${crystalMode}-${connectorState}-${calmnessEnabled}-${connectorHighlight}-` +
@@ -148,6 +149,10 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
   useEffect(() => {
     particleShapeRef.current = particleShape
   }, [particleShape])
+
+  useEffect(() => {
+    panelCollisionRef.current = panelCollision
+  }, [panelCollision])
 
   useEffect(() => {
     if (!mounted) return
@@ -262,9 +267,9 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
     const EDGE_REPEL_FORCE_NORMAL = edgeRepelForceNormal
     const EDGE_REPEL_FORCE_URGENT = edgeRepelForceUrgent
     const EDGE_MOMENTUM_REACTION = edgeMomentumReaction
-    // Panel collision walls — particles bounce off the visible panel edges
-    const PANEL_LEFT = panelCollision ? 280 : 0
-    const PANEL_RIGHT = panelCollision ? canvas.width - 320 : canvas.width
+    // Panel collision walls — always set to panel positions; the ref gates whether they apply
+    const PANEL_LEFT = 280
+    const PANEL_RIGHT = canvas.width - 320
     const PANEL_BOUNCE = 0.8
 
     // Local crowd control system
@@ -974,7 +979,7 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               // zone get pulled toward the center AND drag with cursor movement.
               // Cursor velocity transfer makes the cluster follow the mouse.
               if (mouseDownRef.current) {
-                const GATHER_RADIUS = 120
+                const GATHER_RADIUS = 30 // cursor-sized zone
                 if (dist < GATHER_RADIUS) {
                   const falloff = 1 - dist / GATHER_RADIUS
                   // pull toward cursor — linear falloff covers the zone evenly
@@ -1515,8 +1520,8 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         if (p.y < 6) { p.y = 6; p.vy *= -0.98; bounced = true }
         if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.98; bounced = true }
 
-        // Panel collision walls — bounce off visible panel edges
-        if (panelCollision) {
+        // Panel collision walls — bounce off visible panel edges (ref for live toggle)
+        if (panelCollisionRef.current) {
           if (p.x < PANEL_LEFT && p.x > PANEL_LEFT - 12) {
             p.x = PANEL_LEFT; p.vx = Math.abs(p.vx) * PANEL_BOUNCE
           }

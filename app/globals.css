@@ -32,9 +32,15 @@
 /* Custom Brutalist Cursor */
 /* custom cursor replaces the native one everywhere — including the pointer
    finger on links/buttons. Resize affordances keep their native cursors:
-   they're load-bearing signals. */
+   they're load-bearing signals. Also kill text selection on desktop icons. */
 * {
   cursor: none !important;
+}
+
+[data-desktop-icon] *,
+[data-desktop-icon] {
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
 [class*="cursor-s-resize"]:not(.custom-cursor) {

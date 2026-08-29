@@ -64,7 +64,14 @@ function Examples({ zones }: { zones: Zone[] }) {
   // forward window = the bars after the labeled zone (zone end + up to 10 bars,
   // already in the JSON as trailing context)
   const examples = useMemo<Example[]>(() => {
-    const scored = zones.map((z) => {
+    const scored = zones
+      .filter((z) => {
+        // only use zones with at least 10 forward bars — zones near the end
+        // of the data have empty/partial forward windows that give 0.00% ranges
+        const bars = z.bars.map(asBar)
+        return z.zone_to + 10 <= bars.length && z.zone_to - z.zone_from >= 2
+      })
+      .map((z) => {
       const bars = z.bars.map(asBar)
       const zoneBars = bars.slice(z.zone_from, z.zone_to)
       const fwdBars = bars.slice(z.zone_to, z.zone_to + 10)

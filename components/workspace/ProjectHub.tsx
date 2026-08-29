@@ -94,8 +94,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
     // bottom-right indented most. METHOD+OVERVIEW form the right angle.
     <div className="h-full relative bg-[#0a0a0a] font-orbit overflow-hidden dotted-bg">
-      {/* OVERVIEW — top, indented right */}
-      <div className="absolute" style={{ left: '23%', top: '7%', width: '67%', height: '34%' }}>
+      {/* OVERVIEW — top, indented right (shifted up to clear terminal bar) */}
+      <div className="absolute" style={{ left: '23%', top: '3%', width: '67%', height: '30%' }}>
         <HubButton
           variant="top"
           label="OVERVIEW"
@@ -106,7 +106,7 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
       </div>
 
       {/* METHOD — bottom-left, tall narrow (left edge ~6%) */}
-      <div className="absolute" style={{ left: '6%', top: '44%', width: '26%', height: '52%' }}>
+      <div className="absolute" style={{ left: '6%', top: '35%', width: '26%', height: '48%' }}>
         <HubButton
           variant="left"
           label="METHOD"
@@ -116,18 +116,18 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         />
       </div>
 
-      {/* TITLE — beside METHOD, below OVERVIEW, wide short (left edge ~34%, shortened from right) */}
+      {/* TITLE — beside METHOD, below OVERVIEW, wide short */}
       <div
         className="absolute border border-[#2a2a2a] bg-black px-8 flex items-center"
-        style={{ left: '34%', top: '47%', width: '40%', height: '13%' }}
+        style={{ left: '34%', top: '38%', width: '40%', height: '11%' }}
       >
         <div className="text-[#00ff9d] text-[14px] tracking-[0.45em]">
           {projectNode.name.toUpperCase()}
         </div>
       </div>
 
-      {/* RESULTS — bottom-right, indented most (left edge ~55%, ~5% wider) */}
-      <div className="absolute" style={{ left: '55%', top: '66%', width: '42%', height: '30%' }}>
+      {/* RESULTS — bottom-right, indented most */}
+      <div className="absolute" style={{ left: '55%', top: '53%', width: '42%', height: '26%' }}>
         <HubButton
           variant="right"
           label="RESULTS"
@@ -137,8 +137,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         />
       </div>
 
-      {/* path provenance */}
-      <div className="absolute bottom-4 right-6 text-[8px] tracking-[0.25em] text-[#333]">
+      {/* path provenance — above the terminal bar */}
+      <div className="absolute top-2 right-6 text-[8px] tracking-[0.25em] text-[#333]">
         ~/projects/{projectPath.join('/')}
       </div>
     </div>

@@ -420,6 +420,26 @@ export default function Settings() {
                 </div>
               </div>
 
+              {/* Panel Collision — below Connector Highlight */}
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Panel Collision</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[#999] text-[10px]">
+                    Particles bounce off side panel borders
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setPanelCollision(!panelCollision); }}
+                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
+                      panelCollision
+                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
+                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
+                    }`}
+                  >
+                    {panelCollision ? 'Enabled' : 'Disabled'}
+                  </button>
+                </div>
+              </div>
+
               {/* Presets */}
               <div>
                 <div className="text-[#777] text-[10px] mb-2">PRESETS</div>
@@ -428,8 +448,8 @@ export default function Settings() {
                     onClick={(e) => { e.stopPropagation(); applyPreset('conservative'); }}
                     className={`flex-1 px-4 py-1.5 border text-[10px] transition-colors ${
                       currentPreset === 'conservative'
-                        ? 'border-[#00ff9d] text-[#00ff9d]'
-                        : 'border-[#333] text-[#666] hover:bg-white hover:text-black'
+                        ? 'border-white text-white'
+                        : 'border-[#333] text-[#999] hover:border-white hover:text-white'
                     }`}
                   >
                     Conservative
@@ -438,8 +458,8 @@ export default function Settings() {
                     onClick={(e) => { e.stopPropagation(); applyPreset('balanced'); }}
                     className={`flex-1 px-4 py-1.5 border text-[10px] transition-colors ${
                       currentPreset === 'balanced'
-                        ? 'border-[#00ff9d] text-[#00ff9d]'
-                        : 'border-[#333] text-[#666] hover:bg-white hover:text-black'
+                        ? 'border-white text-white'
+                        : 'border-[#333] text-[#999] hover:border-white hover:text-white'
                     }`}
                   >
                     Balanced
@@ -448,8 +468,8 @@ export default function Settings() {
                     onClick={(e) => { e.stopPropagation(); applyPreset('chaotic'); }}
                     className={`flex-1 px-4 py-1.5 border text-[10px] transition-colors ${
                       currentPreset === 'chaotic'
-                        ? 'border-[#00ff9d] text-[#00ff9d]'
-                        : 'border-[#333] text-[#666] hover:bg-white hover:text-black'
+                        ? 'border-white text-white'
+                        : 'border-[#333] text-[#999] hover:border-white hover:text-white'
                     }`}
                   >
                     Chaotic
@@ -467,26 +487,6 @@ export default function Settings() {
 
               <div className="text-[#555] text-[10px]">
                 Changes take effect on toggle
-              </div>
-
-              {/* Panel Collision — after advanced settings so presets+advanced stay together */}
-              <div className="border border-[#2a2a2a] bg-[#101010] p-3 mt-2">
-                <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Panel Collision</div>
-                <div className="flex items-center justify-between">
-                  <div className="text-[#999] text-[10px]">
-                    Particles bounce off side panel borders
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setPanelCollision(!panelCollision); }}
-                    className={`px-2 py-1 text-[10px] w-20 transition-colors ${
-                      panelCollision
-                        ? 'bg-[#0a2216] text-[#00ff9d] border border-[#00ff9d]'
-                        : 'bg-[#101010] text-[#777] border border-[#333] hover:border-white'
-                    }`}
-                  >
-                    {panelCollision ? 'Enabled' : 'Disabled'}
-                  </button>
-                </div>
               </div>
             </div>
           </div>
