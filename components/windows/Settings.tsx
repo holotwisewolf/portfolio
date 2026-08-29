@@ -457,8 +457,20 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Panel Collision */}
-              <div className="border border-[#2a2a2a] bg-[#101010] p-3">
+              {/* Advanced Settings */}
+              <button
+                onClick={(e) => { e.stopPropagation(); openWindow('advanced-physics-settings'); }}
+                className="w-full px-4 py-1.5 border border-[#333] text-[#999] hover:border-white hover:text-white transition-colors text-[10px]"
+              >
+                Advanced Settings
+              </button>
+
+              <div className="text-[#555] text-[10px]">
+                Changes take effect on toggle
+              </div>
+
+              {/* Panel Collision — after advanced settings so presets+advanced stay together */}
+              <div className="border border-[#2a2a2a] bg-[#101010] p-3 mt-2">
                 <div className="text-[9px] tracking-[0.25em] text-[#555] uppercase mb-2">Panel Collision</div>
                 <div className="flex items-center justify-between">
                   <div className="text-[#999] text-[10px]">
@@ -475,18 +487,6 @@ export default function Settings() {
                     {panelCollision ? 'Enabled' : 'Disabled'}
                   </button>
                 </div>
-              </div>
-
-              {/* Advanced Settings */}
-              <button
-                onClick={(e) => { e.stopPropagation(); openWindow('advanced-physics-settings'); }}
-                className="w-full px-4 py-1.5 border border-white text-white hover:bg-white hover:text-black transition-colors text-[10px]"
-              >
-                Advanced Settings
-              </button>
-
-              <div className="text-[#555] text-[10px]">
-                Changes take effect on toggle
               </div>
             </div>
           </div>

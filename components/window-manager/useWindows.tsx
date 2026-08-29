@@ -184,17 +184,24 @@ export const useWindowStore = create<WindowStore>()(
       maximizeWindow: (id) => {
         // measure the real terminal height so the maximized window stops above it
         const term = typeof document !== 'undefined' ? document.getElementById('terminal-bar') : null
-        const maximizedBottom = term ? term.offsetHeight : undefined
-        set((state) => ({
-          windows: {
-            ...state.windows,
-            [id]: {
-              ...state.windows[id],
-              isMaximized: !state.windows[id]?.isMaximized,
-              maximizedBottom,
+        const newBottom = term ? term.offsetHeight : undefined
+        set((state) => {
+          const win = state.windows[id]
+          const alreadyMax = win?.isMaximized
+          // if already maximized AND terminal changed, re-maximize with new bounds
+          // (don't toggle off — the user is adjusting the fit, not restoring)
+          const bottomChanged = alreadyMax && win?.maximizedBottom !== newBottom
+          return {
+            windows: {
+              ...state.windows,
+              [id]: {
+                ...win,
+                isMaximized: bottomChanged ? true : !alreadyMax,
+                maximizedBottom: newBottom,
+              },
             },
-          },
-        }))
+          }
+        })
       },
 
       restoreWindow: (id) => {
