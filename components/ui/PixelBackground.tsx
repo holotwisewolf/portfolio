@@ -971,17 +971,22 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
               p.vy *= 0.92
             } else if (cursorInteractionMode === 'gather') {
               // Hold-to-gather: while mouse is held, particles within a circular
-              // zone get pulled toward the center with radial falloff (strong at
-              // center, weak at edges). Release to let them scatter.
+              // zone get pulled toward the center AND drag with cursor movement.
+              // Cursor velocity transfer makes the cluster follow the mouse.
               if (mouseDownRef.current) {
-                const GATHER_RADIUS = 100
+                const GATHER_RADIUS = 120
                 if (dist < GATHER_RADIUS) {
                   const falloff = 1 - dist / GATHER_RADIUS
-                  const pull = 0.15 * falloff * falloff
+                  // pull toward cursor — linear falloff covers the zone evenly
+                  const pull = 0.25 * falloff
                   p.vx -= (dx / dist) * pull
                   p.vy -= (dy / dist) * pull
-                  p.vx *= 0.9
-                  p.vy *= 0.9
+                  // transfer cursor velocity so the cluster drags with the mouse
+                  p.vx += mouseVelocity.current.x * 0.4 * falloff
+                  p.vy += mouseVelocity.current.y * 0.4 * falloff
+                  // light damping — clusters but still tracks movement
+                  p.vx *= 0.85
+                  p.vy *= 0.85
                 }
               }
             }
