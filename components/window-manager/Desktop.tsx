@@ -31,6 +31,7 @@ export default function Desktop() {
   const openWindow = useWindowStore((s) => s.openWindow)
   const [icons, setIcons] = useState<DesktopIcon[]>(initialIcons)
   const [draggingIcon, setDraggingIcon] = useState<string | null>(null)
+  const [selectionRect, setSelectionRect] = useState<{ startX: number; startY: number; endX: number; endY: number } | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [currentPosition, setCurrentPosition] = useState<{ x: number; y: number } | null>(null)
   const [snapPosition, setSnapPosition] = useState<{ x: number; y: number } | null>(null)
@@ -251,13 +252,57 @@ export default function Desktop() {
     return () => window.removeEventListener('resize', updatePadding)
   }, [])
 
+  // Selection rectangle — mousedown on empty desktop starts a drag-select
+  const handleDesktopMouseDown = (e: React.MouseEvent) => {
+    // only start selection if clicking on the desktop background (not an icon)
+    const target = e.target as HTMLElement
+    if (target.closest('[data-desktop-icon]')) return
+    if (e.button !== 0) return
+    const rect = desktopRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setSelectionRect({
+      startX: e.clientX - rect.left,
+      startY: e.clientY - rect.top,
+      endX: e.clientX - rect.left,
+      endY: e.clientY - rect.top,
+    })
+  }
+
+  const handleDesktopMouseMove = (e: React.MouseEvent) => {
+    if (!selectionRect) return
+    const rect = desktopRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setSelectionRect(prev => prev ? { ...prev, endX: e.clientX - rect.left, endY: e.clientY - rect.top } : null)
+  }
+
+  const handleDesktopMouseUp = () => {
+    setSelectionRect(null)
+  }
+
   return (
     <div
       ref={desktopRef}
       className="relative h-full w-full"
       onContextMenu={(e) => handleContextMenu(e)}
       onClick={closeContextMenu}
+      onMouseDown={handleDesktopMouseDown}
+      onMouseMove={handleDesktopMouseMove}
+      onMouseUp={handleDesktopMouseUp}
+      onMouseLeave={handleDesktopMouseUp}
     >
+      {/* Selection rectangle */}
+      {selectionRect && (
+        <div
+          className="absolute border border-[#00ff9d]/60 bg-[#00ff9d]/10 pointer-events-none z-50"
+          style={{
+            left: Math.min(selectionRect.startX, selectionRect.endX),
+            top: Math.min(selectionRect.startY, selectionRect.endY),
+            width: Math.abs(selectionRect.endX - selectionRect.startX),
+            height: Math.abs(selectionRect.endY - selectionRect.startY),
+          }}
+        />
+      )}
+
       {/* Spacer bars for padding - icons positioned within the center area */}
       <div className="absolute left-0 top-0 bottom-0 pointer-events-none" style={{ width: `${padding.left}px` }} />
       <div className="absolute right-0 top-0 bottom-0 pointer-events-none" style={{ width: `${padding.right}px` }} />

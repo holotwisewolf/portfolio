@@ -94,8 +94,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
     // bottom-right indented most. METHOD+OVERVIEW form the right angle.
     <div className="h-full relative bg-[#0a0a0a] font-orbit overflow-hidden dotted-bg">
-      {/* OVERVIEW — top, indented right (shifted up to clear terminal bar) */}
-      <div className="absolute" style={{ left: '23%', top: '3%', width: '67%', height: '30%' }}>
+      {/* OVERVIEW — top, indented right */}
+      <div className="absolute" style={{ left: '23%', top: '5%', width: '67%', height: '34%' }}>
         <HubButton
           variant="top"
           label="OVERVIEW"
@@ -106,7 +106,7 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
       </div>
 
       {/* METHOD — bottom-left, tall narrow (left edge ~6%) */}
-      <div className="absolute" style={{ left: '6%', top: '35%', width: '26%', height: '48%' }}>
+      <div className="absolute" style={{ left: '6%', top: '42%', width: '26%', height: '52%' }}>
         <HubButton
           variant="left"
           label="METHOD"
@@ -119,7 +119,7 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
       {/* TITLE — beside METHOD, below OVERVIEW, wide short */}
       <div
         className="absolute border border-[#2a2a2a] bg-black px-8 flex items-center"
-        style={{ left: '34%', top: '38%', width: '40%', height: '11%' }}
+        style={{ left: '34%', top: '45%', width: '40%', height: '13%' }}
       >
         <div className="text-[#00ff9d] text-[14px] tracking-[0.45em]">
           {projectNode.name.toUpperCase()}
@@ -127,7 +127,7 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
       </div>
 
       {/* RESULTS — bottom-right, indented most */}
-      <div className="absolute" style={{ left: '55%', top: '53%', width: '42%', height: '26%' }}>
+      <div className="absolute" style={{ left: '55%', top: '64%', width: '42%', height: '30%' }}>
         <HubButton
           variant="right"
           label="RESULTS"

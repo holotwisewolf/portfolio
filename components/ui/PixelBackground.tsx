@@ -1520,13 +1520,15 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
         if (p.y < 6) { p.y = 6; p.vy *= -0.98; bounced = true }
         if (p.y > canvas.height - 6) { p.y = canvas.height - 6; p.vy *= -0.98; bounced = true }
 
-        // Panel collision walls — bounce off visible panel edges (ref for live toggle)
-        if (panelCollisionRef.current) {
-          if (p.x < PANEL_LEFT && p.x > PANEL_LEFT - 12) {
-            p.x = PANEL_LEFT; p.vx = Math.abs(p.vx) * PANEL_BOUNCE
+        // Panel collision walls — computed per-frame so canvas.width is always current
+        if (panelCollisionRef.current && canvas.width > 320) {
+          const leftWall = 280
+          const rightWall = canvas.width - 320
+          if (p.x < leftWall && p.x > leftWall - 12) {
+            p.x = leftWall; p.vx = Math.abs(p.vx) * 0.8
           }
-          if (p.x > PANEL_RIGHT && p.x < PANEL_RIGHT + 12) {
-            p.x = PANEL_RIGHT; p.vx = -Math.abs(p.vx) * PANEL_BOUNCE
+          if (p.x > rightWall && p.x < rightWall + 12) {
+            p.x = rightWall; p.vx = -Math.abs(p.vx) * 0.8
           }
         }
 

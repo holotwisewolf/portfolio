@@ -30,17 +30,21 @@
 }
 
 /* Custom Brutalist Cursor */
-/* custom cursor replaces the native one everywhere — including the pointer
-   finger on links/buttons. Resize affordances keep their native cursors:
-   they're load-bearing signals. Also kill text selection on desktop icons. */
+/* custom cursor replaces the native one everywhere. Kill native drag behavior
+   and text selection — the browser's drag ghost and stop-sign cursor are
+   replaced by our custom cursor + selection rectangle. */
 * {
   cursor: none !important;
+  -webkit-user-drag: none !important;
+  user-select: none !important;
 }
 
-[data-desktop-icon] *,
-[data-desktop-icon] {
-  user-select: none !important;
-  -webkit-user-select: none !important;
+/* inputs and textareas still need selection */
+input,
+textarea,
+[contenteditable] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
 
 [class*="cursor-s-resize"]:not(.custom-cursor) {
