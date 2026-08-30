@@ -444,14 +444,6 @@ export default function PixelBackground({ explosionMode = 'space' }: PixelBackgr
       // Increment global frame counter for consistent animation timing
       frameCounterRef.current++
 
-      // Debug: log collision count every 60 frames
-      collisionDebugRef.current.frame++
-      if (collisionDebugRef.current.frame >= 60) {
-        console.log('Collision debug - icons:', document.querySelectorAll('[data-desktop-icon]').length, 'collisions/sec:', collisionDebugRef.current.count)
-        collisionDebugRef.current.count = 0
-        collisionDebugRef.current.frame = 0
-      }
-
       // Update ripple animations
       ripplesRef.current = ripplesRef.current.filter(r => {
         r.frame++

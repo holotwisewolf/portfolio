@@ -220,7 +220,6 @@ export default function PixelBlastBg({
     return () => {
       ro.disconnect()
       cancelAnimationFrame(raf)
-      renderer.domElement.removeEventListener('pointerdown', onPointerDown)
       quad.geometry.dispose()
       material.dispose()
       renderer.dispose()
