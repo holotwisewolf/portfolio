@@ -30,24 +30,14 @@
 }
 
 /* Custom Brutalist Cursor */
-/* custom cursor replaces the native one everywhere. Kill native drag ghosts
-   and desktop icon text selection — but only on non-interactive elements. */
+/* custom cursor replaces the native one everywhere */
 * {
   cursor: none !important;
 }
 
-/* kill drag ghost images globally */
-img, [data-desktop-icon], [data-desktop-icon] * {
+/* kill drag ghost images only (don't touch user-select — it breaks icon drag snapping) */
+img {
   -webkit-user-drag: none !important;
-  user-select: none !important;
-}
-
-/* inputs and textareas still need selection */
-input,
-textarea,
-[contenteditable] {
-  user-select: text !important;
-  -webkit-user-select: text !important;
 }
 
 [class*="cursor-s-resize"]:not(.custom-cursor) {

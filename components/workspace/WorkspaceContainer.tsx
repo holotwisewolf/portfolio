@@ -5,6 +5,7 @@ import { useWindowStore } from '@/components/window-manager/useWindows'
 import WorkspaceBreadcrumb from './WorkspaceBreadcrumb'
 import ProjectSidebar from './ProjectSidebar'
 import FileContentView from './FileContentView'
+import PixelBlastBg from './PixelBlastBg'
 
 const ESC_KEY = 'Escape'
 
@@ -34,6 +35,11 @@ export default function WorkspaceContainer() {
 
   return (
     <div className="absolute inset-0 bg-[#0a0a0a] flex flex-col overflow-hidden font-orbit">
+      {/* PixelBlast background — behind everything, click-through disabled by pointer-events-none */}
+      <div className="absolute inset-0 z-0">
+        <PixelBlastBg color="#00cc77" pixelSize={5} patternScale={3} patternDensity={0.7} speed={0.3} />
+      </div>
+
       <WorkspaceBreadcrumb path={workspacePath} onExit={closeWorkspace} />
 
       <div className="flex-1 flex flex-col md:flex-row min-h-0">

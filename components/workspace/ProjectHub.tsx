@@ -137,10 +137,6 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
         />
       </div>
 
-      {/* path provenance — above the terminal bar */}
-      <div className="absolute top-2 right-6 text-[8px] tracking-[0.25em] text-[#333]">
-        ~/projects/{projectPath.join('/')}
-      </div>
     </div>
   )
 }
