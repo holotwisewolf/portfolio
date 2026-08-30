@@ -30,11 +30,14 @@
 }
 
 /* Custom Brutalist Cursor */
-/* custom cursor replaces the native one everywhere. Kill native drag behavior
-   and text selection — the browser's drag ghost and stop-sign cursor are
-   replaced by our custom cursor + selection rectangle. */
+/* custom cursor replaces the native one everywhere. Kill native drag ghosts
+   and desktop icon text selection — but only on non-interactive elements. */
 * {
   cursor: none !important;
+}
+
+/* kill drag ghost images globally */
+img, [data-desktop-icon], [data-desktop-icon] * {
   -webkit-user-drag: none !important;
   user-select: none !important;
 }

@@ -32,6 +32,7 @@ export default function Desktop() {
   const [icons, setIcons] = useState<DesktopIcon[]>(initialIcons)
   const [draggingIcon, setDraggingIcon] = useState<string | null>(null)
   const [selectionRect, setSelectionRect] = useState<{ startX: number; startY: number; endX: number; endY: number } | null>(null)
+  const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set())
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [currentPosition, setCurrentPosition] = useState<{ x: number; y: number } | null>(null)
   const [snapPosition, setSnapPosition] = useState<{ x: number; y: number } | null>(null)
@@ -272,11 +273,32 @@ export default function Desktop() {
     if (!selectionRect) return
     const rect = desktopRef.current?.getBoundingClientRect()
     if (!rect) return
-    setSelectionRect(prev => prev ? { ...prev, endX: e.clientX - rect.left, endY: e.clientY - rect.top } : null)
+    const endX = e.clientX - rect.left
+    const endY = e.clientY - rect.top
+    setSelectionRect(prev => prev ? { ...prev, endX, endY } : null)
+
+    // highlight icons inside the selection rectangle
+    const left = Math.min(selectionRect.startX, endX)
+    const right = Math.max(selectionRect.startX, endX)
+    const top = Math.min(selectionRect.startY, endY)
+    const bottom = Math.max(selectionRect.startY, endY)
+    const hits = new Set<string>()
+    icons.forEach(icon => {
+      const ix = icon.position.x + padding.left
+      const iy = icon.position.y + padding.top
+      if (ix < right && ix + 80 > left && iy < bottom && iy + 90 > top) {
+        hits.add(icon.id)
+      }
+    })
+    setSelectedIcons(hits)
   }
 
   const handleDesktopMouseUp = () => {
     setSelectionRect(null)
+    // if this was a click (not a drag), clear selection
+    if (selectionRect && Math.abs(selectionRect.endX - selectionRect.startX) < 5 && Math.abs(selectionRect.endY - selectionRect.startY) < 5) {
+      setSelectedIcons(new Set())
+    }
   }
 
   return (
@@ -290,10 +312,10 @@ export default function Desktop() {
       onMouseUp={handleDesktopMouseUp}
       onMouseLeave={handleDesktopMouseUp}
     >
-      {/* Selection rectangle */}
+      {/* Selection rectangle — white, Windows-style */}
       {selectionRect && (
         <div
-          className="absolute border border-[#00ff9d]/60 bg-[#00ff9d]/10 pointer-events-none z-50"
+          className="absolute border border-white/60 bg-white/10 pointer-events-none z-50"
           style={{
             left: Math.min(selectionRect.startX, selectionRect.endX),
             top: Math.min(selectionRect.startY, selectionRect.endY),
@@ -332,6 +354,7 @@ export default function Desktop() {
         const renderX = displayPosition.x + padding.left
         const renderY = displayPosition.y + padding.top
 
+        const isSelected = selectedIcons.has(icon.id)
         return (
           <button
             key={icon.id}
@@ -341,10 +364,12 @@ export default function Desktop() {
             onContextMenu={(e) => handleContextMenu(e, icon.id)}
             className={`icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors ${
               isDragging ? 'cursor-grabbing z-50' : 'cursor-grab'
-            }`}
+            } ${isSelected ? 'bg-white/10 border border-white/40' : ''}`}
             style={{ left: renderX, top: renderY }}
           >
-            <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">
+            <div className={`w-12 h-12 border flex items-center justify-center text-2xl ${
+              isSelected ? 'border-white' : 'border-current'
+            }`}>
               {icon.label[0]}
             </div>
             <span className="text-xs">{icon.label}</span>
