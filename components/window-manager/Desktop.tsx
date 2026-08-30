@@ -253,53 +253,65 @@ export default function Desktop() {
     return () => window.removeEventListener('resize', updatePadding)
   }, [])
 
-  // Selection rectangle — mousedown on empty desktop starts a drag-select
-  const handleDesktopMouseDown = (e: React.MouseEvent) => {
-    // only start selection if clicking on the desktop background (not an icon)
-    const target = e.target as HTMLElement
-    if (target.closest('[data-desktop-icon]')) return
-    if (e.button !== 0) return
-    const rect = desktopRef.current?.getBoundingClientRect()
-    if (!rect) return
-    setSelectionRect({
-      startX: e.clientX - rect.left,
-      startY: e.clientY - rect.top,
-      endX: e.clientX - rect.left,
-      endY: e.clientY - rect.top,
-    })
-  }
-
-  const handleDesktopMouseMove = (e: React.MouseEvent) => {
+  // Selection rectangle — document-level listeners, completely isolated from
+  // the existing React icon-drag event flow (which was breaking when React
+  // handlers were on the same container)
+  useEffect(() => {
     if (!selectionRect) return
-    const rect = desktopRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const endX = e.clientX - rect.left
-    const endY = e.clientY - rect.top
-    setSelectionRect(prev => prev ? { ...prev, endX, endY } : null)
 
-    // highlight icons inside the selection rectangle
-    const left = Math.min(selectionRect.startX, endX)
-    const right = Math.max(selectionRect.startX, endX)
-    const top = Math.min(selectionRect.startY, endY)
-    const bottom = Math.max(selectionRect.startY, endY)
-    const hits = new Set<string>()
-    icons.forEach(icon => {
-      const ix = icon.position.x + padding.left
-      const iy = icon.position.y + padding.top
-      if (ix < right && ix + 80 > left && iy < bottom && iy + 90 > top) {
-        hits.add(icon.id)
-      }
-    })
-    setSelectedIcons(hits)
-  }
+    const onMove = (e: MouseEvent) => {
+      const rect = desktopRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const endX = e.clientX - rect.left
+      const endY = e.clientY - rect.top
+      setSelectionRect(prev => (prev ? { ...prev, endX, endY } : null))
 
-  const handleDesktopMouseUp = () => {
-    setSelectionRect(null)
-    // if this was a click (not a drag), clear selection
-    if (selectionRect && Math.abs(selectionRect.endX - selectionRect.startX) < 5 && Math.abs(selectionRect.endY - selectionRect.startY) < 5) {
-      setSelectedIcons(new Set())
+      const left = Math.min(selectionRect.startX, endX)
+      const right = Math.max(selectionRect.startX, endX)
+      const top = Math.min(selectionRect.startY, endY)
+      const bottom = Math.max(selectionRect.startY, endY)
+      const hits = new Set<string>()
+      icons.forEach(icon => {
+        const ix = icon.position.x + padding.left
+        const iy = icon.position.y + padding.top
+        if (ix < right && ix + 80 > left && iy < bottom && iy + 90 > top) {
+          hits.add(icon.id)
+        }
+      })
+      setSelectedIcons(hits)
     }
-  }
+
+    const onUp = () => {
+      setSelectionRect(null)
+    }
+
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+    return () => {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+  }, [selectionRect?.startX, selectionRect?.startY, icons, padding])
+
+  // Start selection on empty desktop mousedown (document-level, won't interfere with icon drag)
+  useEffect(() => {
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return
+      const target = e.target as HTMLElement
+      if (target.closest('[data-desktop-icon]')) return
+      const desktop = desktopRef.current
+      if (!desktop || !desktop.contains(target)) return
+      const rect = desktop.getBoundingClientRect()
+      setSelectionRect({
+        startX: e.clientX - rect.left,
+        startY: e.clientY - rect.top,
+        endX: e.clientX - rect.left,
+        endY: e.clientY - rect.top,
+      })
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [])
 
   return (
     <div
@@ -307,10 +319,6 @@ export default function Desktop() {
       className="relative h-full w-full"
       onContextMenu={(e) => handleContextMenu(e)}
       onClick={closeContextMenu}
-      onMouseDown={handleDesktopMouseDown}
-      onMouseMove={handleDesktopMouseMove}
-      onMouseUp={handleDesktopMouseUp}
-      onMouseLeave={handleDesktopMouseUp}
     >
       {/* Selection rectangle — white, Windows-style */}
       {selectionRect && (
@@ -364,12 +372,15 @@ export default function Desktop() {
             onContextMenu={(e) => handleContextMenu(e, icon.id)}
             className={`icon-triple-hover absolute flex flex-col items-center gap-1 p-2 transition-colors ${
               isDragging ? 'cursor-grabbing z-50' : 'cursor-grab'
-            } ${isSelected ? 'bg-white/10 border border-white/40' : ''}`}
-            style={{ left: renderX, top: renderY }}
+            }`}
+            style={{
+              left: renderX,
+              top: renderY,
+              outline: isSelected ? '1px solid rgba(255,255,255,0.5)' : 'none',
+              outlineOffset: isSelected ? '2px' : '0',
+            }}
           >
-            <div className={`w-12 h-12 border flex items-center justify-center text-2xl ${
-              isSelected ? 'border-white' : 'border-current'
-            }`}>
+            <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">
               {icon.label[0]}
             </div>
             <span className="text-xs">{icon.label}</span>

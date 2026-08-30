@@ -173,7 +173,7 @@ export default function PixelBlastBg({
       uPixelSize: { value: pixelSize * renderer.getPixelRatio() },
       uScale: { value: patternScale },
       uDensity: { value: patternDensity },
-      uEnableRipples: { value: 1 },
+      uEnableRipples: { value: 0 },
       uRippleSpeed: { value: 0.4 },
       uRippleThickness: { value: 0.12 },
       uRippleIntensity: { value: 1.5 },
@@ -206,20 +206,7 @@ export default function PixelBlastBg({
     const ro = new ResizeObserver(setSize)
     ro.observe(container)
 
-    let clickIx = 0
-    const onPointerDown = (e: PointerEvent) => {
-      const rect = renderer.domElement.getBoundingClientRect()
-      const fx = ((e.clientX - rect.left) / rect.width) * renderer.domElement.width
-      const fy = renderer.domElement.height - ((e.clientY - rect.top) / rect.height) * renderer.domElement.height
-      uniforms.uClickPos.value[clickIx].set(
-        (fx / renderer.domElement.width - 0.5) * (renderer.domElement.width / renderer.domElement.height),
-        fy / renderer.domElement.height - 0.5
-      )
-      uniforms.uClickTimes.value[clickIx] = uniforms.uTime.value
-      clickIx = (clickIx + 1) % 10
-    }
-    renderer.domElement.addEventListener('pointerdown', onPointerDown, { passive: true })
-
+    // no click ripples — they intercept navigation clicks
     let raf = 0
     const animate = () => {
       uniforms.uTime.value = clock.getElapsedTime() * speed

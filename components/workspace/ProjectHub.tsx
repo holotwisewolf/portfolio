@@ -3,6 +3,7 @@
 import { useWindowStore } from '@/components/window-manager/useWindows'
 import type { FolderNode } from './registry'
 import { BracketHover } from './brackets'
+import PixelBlastBg from './PixelBlastBg'
 
 interface Props {
   projectNode: FolderNode
@@ -33,7 +34,7 @@ function HubButton({
 }) {
   // ponytail: shared button class, fills its positioned wrapper. No overflow-hidden — edge pixels must protrude.
   const base =
-    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-white hover:bg-[#101010] transition-colors text-left overflow-visible'
+    'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-white hover:bg-[#101010] transition-colors text-left overflow-visible z-10'
   return (
     <button onClick={onClick} className={base}>
       <BracketHover />
@@ -93,7 +94,11 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     // further right (23% → 36% → 57% left edges). METHOD anchors bottom-left
     // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
     // bottom-right indented most. METHOD+OVERVIEW form the right angle.
-    <div className="h-full relative bg-[#0a0a0a] font-orbit overflow-hidden dotted-bg">
+    <div className="h-full relative bg-[#0a0a0a] font-orbit overflow-hidden">
+      {/* PixelBlast — behind the cards, subtle white dither */}
+      <div className="absolute inset-0 z-0">
+        <PixelBlastBg color="#ffffff" pixelSize={5} patternScale={3} patternDensity={0.6} speed={0.2} />
+      </div>
       {/* OVERVIEW — top, indented right (6% above original for terminal clearance) */}
       <div className="absolute" style={{ left: '23%', top: '1%', width: '67%', height: '34%' }}>
         <HubButton
@@ -118,7 +123,7 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
 
       {/* TITLE — beside METHOD, below OVERVIEW, wide short */}
       <div
-        className="absolute border border-[#2a2a2a] bg-black px-8 flex items-center"
+        className="absolute border border-[#2a2a2a] bg-black px-8 flex items-center z-10"
         style={{ left: '34%', top: '41%', width: '40%', height: '13%' }}
       >
         <div className="text-[#00ff9d] text-[14px] tracking-[0.45em]">
