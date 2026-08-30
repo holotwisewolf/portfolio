@@ -3,7 +3,6 @@
 import { useWindowStore } from '@/components/window-manager/useWindows'
 import type { FolderNode } from './registry'
 import { BracketHover } from './brackets'
-import PixelBlastBg from './PixelBlastBg'
 
 interface Props {
   projectNode: FolderNode
@@ -95,10 +94,6 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     // tall; OVERVIEW top indented; TITLE beside METHOD wide-short; RESULTS
     // bottom-right indented most. METHOD+OVERVIEW form the right angle.
     <div className="h-full relative bg-[#0a0a0a] font-orbit overflow-hidden">
-      {/* PixelBlast — behind the cards, subtle white dither */}
-      <div className="absolute inset-0 z-0">
-        <PixelBlastBg color="#ffffff" pixelSize={5} patternScale={3} patternDensity={0.6} speed={0.2} />
-      </div>
       {/* OVERVIEW — top, indented right (6% above original for terminal clearance) */}
       <div className="absolute" style={{ left: '23%', top: '1%', width: '67%', height: '34%' }}>
         <HubButton

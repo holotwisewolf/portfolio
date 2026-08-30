@@ -5,7 +5,6 @@ import { useWindowStore } from '@/components/window-manager/useWindows'
 import WorkspaceBreadcrumb from './WorkspaceBreadcrumb'
 import ProjectSidebar from './ProjectSidebar'
 import FileContentView from './FileContentView'
-import PixelBlastBg from './PixelBlastBg'
 
 const ESC_KEY = 'Escape'
 
