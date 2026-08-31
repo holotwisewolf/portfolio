@@ -23,20 +23,31 @@ function HubButton({
   blurb,
   variant,
   fileCount,
+  files,
   onClick,
 }: {
   label: string
   blurb: string
   variant: 'top' | 'left' | 'right'
   fileCount: number
+  files: string[]
   onClick: () => void
 }) {
-  // ponytail: shared button class, fills its positioned wrapper. No overflow-hidden — edge pixels must protrude.
   const base =
     'group relative w-full h-full block border border-white bg-[#0a0a0a] hover:border-white hover:bg-[#101010] transition-colors text-left overflow-visible z-10'
   return (
     <button onClick={onClick} className={base}>
       <BracketHover />
+      {/* hover tooltip — shows contents */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 hidden group-hover:block pointer-events-none z-20 bg-black border border-[#333] px-4 py-3 min-w-[180px]">
+        <div className="text-[8px] tracking-[0.25em] text-[#555] uppercase mb-2">Contains</div>
+        {files.slice(0, 5).map((f) => (
+          <div key={f} className="text-[10px] text-[#999] font-orbit leading-relaxed">{f}</div>
+        ))}
+        {files.length > 5 && (
+          <div className="text-[9px] text-[#444] mt-1">+{files.length - 5} more</div>
+        )}
+      </div>
       {/* giant faint section numeral */}
       <div
         className="absolute font-orbit leading-none text-[#161616] group-hover:text-[#242424] transition-colors select-none pointer-events-none"
@@ -83,9 +94,9 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
     navigate([...projectPath, ...CATEGORY_TARGETS[category]])
   }
 
-  const countOf = (folder: string) => {
+  const filesOf = (folder: string): string[] => {
     const child = projectNode.children.find((c) => c.name === folder)
-    return child && 'children' in child ? child.children.length : 0
+    return child && 'children' in child ? child.children.map(c => c.name) : []
   }
 
   return (
@@ -100,7 +111,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
           variant="top"
           label="OVERVIEW"
           blurb="What it is. The pitch, the takeaways, the one-screen version."
-          fileCount={countOf('overview')}
+          fileCount={filesOf('overview').length}
+          files={filesOf('overview')}
           onClick={() => go('OVERVIEW')}
         />
       </div>
@@ -111,7 +123,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
           variant="left"
           label="METHOD"
           blurb="Formulas, parameters, data pipeline."
-          fileCount={countOf('method')}
+          fileCount={filesOf('method').length}
+          files={filesOf('method')}
           onClick={() => go('METHOD')}
         />
       </div>
@@ -132,7 +145,8 @@ export default function ProjectHub({ projectNode, projectPath }: Props) {
           variant="right"
           label="RESULTS"
           blurb="Measured numbers, real-data demos, false-positive autopsies."
-          fileCount={countOf('results')}
+          fileCount={filesOf('results').length}
+          files={filesOf('results')}
           onClick={() => go('RESULTS')}
         />
       </div>
