@@ -253,47 +253,13 @@ export default function Desktop() {
     return () => window.removeEventListener('resize', updatePadding)
   }, [])
 
-  // Selection rectangle — document-level listeners, completely isolated from
-  // the existing React icon-drag event flow (which was breaking when React
-  // handlers were on the same container)
-  useEffect(() => {
-    if (!selectionRect) return
+  // Selection rectangle — refs for mouse state, no re-render on move
+  const selectionStartRef = useRef<{ x: number; y: number } | null>(null)
+  const iconsRef = useRef(icons)
+  const paddingRef = useRef(padding)
+  iconsRef.current = icons
+  paddingRef.current = padding
 
-    const onMove = (e: MouseEvent) => {
-      const rect = desktopRef.current?.getBoundingClientRect()
-      if (!rect) return
-      const endX = e.clientX - rect.left
-      const endY = e.clientY - rect.top
-      setSelectionRect(prev => (prev ? { ...prev, endX, endY } : null))
-
-      const left = Math.min(selectionRect.startX, endX)
-      const right = Math.max(selectionRect.startX, endX)
-      const top = Math.min(selectionRect.startY, endY)
-      const bottom = Math.max(selectionRect.startY, endY)
-      const hits = new Set<string>()
-      icons.forEach(icon => {
-        const ix = icon.position.x + padding.left
-        const iy = icon.position.y + padding.top
-        if (ix < right && ix + 80 > left && iy < bottom && iy + 90 > top) {
-          hits.add(icon.id)
-        }
-      })
-      setSelectedIcons(hits)
-    }
-
-    const onUp = () => {
-      setSelectionRect(null)
-    }
-
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-    return () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-    }
-  }, [selectionRect?.startX, selectionRect?.startY, icons, padding])
-
-  // Start selection on empty desktop mousedown (document-level, won't interfere with icon drag)
   useEffect(() => {
     const onMouseDown = (e: MouseEvent) => {
       if (e.button !== 0) return
@@ -301,7 +267,9 @@ export default function Desktop() {
       if (target.closest('[data-desktop-icon]')) return
       const desktop = desktopRef.current
       if (!desktop || !desktop.contains(target)) return
+
       const rect = desktop.getBoundingClientRect()
+      selectionStartRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
       setSelectionRect({
         startX: e.clientX - rect.left,
         startY: e.clientY - rect.top,
@@ -309,9 +277,53 @@ export default function Desktop() {
         endY: e.clientY - rect.top,
       })
     }
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!selectionStartRef.current) return
+      const rect = desktopRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const endX = e.clientX - rect.left
+      const endY = e.clientY - rect.top
+      setSelectionRect({ startX: selectionStartRef.current.x, startY: selectionStartRef.current.y, endX, endY })
+
+      // highlight icons inside the rectangle
+      const s = selectionStartRef.current
+      const left = Math.min(s.x, endX)
+      const right = Math.max(s.x, endX)
+      const top = Math.min(s.y, endY)
+      const bottom = Math.max(s.y, endY)
+      const hits = new Set<string>()
+      iconsRef.current.forEach(icon => {
+        const ix = icon.position.x + paddingRef.current.left
+        const iy = icon.position.y + paddingRef.current.top
+        if (ix < right && ix + 80 > left && iy < bottom && iy + 90 > top) {
+          hits.add(icon.id)
+        }
+      })
+      setSelectedIcons(hits)
+    }
+
+    const onMouseUp = () => {
+      if (!selectionStartRef.current) return
+      const s = selectionStartRef.current
+      selectionStartRef.current = null
+      setSelectionRect(null)
+
+      // if it was a click (not a drag), clear selection
+      if (selectionRect && Math.abs(selectionRect.endX - s.x) < 5 && Math.abs(selectionRect.endY - s.y) < 5) {
+        setSelectedIcons(new Set())
+      }
+    }
+
     document.addEventListener('mousedown', onMouseDown)
-    return () => document.removeEventListener('mousedown', onMouseDown)
-  }, [])
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown)
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+  }, []) // empty deps — refs for everything, listeners never re-attach
 
   return (
     <div
@@ -376,8 +388,9 @@ export default function Desktop() {
             style={{
               left: renderX,
               top: renderY,
-              outline: isSelected ? '1px solid rgba(255,255,255,0.5)' : 'none',
-              outlineOffset: isSelected ? '2px' : '0',
+              background: isSelected ? 'rgba(255,255,255,0.08)' : 'transparent',
+              outline: isSelected ? '1px solid rgba(255,255,255,0.4)' : 'none',
+              outlineOffset: isSelected ? '1px' : '0',
             }}
           >
             <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">

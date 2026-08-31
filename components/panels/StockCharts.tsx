@@ -193,7 +193,7 @@ export default function StockCharts() {
 
         {/* Activity Dots - right under header */}
         <div className="mb-3">
-          <div className="text-[#555] mb-1">COMMIT ACTIVITY</div>
+          <div className="text-[10px] text-[#555] mb-1">COMMIT ACTIVITY</div>
           <ActivityGrid dots={30} commits={commitActivity} />
         </div>
 
@@ -203,7 +203,7 @@ export default function StockCharts() {
           rel="noopener noreferrer"
           className="flex justify-between py-1.5 border-b border-[#161616]"
         >
-          <span className="text-[#555] hover:text-white transition-colors">REPOSITORIES</span>
+          <span className="text-[10px] text-[#555] hover:text-white transition-colors">REPOSITORIES</span>
           <span className="text-[10px] text-[#999]">
             {githubStats.repos}
           </span>

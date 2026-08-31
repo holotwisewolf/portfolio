@@ -14,23 +14,21 @@ interface Props {
 // white border with a heavy RIGHT edge, blinking red mark, hard offset shadow.
 // Click collapses the text into the right side, leaving just the blinking mark.
 function ResultsStatusBar() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   return (
     <button
       onClick={() => setOpen(!open)}
       title="MEASURED RESULTS ONLY · EVERY POSITIVE CARRIES ITS COUNTER-ARGUMENT"
-      className="absolute top-4 right-4 z-30 zc-rise flex items-center gap-3 border border-white border-r-[3px] bg-black/90 py-[7px] pl-3 pr-2 shadow-[4px_4px_0_#000] max-w-[75%]"
+      className="absolute top-4 right-4 z-30 zc-rise flex items-center gap-2 group"
     >
       <span
-        className={`text-[8px] tracking-[0.25em] text-white leading-relaxed whitespace-nowrap overflow-hidden transition-all duration-300 ${
+        className={`text-[8px] tracking-[0.25em] text-[#999] leading-relaxed whitespace-nowrap overflow-hidden transition-all duration-300 ${
           open ? 'max-w-[440px] opacity-100' : 'max-w-0 opacity-0'
         }`}
       >
         MEASURED RESULTS ONLY · EVERY POSITIVE CARRIES ITS COUNTER-ARGUMENT
       </span>
-      <span className="w-[9px] h-[9px] border border-[#ef4444] flex items-center justify-center flex-shrink-0">
-        <span className="w-[3px] h-[3px] bg-[#ef4444] blink-dot" />
-      </span>
+      <span className="w-[8px] h-[8px] rounded-full bg-[#ef4444] blink-dot flex-shrink-0 group-hover:scale-125 transition-transform" />
     </button>
   )
 }
