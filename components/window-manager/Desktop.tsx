@@ -72,6 +72,9 @@ export default function Desktop() {
   }
 
   // Handle icon drag start
+  // group drag: store original positions of all selected icons
+  const groupDragOriginsRef = useRef<{ id: string; x: number; y: number }[] | null>(null)
+
   const handleIconMouseDown = (e: React.MouseEvent, icon: DesktopIcon) => {
     if (e.button !== 0) return
 
@@ -80,6 +83,15 @@ export default function Desktop() {
 
     const rect = (e.target as HTMLElement).closest('button')?.getBoundingClientRect()
     if (!rect) return
+
+    // if dragging a selected icon, capture origins of all selected for group move
+    if (selectedIcons.has(icon.id) && selectedIcons.size > 1) {
+      groupDragOriginsRef.current = icons
+        .filter(i => selectedIcons.has(i.id))
+        .map(i => ({ id: i.id, x: i.position.x, y: i.position.y }))
+    } else {
+      groupDragOriginsRef.current = null
+    }
 
     setDragOffset({
       x: e.clientX - rect.left,
@@ -146,30 +158,46 @@ export default function Desktop() {
     const finalPosition = snapPosition || currentPosition
 
     if (finalPosition) {
-      setIcons(prev => {
-        // Check if another icon is at the target position
-        const targetIcon = prev.find(icon =>
-          icon.id !== draggingIcon &&
-          Math.abs(icon.position.x - finalPosition.x) < 5 &&
-          Math.abs(icon.position.y - finalPosition.y) < 5
-        )
+      const origins = groupDragOriginsRef.current
+      const draggedOrigin = origins?.find(o => o.id === draggingIcon)
 
-        const draggedIcon = prev.find(icon => icon.id === draggingIcon)
-        const originalPosition = draggedIcon?.position
-
-        return prev.map(icon => {
-          if (icon.id === draggingIcon) {
-            return { ...icon, position: finalPosition }
-          }
-          if (targetIcon && icon.id === targetIcon.id && originalPosition) {
-            // Swap positions
-            return { ...icon, position: originalPosition }
+      if (origins && draggedOrigin) {
+        // group drag: apply delta to all selected icons
+        const deltaX = finalPosition.x - draggedOrigin.x
+        const deltaY = finalPosition.y - draggedOrigin.y
+        setIcons(prev => prev.map(icon => {
+          const origin = origins.find(o => o.id === icon.id)
+          if (origin) {
+            return { ...icon, position: { x: origin.x + deltaX, y: origin.y + deltaY } }
           }
           return icon
+        }))
+      } else {
+        // single drag (existing behavior)
+        setIcons(prev => {
+          const targetIcon = prev.find(icon =>
+            icon.id !== draggingIcon &&
+            Math.abs(icon.position.x - finalPosition.x) < 5 &&
+            Math.abs(icon.position.y - finalPosition.y) < 5
+          )
+
+          const draggedIcon = prev.find(icon => icon.id === draggingIcon)
+          const originalPosition = draggedIcon?.position
+
+          return prev.map(icon => {
+            if (icon.id === draggingIcon) {
+              return { ...icon, position: finalPosition }
+            }
+            if (targetIcon && icon.id === targetIcon.id && originalPosition) {
+              return { ...icon, position: originalPosition }
+            }
+            return icon
+          })
         })
-      })
+      }
     }
 
+    groupDragOriginsRef.current = null
     setDraggingIcon(null)
     setCurrentPosition(null)
     setSnapPosition(null)
@@ -388,9 +416,7 @@ export default function Desktop() {
             style={{
               left: renderX,
               top: renderY,
-              background: isSelected ? 'rgba(255,255,255,0.08)' : 'transparent',
-              outline: isSelected ? '1px solid rgba(255,255,255,0.4)' : 'none',
-              outlineOffset: isSelected ? '1px' : '0',
+              ...(isSelected ? { background: 'rgba(255,255,255,0.08)', outline: '1px solid rgba(255,255,255,0.4)', outlineOffset: '1px' } : {}),
             }}
           >
             <div className="w-12 h-12 border border-current flex items-center justify-center text-2xl">

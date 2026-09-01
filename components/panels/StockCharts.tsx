@@ -193,7 +193,7 @@ export default function StockCharts() {
 
         {/* Activity Dots - right under header */}
         <div className="mb-3">
-          <div className="text-[10px] text-[#555] mb-1">COMMIT ACTIVITY</div>
+          <div className="text-[10px] text-[#555] mb-1">Commit activity</div>
           <ActivityGrid dots={30} commits={commitActivity} />
         </div>
 
